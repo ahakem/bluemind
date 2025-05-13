@@ -1,0 +1,126 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto:wght@300;400;500&family=Montserrat:wght@400;500;600&display=swap');
+
+:root {
+  --background: 0 0% 100%;
+  --foreground: 20 14.3% 4.1%;
+  --muted: 60 4.8% 95.9%;
+  --muted-foreground: 25 5.3% 44.7%;
+  --popover: 0 0% 100%;
+  --popover-foreground: 20 14.3% 4.1%;
+  --card: 0 0% 100%;
+  --card-foreground: 20 14.3% 4.1%;
+  --border: 20 5.9% 90%;
+  --input: 20 5.9% 90%;
+  
+  /* Primary: Ocean blue */
+  --primary: 210 100% 35%;
+  --primary-light: 210 76% 46%;
+  --primary-dark: 210 100% 28%;
+  --primary-foreground: 0 0% 100%;
+  
+  /* Secondary: Aqua teal */
+  --secondary: 187 100% 42%;
+  --secondary-light: 187 71% 54%;
+  --secondary-dark: 187 100% 35%;
+  --secondary-foreground: 0 0% 100%;
+  
+  /* Accent: Coral orange */
+  --accent: 16 100% 57%;
+  --accent-light: 16 100% 65%;
+  --accent-dark: 16 100% 50%;
+  --accent-foreground: 0 0% 100%;
+  
+  --destructive: 0 84.2% 60.2%;
+  --destructive-foreground: 60 9.1% 97.8%;
+  --ring: 20 14.3% 4.1%;
+  --radius: 0.5rem;
+  
+  --chart-1: 210 100% 35%;
+  --chart-2: 187 100% 42%;
+  --chart-3: 16 100% 57%;
+  --chart-4: 262 83% 58%;
+  --chart-5: 187 75% 64%;
+}
+
+.dark {
+  --background: 240 10% 3.9%;
+  --foreground: 0 0% 98%;
+  --muted: 240 3.7% 15.9%;
+  --muted-foreground: 240 5% 64.9%;
+  --popover: 240 10% 3.9%;
+  --popover-foreground: 0 0% 98%;
+  --card: 240 10% 3.9%;
+  --card-foreground: 0 0% 98%;
+  --border: 240 3.7% 15.9%;
+  --input: 240 3.7% 15.9%;
+  --primary: 210 100% 45%;
+  --primary-foreground: 0 0% 98%;
+  --secondary: 187 100% 42%;
+  --secondary-foreground: 0 0% 98%;
+  --accent: 16 100% 57%;
+  --accent-foreground: 0 0% 98%;
+  --destructive: 0 62.8% 30.6%;
+  --destructive-foreground: 0 0% 98%;
+  --ring: 240 4.9% 83.9%;
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  
+  html {
+    scroll-behavior: smooth;
+  }
+  
+  body {
+    @apply font-roboto text-gray-800 bg-gray-50;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-poppins;
+  }
+}
+
+@layer components {
+  .text-shadow {
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.3);
+  }
+  
+  .bg-overlay {
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+  
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+  
+  @keyframes float {
+    0%, 100% { 
+      transform: translateY(0); 
+    }
+    50% { 
+      transform: translateY(-10px); 
+    }
+  }
+  
+  .section-title {
+    @apply font-montserrat text-primary text-lg mb-2;
+  }
+  
+  .section-heading {
+    @apply font-poppins font-bold text-3xl md:text-4xl;
+  }
+  
+  .card-shadow {
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+  
+  .card-shadow-hover {
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+  }
+}
