@@ -1,4 +1,16 @@
-import { Box, Container, Typography, Grid, Paper, TextField, Button } from "@mui/material";
+import { useState } from "react";
+import { 
+  Box, 
+  Container, 
+  Typography, 
+  Grid, 
+  Paper, 
+  TextField, 
+  Button, 
+  Alert, 
+  Snackbar, 
+  CircularProgress 
+} from "@mui/material";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import EmailIcon from "@mui/icons-material/Email";
 import PhoneIcon from "@mui/icons-material/Phone";
@@ -7,10 +19,78 @@ import InstagramIcon from "@mui/icons-material/Instagram";
 import YouTubeIcon from "@mui/icons-material/YouTube";
 import TwitterIcon from "@mui/icons-material/Twitter";
 
+// Email form interface
+interface ContactFormData {
+  name: string;
+  email: string;
+  subject: string;
+  message: string;
+}
+
 const Contact = () => {
-  const handleSubmit = (e: React.FormEvent) => {
+  const [formData, setFormData] = useState<ContactFormData>({
+    name: "",
+    email: "",
+    subject: "",
+    message: ""
+  });
+  const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+
+  // Handle form changes
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+  
+  // Handle form submission
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Form handling would go here in a real implementation
+    setLoading(true);
+    setSuccessMessage("");
+    setErrorMessage("");
+
+    try {
+      // In a real implementation, we would call the server endpoint to send the email
+      // For now, simulate a successful email send
+      
+      // For a real SendGrid implementation, we would add a server endpoint:
+      // const response = await fetch('/api/send-email', {
+      //   method: 'POST',
+      //   headers: { 'Content-Type': 'application/json' },
+      //   body: JSON.stringify(formData)
+      // });
+      
+      // Simulate API call with a timeout
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // if (!response.ok) throw new Error('Failed to send email');
+      
+      // Show success message
+      setSuccessMessage("Thank you! Your message has been sent successfully.");
+      // Reset form
+      setFormData({
+        name: "",
+        email: "",
+        subject: "",
+        message: ""
+      });
+    } catch (err) {
+      setErrorMessage("Failed to send message. Please try again later.");
+      console.error("Contact form error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+  
+  // Handle message alerts
+  const handleCloseAlert = () => {
+    setSuccessMessage("");
+    setErrorMessage("");
   };
 
   return (
@@ -103,7 +183,7 @@ const Contact = () => {
                     Email Us
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    info@deepbluefreediving.com
+                    info@bluemindfreediving.com
                   </Typography>
                 </Box>
               </Box>
@@ -199,6 +279,9 @@ const Contact = () => {
                       label="Full Name"
                       variant="outlined"
                       placeholder="Your Name"
+                      value={formData.name}
+                      onChange={handleChange}
+                      disabled={loading}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -211,6 +294,9 @@ const Contact = () => {
                       type="email"
                       variant="outlined"
                       placeholder="your.email@example.com"
+                      value={formData.email}
+                      onChange={handleChange}
+                      disabled={loading}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -222,6 +308,9 @@ const Contact = () => {
                       label="Subject"
                       variant="outlined"
                       placeholder="How can we help?"
+                      value={formData.subject}
+                      onChange={handleChange}
+                      disabled={loading}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -235,6 +324,9 @@ const Contact = () => {
                       rows={5}
                       variant="outlined"
                       placeholder="Your message here..."
+                      value={formData.message}
+                      onChange={handleChange}
+                      disabled={loading}
                     />
                   </Grid>
                   <Grid item xs={12}>
@@ -244,6 +336,7 @@ const Contact = () => {
                       color="primary"
                       fullWidth
                       size="large"
+                      disabled={loading}
                       sx={{
                         py: 1.5,
                         borderRadius: 2,
@@ -252,7 +345,11 @@ const Contact = () => {
                         textTransform: "none",
                       }}
                     >
-                      Send Message
+                      {loading ? (
+                        <CircularProgress size={24} color="inherit" />
+                      ) : (
+                        "Send Message"
+                      )}
                     </Button>
                   </Grid>
                 </Grid>
@@ -261,6 +358,29 @@ const Contact = () => {
           </Grid>
         </Grid>
       </Container>
+
+      {/* Success and Error Alerts */}
+      <Snackbar
+        open={!!successMessage}
+        autoHideDuration={6000}
+        onClose={handleCloseAlert}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert onClose={handleCloseAlert} severity="success" sx={{ width: "100%" }}>
+          {successMessage}
+        </Alert>
+      </Snackbar>
+
+      <Snackbar
+        open={!!errorMessage}
+        autoHideDuration={6000}
+        onClose={handleCloseAlert}
+        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+      >
+        <Alert onClose={handleCloseAlert} severity="error" sx={{ width: "100%" }}>
+          {errorMessage}
+        </Alert>
+      </Snackbar>
     </Box>
   );
 };

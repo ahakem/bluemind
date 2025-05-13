@@ -1,0 +1,55 @@
+# Blue Mind Freediving Club
+## Membership Application Form
+
+PERSONAL INFORMATION
+-------------------
+Full Name: ________________________________
+Date of Birth: ___/___/______
+Address: _________________________________
+City: _____________ State: ____ Zip: _______
+Phone: __________________________________
+Email: __________________________________
+
+EMERGENCY CONTACT
+----------------
+Name: ___________________________________
+Relationship: ____________________________
+Phone: __________________________________
+
+FREEDIVING EXPERIENCE
+-------------------
+□ Beginner (No experience)
+□ Intermediate (Some experience, basic training)
+□ Advanced (Certified, experienced)
+
+Certifications (if any): ___________________
+
+HEALTH DECLARATION
+----------------
+Do you have any medical conditions that could affect your freediving activities?
+□ Yes □ No
+
+If yes, please specify: ____________________
+
+MEMBERSHIP TYPE
+--------------
+□ Monthly ($_____)
+□ Annual ($_____)
+□ Student ($_____)
+
+TERMS AND CONDITIONS
+------------------
+1. I confirm that all information provided is accurate and complete.
+2. I understand that freediving involves inherent risks, and I participate at my own risk.
+3. I agree to follow all safety protocols and instructor guidance during training sessions.
+4. I confirm that I have adequate health/accident insurance coverage.
+5. I permit Blue Mind Freediving to use photos/videos from club activities for promotional purposes.
+
+Signature: _______________________________
+Date: ___/___/______
+
+OFFICE USE ONLY
+-------------
+Received by: _____________________________
+Date processed: ___/___/______
+Membership ID: __________________________
