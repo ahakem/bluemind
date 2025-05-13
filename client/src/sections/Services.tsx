@@ -3,14 +3,32 @@ import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { services } from "../data";
 
-// Why Choose Us reasons
-const reasons = [
-  "Experienced Freediving Instructors",
-  "Structured Pool Training Sessions",
-  "Individualized Coaching",
-  "Focus on Breath Control Techniques",
-  "Mental Training Integration",
-  "Small Group Sizes",
+// Why Choose Us reasons with extended descriptions
+const reasonsData = [
+  {
+    title: "Experienced Instructors",
+    description: "Learn from certified freediving professionals with years of training experience in both pool and open water environments."
+  },
+  {
+    title: "Safety First Approach",
+    description: "Our priority is your safety with proper supervision, buddy systems, and strict adherence to international freediving standards."
+  },
+  {
+    title: "Personalized Coaching",
+    description: "Receive individual feedback and technique adjustments in small groups to improve your skills more effectively."
+  },
+  {
+    title: "Mental Training",
+    description: "Develop advanced relaxation and focus techniques essential for extending breath-hold times and reducing anxiety."
+  },
+  {
+    title: "Progressive Methods",
+    description: "Follow our structured training methodology designed to build skills incrementally at your own pace."
+  },
+  {
+    title: "Supportive Community",
+    description: "Join Amsterdam's dedicated freediving community where members support each other's growth and celebrate achievements."
+  },
 ];
 
 const Services = () => {
@@ -24,7 +42,7 @@ const Services = () => {
             color="primary"
             mb={1}
           >
-            Our Programs
+            What We Offer
           </Typography>
           <Typography
             variant="h3"
@@ -170,72 +188,140 @@ const Services = () => {
           ))}
         </Grid>
 
-        {/* Why Choose Us section */}
+        {/* Why Choose Us section - Redesigned */}
         <Box 
           sx={{ 
             mt: 12,
             mb: 6,
-            p: 4, 
+            position: "relative",
             borderRadius: 4,
-            backgroundColor: "#f5f5f5",
-            backgroundImage: "radial-gradient(#e0e0e0 1px, transparent 1px)",
-            backgroundSize: "20px 20px",
+            overflow: "hidden",
+            boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+            background: "linear-gradient(135deg, #f0f7ff 0%, #e6f0ff 100%)",
+            p: { xs: 4, md: 6 },
           }}
         >
-          <Box sx={{ textAlign: "center", mb: 6 }}>
-            <Typography
-              variant="subtitle1"
-              fontFamily="Montserrat"
-              color="primary"
-              mb={1}
-            >
-              Our Promise
-            </Typography>
-            <Typography
-              variant="h4"
-              fontFamily="Poppins"
-              fontWeight={700}
-              mb={1}
-            >
-              Why Choose Us
-            </Typography>
-            <Box sx={{ width: 60, height: 3, bgcolor: "accent.main", mx: "auto", mt: 2, mb: 1 }} />
-          </Box>
-          
-          <Box sx={{ 
-            display: "flex",
-            flexWrap: "wrap",
-            gap: 2,
-            justifyContent: "center",
-            maxWidth: "900px",
-            mx: "auto"
-          }}>
-            {reasons.map((reason, index) => (
-              <Paper
-                key={index}
-                elevation={2}
-                sx={{
-                  p: 2,
-                  borderRadius: 3,
-                  display: "flex",
-                  alignItems: "center",
-                  flexBasis: { xs: "100%", sm: "calc(50% - 16px)", md: "calc(33.333% - 16px)" },
-                  backgroundColor: "white",
-                  transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
-                  "&:hover": {
-                    transform: "translateY(-5px)",
-                    boxShadow: 4
-                  }
+          {/* Background pattern */}
+          <Box
+            sx={{
+              position: "absolute",
+              top: 0,
+              left: 0,
+              right: 0,
+              bottom: 0,
+              opacity: 0.04,
+              backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%230057B8' fill-opacity='1'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
+            }}
+          />
+
+          <Box sx={{ position: "relative", zIndex: 1 }}>
+            <Box sx={{ textAlign: "center", mb: 6 }}>
+              <Typography
+                variant="subtitle1"
+                fontFamily="Montserrat"
+                color="primary"
+                mb={1}
+              >
+                Freediving Excellence
+              </Typography>
+              <Typography
+                variant="h3"
+                fontFamily="Poppins"
+                fontWeight={700}
+                mb={2}
+              >
+                Why Choose Us
+              </Typography>
+              <Box 
+                sx={{ 
+                  width: 80, 
+                  height: 3, 
+                  background: "linear-gradient(90deg, #035497 0%, #4191FF 100%)", 
+                  mx: "auto", 
+                  mb: 3 
+                }} 
+              />
+              <Typography 
+                variant="body1" 
+                color="text.secondary"
+                sx={{ 
+                  maxWidth: 700, 
+                  mx: "auto", 
+                  mb: 4,
+                  px: 2
                 }}
               >
-                <CheckCircleIcon sx={{ color: "primary.main", mr: 1.5, fontSize: 22 }} />
-                <Typography variant="body1" fontWeight={500}>{reason}</Typography>
-              </Paper>
-            ))}
+                Blue Mind Freediving offers a unique approach to pool training that focuses on technical skill development, 
+                mental preparation, and a supportive community environment.
+              </Typography>
+            </Box>
+            
+            <Grid container spacing={3}>
+              {reasonsData.map((reason, index) => (
+                <Grid item xs={12} sm={6} md={4} key={index}>
+                  <Card
+                    elevation={0}
+                    sx={{
+                      p: 3,
+                      height: "100%",
+                      borderRadius: 3,
+                      backgroundColor: "rgba(255,255,255,0.9)",
+                      border: "1px solid rgba(0,0,0,0.05)",
+                      transition: "all 0.3s ease",
+                      display: "flex",
+                      flexDirection: "column",
+                      "&:hover": {
+                        transform: "translateY(-6px)",
+                        boxShadow: "0 10px 30px rgba(0,87,184,0.1)",
+                        borderColor: "rgba(0,87,184,0.2)"
+                      }
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: "flex",
+                        alignItems: "center",
+                        mb: 2
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          width: 40,
+                          height: 40,
+                          borderRadius: "12px",
+                          display: "flex",
+                          alignItems: "center",
+                          justifyContent: "center",
+                          background: "linear-gradient(45deg, #035497 30%, #4191FF 90%)",
+                          boxShadow: "0 4px 12px rgba(0,87,184,0.2)",
+                          mr: 2
+                        }}
+                      >
+                        <CheckCircleIcon sx={{ color: "white", fontSize: 22 }} />
+                      </Box>
+                      <Typography 
+                        variant="h6" 
+                        fontWeight={600}
+                        fontSize="1.05rem"
+                      >
+                        {reason.title}
+                      </Typography>
+                    </Box>
+                    <Typography 
+                      variant="body2" 
+                      color="text.secondary"
+                      sx={{ flexGrow: 1 }}
+                    >
+                      {reason.description}
+                    </Typography>
+                  </Card>
+                </Grid>
+              ))}
+            </Grid>
           </Box>
         </Box>
           
-        <Box sx={{ textAlign: "center", mt: 6 }}>
+        <Box sx={{ textAlign: "center", mt: 8 }}>
           <Button
             variant="contained"
             color="primary"
@@ -248,9 +334,14 @@ const Services = () => {
               fontFamily: "Poppins",
               fontWeight: 500,
               textTransform: "none",
+              boxShadow: "0 6px 15px rgba(0,87,184,0.2)",
+              "&:hover": {
+                boxShadow: "0 8px 25px rgba(0,87,184,0.3)",
+                transform: "translateY(-2px)"
+              }
             }}
           >
-            View All Training Programs
+            Join Our Training Sessions
           </Button>
         </Box>
       </Container>
