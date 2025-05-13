@@ -1,132 +1,93 @@
-import { Box, Container, Typography, Link, Stack } from "@mui/material";
-import FacebookIcon from "@mui/icons-material/Facebook";
+import { Box, Container, Typography, Link } from "@mui/material";
 import InstagramIcon from "@mui/icons-material/Instagram";
-import YouTubeIcon from "@mui/icons-material/YouTube";
-import TwitterIcon from "@mui/icons-material/Twitter";
-import logoLight from "../assets/logo-light.png";
+import blueMindLightLogo from "../assets/Blue mind-light.png";
 
 const Footer = () => {
   return (
-    <Box sx={{ bgcolor: "grey.900", color: "white", py: 6 }}>
+    <Box sx={{ 
+      bgcolor: "#051a33", 
+      color: "white", 
+      py: 4,
+      boxShadow: "0 -5px 20px rgba(0,0,0,0.1)"
+    }}>
       <Container maxWidth="lg">
         <Box 
           sx={{ 
             display: "flex", 
-            flexDirection: { xs: "column", md: "row" },
+            flexDirection: { xs: "column", sm: "row" },
             alignItems: "center",
             justifyContent: "space-between",
-            mb: 4
+            gap: 2
           }}
         >
-          {/* Logo */}
+          {/* Logo & Copyright */}
           <Box 
-            component="img"
-            src={logoLight}
-            alt="Blue Mind Freediving"
             sx={{ 
-              height: 60,
-              width: "auto",
-              mb: { xs: 3, md: 0 }
-            }} 
-          />
-          
-          {/* Social Links */}
-          <Stack direction="row" spacing={1.5}>
-            <Link 
-              href="#" 
-              aria-label="Facebook"
+              display: "flex",
+              alignItems: "center",
+              gap: { xs: 2, sm: 3 }
+            }}
+          >
+            {/* Logo */}
+            <Box 
+              component="img"
+              src={blueMindLightLogo}
+              alt="Blue Mind Freediving"
               sx={{ 
-                color: "grey.400", 
-                width: 40, 
-                height: 40, 
-                bgcolor: "grey.800",
-                borderRadius: "50%", 
-                display: "flex", 
-                alignItems: "center", 
-                justifyContent: "center",
-                "&:hover": { 
-                  bgcolor: "primary.main", 
-                  color: "white" 
-                }
-              }}
+                height: 50,
+                width: "auto"
+              }} 
+            />
+            
+            {/* Copyright */}
+            <Typography 
+              variant="body2" 
+              color="rgba(255,255,255,0.7)"
+              sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
             >
-              <FacebookIcon />
-            </Link>
+              &copy; {new Date().getFullYear()} Blue Mind Freediving
+            </Typography>
+          </Box>
+          
+          {/* Instagram Link */}
+          <Box 
+            sx={{ 
+              display: "flex",
+              alignItems: "center",
+              gap: 1
+            }}
+          >
+            <Typography 
+              variant="body2" 
+              color="rgba(255,255,255,0.7)"
+              sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+            >
+              Follow us
+            </Typography>
+            
             <Link 
               href="#" 
               aria-label="Instagram"
               sx={{ 
-                color: "grey.400", 
-                width: 40, 
-                height: 40, 
-                bgcolor: "grey.800",
+                color: "white", 
+                width: 38, 
+                height: 38, 
+                bgcolor: "rgba(255,255,255,0.1)",
                 borderRadius: "50%", 
                 display: "flex", 
                 alignItems: "center", 
                 justifyContent: "center",
+                transition: "all 0.3s ease",
                 "&:hover": { 
                   bgcolor: "primary.main", 
-                  color: "white" 
+                  transform: "translateY(-3px)",
+                  boxShadow: "0 5px 15px rgba(0,0,0,0.2)"
                 }
               }}
             >
-              <InstagramIcon />
+              <InstagramIcon fontSize="small" />
             </Link>
-            <Link 
-              href="#" 
-              aria-label="YouTube"
-              sx={{ 
-                color: "grey.400", 
-                width: 40, 
-                height: 40, 
-                bgcolor: "grey.800",
-                borderRadius: "50%", 
-                display: "flex", 
-                alignItems: "center", 
-                justifyContent: "center",
-                "&:hover": { 
-                  bgcolor: "primary.main", 
-                  color: "white" 
-                }
-              }}
-            >
-              <YouTubeIcon />
-            </Link>
-            <Link 
-              href="#" 
-              aria-label="Twitter"
-              sx={{ 
-                color: "grey.400", 
-                width: 40, 
-                height: 40, 
-                bgcolor: "grey.800",
-                borderRadius: "50%", 
-                display: "flex", 
-                alignItems: "center", 
-                justifyContent: "center",
-                "&:hover": { 
-                  bgcolor: "primary.main", 
-                  color: "white" 
-                }
-              }}
-            >
-              <TwitterIcon />
-            </Link>
-          </Stack>
-        </Box>
-        
-        {/* Copyright */}
-        <Box 
-          sx={{ 
-            pt: 3, 
-            textAlign: "center", 
-            borderTop: 1, 
-            borderColor: "grey.800" 
-          }}
-        >
-          <Typography variant="body2" color="grey.500">
-            &copy; {new Date().getFullYear()} Blue Mind Freediving. All Rights Reserved.
-          </Typography>
+          </Box>
         </Box>
       </Container>
     </Box>

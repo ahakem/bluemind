@@ -91,269 +91,316 @@ const Contact = () => {
   };
 
   return (
-    <Box id="contact" sx={{ py: 10, bgcolor: "white" }}>
+    <Box id="contact" sx={{ 
+      py: 10, 
+      background: "linear-gradient(135deg, #f3f7ff 0%, #e6f0ff 100%)",
+      position: "relative",
+      overflow: "hidden",
+      "&::before": {
+        content: '""',
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        height: "50%",
+        background: "radial-gradient(circle at top right, rgba(65, 145, 255, 0.05) 0%, rgba(65, 145, 255, 0) 70%)",
+      }
+    }}>
       <Container maxWidth="lg">
-        <Box sx={{ textAlign: "center", mb: 8 }}>
+        <Box sx={{ 
+          textAlign: "center", 
+          mb: 6,
+          position: "relative", 
+          zIndex: 1
+        }}>
           <Typography
             variant="subtitle1"
             fontFamily="Montserrat"
             color="primary"
             mb={1}
           >
-            Get In Touch
+            Reach Out To Us
           </Typography>
           <Typography
             variant="h3"
             fontFamily="Poppins"
             fontWeight={700}
+            mb={1}
           >
             Contact Us
           </Typography>
-          <Box sx={{ width: 80, height: 3, bgcolor: "accent.main", mx: "auto", mt: 2 }} />
+          <Box sx={{ width: 80, height: 3, bgcolor: "accent.main", mx: "auto", mt: 2, mb: 2 }} />
+          <Typography 
+            variant="body1" 
+            color="text.secondary"
+            sx={{ 
+              maxWidth: 600, 
+              mx: "auto", 
+              mt: 2,
+              mb: 2,
+              px: 2
+            }}
+          >
+            Have questions about our freediving programs? Want to join our next session? 
+            We're here to help you start your underwater journey.
+          </Typography>
         </Box>
 
-        <Grid container spacing={6}>
-          <Grid item xs={12} lg={6}>
-            <Box sx={{ mb: 6 }}>
-              <Typography
-                variant="h4"
-                fontFamily="Poppins"
-                fontWeight={600}
-                mb={2}
-              >
-                Ready to Start Your Freediving Journey?
-              </Typography>
-              <Typography
-                variant="body1"
-                color="text.secondary"
-                mb={4}
-              >
-                Contact us for more information about our training programs, schedule a visit, or register for your first class. Our team is ready to answer any questions you might have.
-              </Typography>
+        <Box 
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            gap: 4,
+            alignItems: "stretch",
+            backgroundColor: "white",
+            borderRadius: 4,
+            overflow: "hidden",
+            boxShadow: "0 10px 40px rgba(0,0,0,0.1)",
+            position: "relative",
+            zIndex: 2
+          }}
+        >
+          {/* Contact Information */}
+          <Box 
+            sx={{ 
+              flex: { xs: "1 1 auto", md: "0 0 35%" },
+              p: 4,
+              backgroundColor: "primary.main",
+              color: "white",
+              display: "flex",
+              flexDirection: "column"
+            }}
+          >
+            <Typography
+              variant="h4"
+              fontFamily="Poppins"
+              fontWeight={600}
+              mb={3}
+              color="white"
+            >
+              Get In Touch
+            </Typography>
+            
+            <Typography
+              variant="body1"
+              mb={4}
+              sx={{ opacity: 0.85 }}
+            >
+              Connect with our Amsterdam freediving community. We're ready to answer your questions and welcome you to our pool training sessions.
+            </Typography>
 
-              <Box sx={{ display: "flex", mb: 3 }}>
-                <Box
-                  sx={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: "50%",
-                    bgcolor: "primary.light",
-                    opacity: 0.1,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    mr: 2,
-                    flexShrink: 0,
-                  }}
-                >
-                  <LocationOnIcon color="primary" />
-                </Box>
-                <Box>
-                  <Typography variant="h6" fontWeight={500} mb={0.5}>
-                    Our Location
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    123 Aquatic Drive, Oceanview, CA 92051
-                  </Typography>
-                </Box>
-              </Box>
-
-              <Box sx={{ display: "flex", mb: 3 }}>
-                <Box
-                  sx={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: "50%",
-                    bgcolor: "primary.light",
-                    opacity: 0.1,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    mr: 2,
-                    flexShrink: 0,
-                  }}
-                >
-                  <EmailIcon color="primary" />
-                </Box>
-                <Box>
-                  <Typography variant="h6" fontWeight={500} mb={0.5}>
-                    Email Us
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    info@bluemindfreediving.com
-                  </Typography>
-                </Box>
-              </Box>
-
-              <Box sx={{ display: "flex", mb: 5 }}>
-                <Box
-                  sx={{
-                    width: 48,
-                    height: 48,
-                    borderRadius: "50%",
-                    bgcolor: "primary.light",
-                    opacity: 0.1,
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    mr: 2,
-                    flexShrink: 0,
-                  }}
-                >
-                  <PhoneIcon color="primary" />
-                </Box>
-                <Box>
-                  <Typography variant="h6" fontWeight={500} mb={0.5}>
-                    Call Us
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
-                    (555) 123-4567
-                  </Typography>
-                </Box>
-              </Box>
-
-              <Box sx={{ display: "flex", gap: 2 }}>
-                {[
-                  { icon: <FacebookIcon />, label: "Facebook" },
-                  { icon: <InstagramIcon />, label: "Instagram" },
-                  { icon: <YouTubeIcon />, label: "YouTube" },
-                  { icon: <TwitterIcon />, label: "Twitter" },
-                ].map((social, index) => (
+            {/* Contact Information Items */}
+            <Box sx={{ flex: 1, display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+              <Box>
+                <Box sx={{ display: "flex", mb: 3, alignItems: "center" }}>
                   <Box
-                    key={index}
-                    component="a"
-                    href="#"
-                    aria-label={social.label}
                     sx={{
-                      width: 48,
-                      height: 48,
+                      width: 40,
+                      height: 40,
                       borderRadius: "50%",
-                      bgcolor: "rgba(3, 84, 151, 0.1)",
-                      color: "primary.main",
+                      bgcolor: "rgba(255,255,255,0.15)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
-                      transition: "all 0.3s ease",
-                      "&:hover": {
-                        bgcolor: "primary.main",
-                        color: "white",
-                      },
+                      mr: 2,
+                      flexShrink: 0,
                     }}
                   >
-                    {social.icon}
+                    <LocationOnIcon sx={{ color: "white", fontSize: 20 }} />
                   </Box>
-                ))}
+                  <Box>
+                    <Typography variant="body2" color="white" sx={{ opacity: 0.7 }}>
+                      OUR LOCATION
+                    </Typography>
+                    <Typography variant="body1" fontWeight={500} color="white">
+                      Sportplaza Mercator, Amsterdam, NL
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Box sx={{ display: "flex", mb: 3, alignItems: "center" }}>
+                  <Box
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: "50%",
+                      bgcolor: "rgba(255,255,255,0.15)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      mr: 2,
+                      flexShrink: 0,
+                    }}
+                  >
+                    <EmailIcon sx={{ color: "white", fontSize: 20 }} />
+                  </Box>
+                  <Box>
+                    <Typography variant="body2" color="white" sx={{ opacity: 0.7 }}>
+                      EMAIL ADDRESS
+                    </Typography>
+                    <Typography variant="body1" fontWeight={500} color="white">
+                      info@bluemindfreediving.com
+                    </Typography>
+                  </Box>
+                </Box>
+
+                <Box sx={{ display: "flex", alignItems: "center" }}>
+                  <Box
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: "50%",
+                      bgcolor: "rgba(255,255,255,0.15)",
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      mr: 2,
+                      flexShrink: 0,
+                    }}
+                  >
+                    <PhoneIcon sx={{ color: "white", fontSize: 20 }} />
+                  </Box>
+                  <Box>
+                    <Typography variant="body2" color="white" sx={{ opacity: 0.7 }}>
+                      PHONE
+                    </Typography>
+                    <Typography variant="body1" fontWeight={500} color="white">
+                      +31 20 123 4567
+                    </Typography>
+                  </Box>
+                </Box>
+              </Box>
+              
+              {/* Social Media - Instagram only */}
+              <Box sx={{ mt: 4 }}>
+                <Typography variant="body2" color="white" sx={{ opacity: 0.7, mb: 2 }}>
+                  FOLLOW US
+                </Typography>
+                <Box 
+                  component="a"
+                  href="#"
+                  aria-label="Instagram"
+                  sx={{
+                    width: 40,
+                    height: 40,
+                    borderRadius: "50%",
+                    bgcolor: "rgba(255,255,255,0.2)",
+                    color: "white",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    transition: "all 0.3s ease",
+                    "&:hover": {
+                      bgcolor: "rgba(255,255,255,0.3)",
+                      transform: "translateY(-3px)"
+                    },
+                  }}
+                >
+                  <InstagramIcon sx={{ fontSize: 20 }} />
+                </Box>
               </Box>
             </Box>
-          </Grid>
+          </Box>
 
-          <Grid item xs={12} lg={6}>
-            <Paper
-              elevation={3}
-              sx={{
-                p: 4,
-                borderRadius: 2,
-                bgcolor: "grey.50",
-              }}
+          {/* Contact Form */}
+          <Box 
+            sx={{ 
+              flex: { xs: "1 1 auto", md: "0 0 65%" },
+              p: 4,
+              backgroundColor: "white"
+            }}
+          >
+            <Typography
+              variant="h4"
+              fontFamily="Poppins"
+              fontWeight={600}
+              mb={3}
             >
-              <Typography
-                variant="h4"
-                fontFamily="Poppins"
-                fontWeight={600}
-                mb={4}
-              >
-                Send Us a Message
-              </Typography>
+              Send Us a Message
+            </Typography>
 
-              <Box component="form" onSubmit={handleSubmit}>
-                <Grid container spacing={3}>
-                  <Grid item xs={12}>
-                    <TextField
-                      required
-                      fullWidth
-                      id="name"
-                      name="name"
-                      label="Full Name"
-                      variant="outlined"
-                      placeholder="Your Name"
-                      value={formData.name}
-                      onChange={handleChange}
-                      disabled={loading}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      required
-                      fullWidth
-                      id="email"
-                      name="email"
-                      label="Email Address"
-                      type="email"
-                      variant="outlined"
-                      placeholder="your.email@example.com"
-                      value={formData.email}
-                      onChange={handleChange}
-                      disabled={loading}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      required
-                      fullWidth
-                      id="subject"
-                      name="subject"
-                      label="Subject"
-                      variant="outlined"
-                      placeholder="How can we help?"
-                      value={formData.subject}
-                      onChange={handleChange}
-                      disabled={loading}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      required
-                      fullWidth
-                      id="message"
-                      name="message"
-                      label="Message"
-                      multiline
-                      rows={5}
-                      variant="outlined"
-                      placeholder="Your message here..."
-                      value={formData.message}
-                      onChange={handleChange}
-                      disabled={loading}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <Button
-                      type="submit"
-                      variant="contained"
-                      color="primary"
-                      fullWidth
-                      size="large"
-                      disabled={loading}
-                      sx={{
-                        py: 1.5,
-                        borderRadius: 2,
-                        fontFamily: "Poppins",
-                        fontWeight: 500,
-                        textTransform: "none",
-                      }}
-                    >
-                      {loading ? (
-                        <CircularProgress size={24} color="inherit" />
-                      ) : (
-                        "Send Message"
-                      )}
-                    </Button>
-                  </Grid>
-                </Grid>
+            <Box component="form" onSubmit={handleSubmit}>
+              <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2, mb: 2 }}>
+                <TextField
+                  required
+                  fullWidth
+                  id="name"
+                  name="name"
+                  label="Your Name"
+                  variant="outlined"
+                  value={formData.name}
+                  onChange={handleChange}
+                  disabled={loading}
+                  sx={{ flex: 1 }}
+                />
+                <TextField
+                  required
+                  fullWidth
+                  id="email"
+                  name="email"
+                  label="Email Address"
+                  type="email"
+                  variant="outlined"
+                  value={formData.email}
+                  onChange={handleChange}
+                  disabled={loading}
+                  sx={{ flex: 1 }}
+                />
               </Box>
-            </Paper>
-          </Grid>
-        </Grid>
+              
+              <TextField
+                required
+                fullWidth
+                id="subject"
+                name="subject"
+                label="Subject"
+                variant="outlined"
+                value={formData.subject}
+                onChange={handleChange}
+                disabled={loading}
+                sx={{ mb: 2 }}
+              />
+              
+              <TextField
+                required
+                fullWidth
+                id="message"
+                name="message"
+                label="Your Message"
+                multiline
+                rows={6}
+                variant="outlined"
+                value={formData.message}
+                onChange={handleChange}
+                disabled={loading}
+                sx={{ mb: 3 }}
+              />
+              
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+                size="large"
+                disabled={loading}
+                sx={{
+                  py: 1.5,
+                  px: 4,
+                  borderRadius: 2,
+                  fontFamily: "Poppins",
+                  fontWeight: 500,
+                  textTransform: "none",
+                  boxShadow: 2
+                }}
+              >
+                {loading ? (
+                  <CircularProgress size={24} color="inherit" />
+                ) : (
+                  "Send Message"
+                )}
+              </Button>
+            </Box>
+          </Box>
+        </Box>
       </Container>
 
       {/* Success and Error Alerts */}

@@ -31,9 +31,22 @@ const Services = () => {
             fontFamily="Poppins"
             fontWeight={700}
           >
-            Specialized Freediving Training
+            Pool Training Programs
           </Typography>
           <Box sx={{ width: 80, height: 3, bgcolor: "accent.main", mx: "auto", mt: 2 }} />
+          <Typography
+            variant="body1"
+            color="text.secondary"
+            sx={{ 
+              maxWidth: 750, 
+              mx: "auto", 
+              mt: 3,
+              px: 2
+            }}
+          >
+            Our training programs focus on developing freediving skills in a controlled pool environment,
+            with an emphasis on technique, safety, and mental preparation.
+          </Typography>
         </Box>
 
         <Grid container spacing={3}>
@@ -157,6 +170,71 @@ const Services = () => {
           ))}
         </Grid>
 
+        {/* Why Choose Us section */}
+        <Box 
+          sx={{ 
+            mt: 12,
+            mb: 6,
+            p: 4, 
+            borderRadius: 4,
+            backgroundColor: "#f5f5f5",
+            backgroundImage: "radial-gradient(#e0e0e0 1px, transparent 1px)",
+            backgroundSize: "20px 20px",
+          }}
+        >
+          <Box sx={{ textAlign: "center", mb: 6 }}>
+            <Typography
+              variant="subtitle1"
+              fontFamily="Montserrat"
+              color="primary"
+              mb={1}
+            >
+              Our Promise
+            </Typography>
+            <Typography
+              variant="h4"
+              fontFamily="Poppins"
+              fontWeight={700}
+              mb={1}
+            >
+              Why Choose Us
+            </Typography>
+            <Box sx={{ width: 60, height: 3, bgcolor: "accent.main", mx: "auto", mt: 2, mb: 1 }} />
+          </Box>
+          
+          <Box sx={{ 
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 2,
+            justifyContent: "center",
+            maxWidth: "900px",
+            mx: "auto"
+          }}>
+            {reasons.map((reason, index) => (
+              <Paper
+                key={index}
+                elevation={2}
+                sx={{
+                  p: 2,
+                  borderRadius: 3,
+                  display: "flex",
+                  alignItems: "center",
+                  flexBasis: { xs: "100%", sm: "calc(50% - 16px)", md: "calc(33.333% - 16px)" },
+                  backgroundColor: "white",
+                  transition: "transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out",
+                  "&:hover": {
+                    transform: "translateY(-5px)",
+                    boxShadow: 4
+                  }
+                }}
+              >
+                <CheckCircleIcon sx={{ color: "primary.main", mr: 1.5, fontSize: 22 }} />
+                <Typography variant="body1" fontWeight={500}>{reason}</Typography>
+              </Paper>
+            ))}
+          </Box>
+        </Box>
+          
         <Box sx={{ textAlign: "center", mt: 6 }}>
           <Button
             variant="contained"
