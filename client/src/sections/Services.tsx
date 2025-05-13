@@ -1,6 +1,17 @@
-import { Box, Container, Typography, Grid, Card, CardMedia, CardContent, Button, Chip } from "@mui/material";
+import { Box, Container, Typography, Grid, Card, CardMedia, CardContent, Button, Chip, Paper } from "@mui/material";
 import ArrowForwardIcon from "@mui/icons-material/ArrowForward";
+import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 import { services } from "../data";
+
+// Why Choose Us reasons
+const reasons = [
+  "Experienced Freediving Instructors",
+  "Structured Pool Training Sessions",
+  "Individualized Coaching",
+  "Focus on Breath Control Techniques",
+  "Mental Training Integration",
+  "Small Group Sizes",
+];
 
 const Services = () => {
   return (

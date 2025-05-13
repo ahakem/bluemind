@@ -12,126 +12,133 @@ const aboutPoints = [
 
 const About = () => {
   return (
-    <Box id="about" sx={{ py: 10, bgcolor: "grey.50" }}>
+    <Box id="about" sx={{ 
+      py: 10, 
+      background: "linear-gradient(135deg, #0d47a1, #1976d2, #42a5f5)",
+      color: "white"
+    }}>
       <Container maxWidth="lg">
         {/* Section Header */}
         <Box sx={{ textAlign: "center", mb: 6 }}>
           <Typography
             variant="subtitle1"
             fontFamily="Montserrat"
-            color="primary"
+            color="white"
             mb={1}
+            sx={{ opacity: 0.9 }}
           >
-            Who We Are
+            Our Story
           </Typography>
           <Typography
             variant="h3"
             fontFamily="Poppins"
             fontWeight={700}
             mb={2}
+            color="white"
           >
             About Blue Mind Freediving
           </Typography>
-          <Box sx={{ width: 80, height: 3, bgcolor: "accent.main", mx: "auto", mt: 2, mb: 4 }} />
-          <Typography 
-            variant="body1" 
-            color="text.secondary" 
-            sx={{ 
-              maxWidth: "800px", 
-              mx: "auto",
-              mb: 2
-            }}
-          >
-            Blue Mind Freediving is a community-focused club dedicated to the art and science of breath-hold diving in controlled pool environments. 
-            We emphasize mental preparation, proper technique, and safety protocols that translate to greater confidence and ability in any water environment.
-          </Typography>
+          <Box sx={{ width: 80, height: 3, bgcolor: "white", mx: "auto", mt: 2, mb: 4 }} />
         </Box>
 
-        <Grid container spacing={6} alignItems="center">
-          <Grid item xs={12} lg={6}>
-            <Box sx={{ position: "relative" }}>
-              <Box
-                component="img"
-                src="https://images.unsplash.com/photo-1551523891-25859b6d9315?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&h=800&q=80"
-                alt="Freediving training in pool"
-                sx={{
-                  width: "100%",
-                  height: "auto",
-                  borderRadius: 2,
-                  boxShadow: 4,
-                }}
-              />
-              
-              <Box
-                sx={{
-                  position: "absolute",
-                  bottom: { xs: -20, md: -24 },
-                  right: { xs: 8, md: -24 },
-                  width: { xs: 100, md: 128 },
-                  height: { xs: 100, md: 128 },
-                  bgcolor: "white",
-                  borderRadius: 2,
-                  boxShadow: 4,
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  p: 2,
-                }}
-              >
-                <Typography variant="h3" color="primary" fontWeight={700} fontFamily="Poppins">
-                  8+
-                </Typography>
-                <Typography variant="caption" align="center" fontWeight={500}>
-                  Years Experience
-                </Typography>
-              </Box>
+        <Box sx={{ 
+          display: "flex",
+          flexDirection: { xs: "column", md: "row" },
+          alignItems: "center",
+          gap: 6
+        }}>
+          <Box sx={{ 
+            flex: 1,
+            position: "relative", 
+            mb: { xs: 8, md: 0 },
+            width: { xs: "100%", md: "auto" }
+          }}>
+            <Box
+              component="img"
+              src="https://images.unsplash.com/photo-1544211597-a5d7a7f3d300?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&h=800&q=80"
+              alt="Amsterdam canal view"
+              sx={{
+                width: "100%",
+                height: "auto",
+                borderRadius: 2,
+                boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
+              }}
+            />
+            
+            <Box
+              sx={{
+                position: "absolute",
+                bottom: { xs: -30, md: -40 },
+                right: { xs: "50%", md: -30 },
+                transform: { xs: "translateX(50%)", md: "none" },
+                width: { xs: 120, md: 140 },
+                height: { xs: 120, md: 140 },
+                bgcolor: "#2196f3",
+                borderRadius: 2,
+                boxShadow: "0 8px 20px rgba(0,0,0,0.2)",
+                display: "flex",
+                flexDirection: "column",
+                alignItems: "center",
+                justifyContent: "center",
+                p: 2,
+                color: "white",
+              }}
+            >
+              <Typography variant="h3" fontWeight={700} fontFamily="Poppins">
+                2022
+              </Typography>
+              <Typography variant="body2" align="center" fontWeight={500} sx={{ opacity: 0.9 }}>
+                Founded in Amsterdam
+              </Typography>
             </Box>
-          </Grid>
+          </Box>
           
-          <Grid item xs={12} lg={6}>
+          <Box sx={{ flex: 1 }}>
             <Typography
               variant="h4"
               fontFamily="Poppins"
               fontWeight={600}
               mb={3}
+              color="white"
             >
-              Our Philosophy
+              Our Amsterdam Community
             </Typography>
             
-            <Typography variant="body1" color="text.secondary" paragraph>
-              Founded in 2016, Blue Mind Freediving has grown from a small group of enthusiasts to a thriving community of divers passionate about the mental and physical benefits of freediving.
+            <Typography variant="body1" color="white" paragraph sx={{ opacity: 0.9 }}>
+              Blue Mind Freediving was founded to help the community in and around Amsterdam connect with the water in a meaningful way. Our club started with local enthusiasts who shared a passion for breath-hold diving and its mental and physical benefits.
             </Typography>
             
-            <Typography variant="body1" color="text.secondary" paragraph>
-              We believe that the controlled pool environment provides the perfect foundation for developing freediving skills. By mastering techniques in a predictable setting, our members build the confidence and abilities needed for open water experiences.
+            <Typography variant="body1" color="white" paragraph sx={{ opacity: 0.9 }}>
+              We believe that the controlled pool environment creates the perfect foundation for developing freediving skills in the Netherlands, where open water conditions can be challenging. Our inclusive approach welcomes all levels, creating a supportive community of like-minded individuals.
             </Typography>
             
-            <Divider sx={{ my: 3 }} />
-            
-            <Typography
-              variant="h5"
-              fontFamily="Poppins"
-              fontWeight={600}
-              mb={2}
-            >
-              What Sets Us Apart
-            </Typography>
-            
-            <Grid container spacing={2} sx={{ mb: 4 }}>
-              {aboutPoints.map((point, index) => (
-                <Grid item xs={12} sm={6} key={index}>
-                  <Box sx={{ display: "flex", alignItems: "center" }}>
-                    <CheckCircleIcon sx={{ color: "accent.main", mr: 1 }} />
-                    <Typography variant="body2">{point}</Typography>
-                  </Box>
-                </Grid>
+            <Box sx={{ 
+              display: "flex", 
+              flexWrap: "wrap", 
+              gap: 2, 
+              mt: 4,
+              mb: 4
+            }}>
+              {aboutPoints.slice(0, 4).map((point, index) => (
+                <Box 
+                  key={index}
+                  sx={{
+                    bgcolor: "rgba(255,255,255,0.1)",
+                    borderRadius: 4,
+                    px: 2,
+                    py: 1,
+                    display: "flex",
+                    alignItems: "center",
+                  }}
+                >
+                  <CheckCircleIcon sx={{ color: "white", mr: 1, fontSize: 18 }} />
+                  <Typography variant="body2" color="white">{point}</Typography>
+                </Box>
               ))}
-            </Grid>
+            </Box>
             
             <Button
               variant="contained"
-              color="primary"
               size="large"
               href="#services"
               sx={{
@@ -140,12 +147,17 @@ const About = () => {
                 py: 1.5,
                 fontFamily: "Poppins",
                 textTransform: "none",
+                bgcolor: "white",
+                color: "primary.main",
+                "&:hover": {
+                  bgcolor: "rgba(255,255,255,0.9)",
+                }
               }}
             >
-              View Our Programs
+              Join Our Community
             </Button>
-          </Grid>
-        </Grid>
+          </Box>
+        </Box>
       </Container>
     </Box>
   );

@@ -17,7 +17,7 @@ const Hero = () => {
           right: 0,
           bottom: 0,
           // Pool-related freediving image
-          backgroundImage: "url('https://images.unsplash.com/photo-1578666606789-6f00e3bf1e2b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080&q=80')",
+          backgroundImage: "url('https://images.unsplash.com/photo-1544594376-0a9a6ae2c997?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080&q=80')",
           backgroundSize: "cover",
           backgroundPosition: "center bottom",
           zIndex: 0,
