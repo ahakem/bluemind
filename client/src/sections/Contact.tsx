@@ -55,20 +55,17 @@ const Contact = () => {
     setErrorMessage("");
 
     try {
-      // In a real implementation, we would call the server endpoint to send the email
-      // For now, simulate a successful email send
+      // Send email using our API endpoint
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData)
+      });
       
-      // For a real SendGrid implementation, we would add a server endpoint:
-      // const response = await fetch('/api/send-email', {
-      //   method: 'POST',
-      //   headers: { 'Content-Type': 'application/json' },
-      //   body: JSON.stringify(formData)
-      // });
-      
-      // Simulate API call with a timeout
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // if (!response.ok) throw new Error('Failed to send email');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to send email');
+      }
       
       // Show success message
       setSuccessMessage("Thank you! Your message has been sent successfully.");
@@ -79,8 +76,8 @@ const Contact = () => {
         subject: "",
         message: ""
       });
-    } catch (err) {
-      setErrorMessage("Failed to send message. Please try again later.");
+    } catch (err: any) {
+      setErrorMessage(err.message || "Failed to send message. Please try again later.");
       console.error("Contact form error:", err);
     } finally {
       setLoading(false);

@@ -6,6 +6,8 @@ import Services from "../sections/Services";
 import Gallery from "../sections/Gallery";
 import Team from "../sections/Team";
 import Testimonials from "../sections/Testimonials";
+import Membership from "../sections/Membership";
+import Calendar from "../sections/Calendar";
 import Contact from "../sections/Contact";
 
 const Home = () => {
@@ -14,10 +16,12 @@ const Home = () => {
       <Hero />
       <Features />
       <About />
-      <Counter />
       <Services />
+      <Membership />
+      <Calendar />
       <Gallery />
       <Team />
+      <Counter />
       <Testimonials />
       <Contact />
     </>
