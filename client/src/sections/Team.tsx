@@ -27,15 +27,16 @@ const Team = () => {
           <Box sx={{ width: 80, height: 3, bgcolor: "accent.main", mx: "auto", mt: 2 }} />
         </Box>
 
-        <Grid container spacing={4}>
+        <Grid container spacing={3}>
           {team.map((member, index) => (
-            <Grid item xs={12} sm={6} md={3} key={index}>
+            <Grid key={index} sx={{ width: { xs: '100%', sm: '50%', md: '25%', lg: '25%' }, p: 1.5 }}>
               <Card
                 sx={{
                   borderRadius: 2,
                   overflow: "hidden",
                   boxShadow: 2,
                   transition: "all 0.3s ease",
+                  maxWidth: "100%",
                   "&:hover": {
                     transform: "translateY(-8px)",
                     boxShadow: 6,
@@ -51,7 +52,7 @@ const Team = () => {
                 <Box sx={{ position: "relative" }}>
                   <CardMedia
                     component="img"
-                    height={280}
+                    height={220}
                     image={member.image}
                     alt={member.name}
                     sx={{ transition: "transform 0.5s ease" }}
@@ -68,7 +69,7 @@ const Team = () => {
                       display: "flex",
                       alignItems: "flex-end",
                       justifyContent: "center",
-                      pb: 3,
+                      pb: 2,
                       opacity: 0,
                       transition: "opacity 0.3s ease",
                     }}
@@ -78,8 +79,8 @@ const Team = () => {
                         sx={{
                           bgcolor: "white",
                           color: "primary.main",
-                          width: 36,
-                          height: 36,
+                          width: 32,
+                          height: 32,
                           mx: 0.5,
                           "&:hover": {
                             bgcolor: "primary.main",
@@ -87,14 +88,14 @@ const Team = () => {
                           },
                         }}
                       >
-                        <FacebookIcon fontSize="small" />
+                        <FacebookIcon sx={{ fontSize: 16 }} />
                       </IconButton>
                       <IconButton
                         sx={{
                           bgcolor: "white",
                           color: "primary.main",
-                          width: 36,
-                          height: 36,
+                          width: 32,
+                          height: 32,
                           mx: 0.5,
                           "&:hover": {
                             bgcolor: "primary.main",
@@ -102,14 +103,14 @@ const Team = () => {
                           },
                         }}
                       >
-                        <InstagramIcon fontSize="small" />
+                        <InstagramIcon sx={{ fontSize: 16 }} />
                       </IconButton>
                       <IconButton
                         sx={{
                           bgcolor: "white",
                           color: "primary.main",
-                          width: 36,
-                          height: 36,
+                          width: 32,
+                          height: 32,
                           mx: 0.5,
                           "&:hover": {
                             bgcolor: "primary.main",
@@ -117,21 +118,26 @@ const Team = () => {
                           },
                         }}
                       >
-                        <LinkedInIcon fontSize="small" />
+                        <LinkedInIcon sx={{ fontSize: 16 }} />
                       </IconButton>
                     </Box>
                   </Box>
                 </Box>
-                <CardContent sx={{ textAlign: "center" }}>
+                <CardContent sx={{ textAlign: "center", p: 2 }}>
                   <Typography
                     variant="h6"
                     fontFamily="Poppins"
                     fontWeight={600}
                     mb={0.5}
+                    fontSize={{ xs: "0.95rem", sm: "1rem" }}
                   >
                     {member.name}
                   </Typography>
-                  <Typography variant="body2" color="primary.main">
+                  <Typography 
+                    variant="body2" 
+                    color="primary.main"
+                    fontSize="0.8rem"
+                  >
                     {member.position}
                   </Typography>
                 </CardContent>
