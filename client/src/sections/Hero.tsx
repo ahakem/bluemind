@@ -36,7 +36,7 @@ const Hero = () => {
     >
       <Container maxWidth="lg" sx={{ position: "relative", zIndex: 2, color: "white" }}>
         <Grid container>
-          <Grid item xs={12} md={9} lg={7}>
+          <Grid container xs={12} md={9} lg={7}>
             <Typography
               variant="h5"
               component="h5"
