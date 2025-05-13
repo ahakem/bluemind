@@ -140,17 +140,26 @@ const Navbar = () => {
           </Box>
 
           {/* Mobile Logo */}
-          <Box
-            component="img"
-            src={logoOriginal}
-            alt="Blue Mind Freediving"
-            sx={{ 
-              display: { xs: "flex", md: "none" }, 
+          <Box 
+            sx={{
+              display: { xs: "flex", md: "none" },
               flexGrow: 1,
-              height: 40,
-              width: "auto"
-            }} 
-          />
+              justifyContent: "center",
+              alignItems: "center"
+            }}
+          >
+            <Box
+              component="img"
+              src={logoOriginal}
+              alt="Blue Mind Freediving"
+              sx={{ 
+                height: 40,
+                width: "auto",
+                objectFit: "contain",
+                maxWidth: "200px"
+              }} 
+            />
+          </Box>
 
           {/* Desktop Menu */}
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, justifyContent: "center" }}>
