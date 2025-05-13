@@ -16,9 +16,10 @@ const Hero = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundImage: "url('https://images.unsplash.com/photo-1551244072-5d12893278ab?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080&q=80')",
+          // Pool-related freediving image
+          backgroundImage: "url('https://images.unsplash.com/photo-1578666606789-6f00e3bf1e2b?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080&q=80')",
           backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundPosition: "center bottom",
           zIndex: 0,
         },
         "&::after": {
@@ -28,7 +29,7 @@ const Hero = () => {
           left: 0,
           right: 0,
           bottom: 0,
-          backgroundColor: "rgba(0, 0, 0, 0.5)",
+          backgroundColor: "rgba(0, 0, 0, 0.55)",
           zIndex: 1,
         },
       }}
@@ -50,7 +51,7 @@ const Hero = () => {
                 },
               }}
             >
-              Welcome to DeepBlue
+              Welcome to Blue Mind Freediving
             </Typography>
 
             <Typography
@@ -65,9 +66,9 @@ const Hero = () => {
                 textShadow: "1px 1px 3px rgba(0, 0, 0, 0.3)",
               }}
             >
-              Discover the Art of{" "}
+              Train Your Mind,{" "}
               <Box component="span" color="secondary.main">
-                Freediving
+                Master Your Breath
               </Box>
             </Typography>
 
@@ -81,7 +82,7 @@ const Hero = () => {
                 maxWidth: "600px",
               }}
             >
-              Explore the underwater world on a single breath. Join our professional pool training sessions to master freediving techniques in a safe and controlled environment.
+              Join our specialized pool training sessions to develop essential freediving skills in a safe, controlled environment. Perfect for beginners and advanced practitioners alike.
             </Typography>
 
             <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: { xs: 2, sm: 3 } }}>
@@ -100,14 +101,14 @@ const Hero = () => {
                   boxShadow: 3,
                 }}
               >
-                Our Training
+                Our Programs
               </Button>
 
               <Button
                 variant="outlined"
                 color="inherit"
                 size="large"
-                href="#contact"
+                href="#membership"
                 sx={{
                   borderRadius: "50px",
                   py: 1.5,
@@ -123,7 +124,7 @@ const Hero = () => {
                   },
                 }}
               >
-                Contact Us
+                Become a Member
               </Button>
             </Box>
           </Grid>
@@ -149,7 +150,7 @@ const Hero = () => {
         }}
       >
         <Button
-          href="#features"
+          href="#about"
           sx={{
             minWidth: "auto",
             color: "white",

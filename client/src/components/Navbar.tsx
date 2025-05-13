@@ -9,16 +9,18 @@ import Menu from "@mui/material/Menu";
 import Container from "@mui/material/Container";
 import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
-import WaterIcon from "@mui/icons-material/Water";
 import MenuIcon from "@mui/icons-material/Menu";
 import useScrollPosition from "../hooks/useScrollPosition";
 
+// Import the Blue Mind Freediving logo
+import logoOriginal from "../assets/logo-original.png";
+
 const navItems = [
   { name: "Home", href: "#home" },
-  { name: "About", href: "#about" },
-  { name: "Training", href: "#services" },
-  { name: "Team", href: "#team" },
-  { name: "Testimonials", href: "#testimonials" },
+  { name: "About Us", href: "#about" },
+  { name: "Our Programs", href: "#services" },
+  { name: "Calendar", href: "#calendar" },
+  { name: "Membership", href: "#membership" },
   { name: "Contact", href: "#contact" },
 ];
 
@@ -56,35 +58,23 @@ const Navbar = () => {
       <Container maxWidth="lg">
         <Toolbar disableGutters>
           {/* Desktop Logo */}
-          <WaterIcon 
+          <Box 
+            component="img"
+            src={logoOriginal}
+            alt="Blue Mind Freediving"
             sx={{ 
               display: { xs: "none", md: "flex" }, 
-              mr: 1, 
-              color: "primary.main" 
+              mr: 2,
+              height: 50,
+              width: "auto"
             }} 
           />
-          <Typography
-            variant="h6"
-            noWrap
-            component={RouterLink}
-            to="/"
-            sx={{
-              mr: 2,
-              display: { xs: "none", md: "flex" },
-              fontFamily: "Poppins",
-              fontWeight: 700,
-              color: "primary.dark",
-              textDecoration: "none",
-            }}
-          >
-            DeepBlue
-          </Typography>
 
           {/* Mobile Menu */}
-          <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" } }}>
+          <Box sx={{ flexGrow: 0, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
-              aria-label="account of current user"
+              aria-label="menu"
               aria-controls="menu-appbar"
               aria-haspopup="true"
               onClick={handleOpenNavMenu}
@@ -148,30 +138,17 @@ const Navbar = () => {
           </Box>
 
           {/* Mobile Logo */}
-          <WaterIcon 
+          <Box
+            component="img"
+            src={logoOriginal}
+            alt="Blue Mind Freediving"
             sx={{ 
               display: { xs: "flex", md: "none" }, 
-              mr: 1, 
-              color: "primary.main" 
+              flexGrow: 1,
+              height: 40,
+              width: "auto"
             }} 
           />
-          <Typography
-            variant="h6"
-            noWrap
-            component={RouterLink}
-            to="/"
-            sx={{
-              mr: 2,
-              display: { xs: "flex", md: "none" },
-              flexGrow: 1,
-              fontFamily: "Poppins",
-              fontWeight: 700,
-              color: "primary.dark",
-              textDecoration: "none",
-            }}
-          >
-            DeepBlue
-          </Typography>
 
           {/* Desktop Menu */}
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, justifyContent: "center" }}>
