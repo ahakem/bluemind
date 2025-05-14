@@ -1,23 +1,21 @@
 import { useState } from "react";
-import { 
-  Box, 
-  Container, 
-  Typography, 
-  Grid, 
-  Paper, 
-  TextField, 
-  Button, 
-  Alert, 
-  Snackbar, 
-  CircularProgress 
+import {
+  Box,
+  Container,
+  Typography,
+  Grid,
+  Paper,
+  TextField,
+  Button,
+  Alert,
+  Snackbar,
+  CircularProgress
 } from "@mui/material";
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import EmailIcon from "@mui/icons-material/Email";
-import PhoneIcon from "@mui/icons-material/Phone";
-import FacebookIcon from "@mui/icons-material/Facebook";
+
 import InstagramIcon from "@mui/icons-material/Instagram";
-import YouTubeIcon from "@mui/icons-material/YouTube";
-import TwitterIcon from "@mui/icons-material/Twitter";
+import dewi from "../assets/dewi.jpg"
 
 // Email form interface
 interface ContactFormData {
@@ -46,7 +44,7 @@ const Contact = () => {
       [name]: value
     }));
   };
-  
+
   // Handle form submission
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -61,12 +59,12 @@ const Contact = () => {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
-      
+
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.message || 'Failed to send email');
       }
-      
+
       // Show success message
       setSuccessMessage("Thank you! Your message has been sent successfully.");
       // Reset form
@@ -83,7 +81,7 @@ const Contact = () => {
       setLoading(false);
     }
   };
-  
+
   // Handle message alerts
   const handleCloseAlert = () => {
     setSuccessMessage("");
@@ -91,8 +89,8 @@ const Contact = () => {
   };
 
   return (
-    <Box id="contact" sx={{ 
-      py: 10, 
+    <Box id="contact" sx={{
+      py: 10,
       background: "linear-gradient(135deg, #f3f7ff 0%, #e6f0ff 100%)",
       position: "relative",
       overflow: "hidden",
@@ -107,10 +105,10 @@ const Contact = () => {
       }
     }}>
       <Container maxWidth="lg">
-        <Box sx={{ 
-          textAlign: "center", 
+        <Box sx={{
+          textAlign: "center",
           mb: 6,
-          position: "relative", 
+          position: "relative",
           zIndex: 1
         }}>
           <Typography
@@ -130,29 +128,31 @@ const Contact = () => {
             Contact Us
           </Typography>
           <Box sx={{ width: 80, height: 3, bgcolor: "accent.main", mx: "auto", mt: 2, mb: 2 }} />
-          <Typography 
-            variant="body1" 
+          <Typography
+            variant="body1"
             color="text.secondary"
-            sx={{ 
-              maxWidth: 600, 
-              mx: "auto", 
+            sx={{
+              maxWidth: 600,
+              mx: "auto",
               mt: 2,
               mb: 2,
               px: 2
             }}
           >
-            Have questions about our freediving programs? Want to join our next session? 
+            Have questions about our freediving programs? Want to join our next session?
             We're here to help you start your underwater journey.
           </Typography>
         </Box>
 
-        <Box 
+        <Box
           sx={{
             display: "flex",
             flexDirection: { xs: "column", md: "row" },
-            gap: 4,
+            // gap: 4,
             alignItems: "stretch",
             backgroundColor: "white",
+
+
             borderRadius: 4,
             overflow: "hidden",
             boxShadow: "0 10px 40px rgba(0,0,0,0.1)",
@@ -161,8 +161,8 @@ const Contact = () => {
           }}
         >
           {/* Contact Information */}
-          <Box 
-            sx={{ 
+          <Box
+            sx={{
               flex: { xs: "1 1 auto", md: "0 0 35%" },
               p: 4,
               backgroundColor: "primary.main",
@@ -180,7 +180,7 @@ const Contact = () => {
             >
               Get In Touch
             </Typography>
-            
+
             <Typography
               variant="body1"
               mb={4}
@@ -210,7 +210,7 @@ const Contact = () => {
                   </Box>
                   <Box>
                     <Typography variant="body2" color="white" sx={{ opacity: 0.7 }}>
-                      OUR  current Pool LOCATION
+                      OUR  CURRENT Pool LOCATION
                     </Typography>
                     <Typography variant="body1" fontWeight={500} color="white">
                       Optisport | Swimmingpool Sloterparkbad, President Allendelaan 3, 1064 GW Amsterdam, Netherlands
@@ -239,7 +239,7 @@ const Contact = () => {
                       EMAIL ADDRESS
                     </Typography>
                     <Typography variant="body1" fontWeight={500} color="white">
-                      bluemindfreediving@gmail.comm
+                      <a href="mailto:bluemindfreediving@gmail.com">bluemindfreediving@gmail.com</a>
                     </Typography>
                   </Box>
                 </Box>
@@ -270,13 +270,13 @@ const Contact = () => {
                   </Box>
                 </Box> */}
               </Box>
-              
+
               {/* Social Media - Instagram only */}
               <Box sx={{ mt: 4 }}>
                 <Typography variant="body2" color="white" sx={{ opacity: 0.7, mb: 2 }}>
                   FOLLOW US
                 </Typography>
-                <Box 
+                <Box
                   component="a"
                   href="https://www.instagram.com/bluemind.freediving/"
                   aria-label="Instagram"
@@ -303,23 +303,25 @@ const Contact = () => {
           </Box>
 
           {/* Contact Form */}
-          <Box 
-            sx={{ 
+          <Box
+            sx={{
               flex: { xs: "1 1 auto", md: "0 0 65%" },
-              p: 4,
-              backgroundColor: "white"
+              p: 0,
+              backgroundColor: "red",
+              backgroundImage: `url('${dewi}')`,
+              backgroundSize: "cover"
             }}
           >
-            <Typography
+            {/* <Typography
               variant="h4"
               fontFamily="Poppins"
               fontWeight={600}
               mb={3}
             >
               Send Us a Message
-            </Typography>
+            </Typography> */}
 
-            <Box component="form" onSubmit={handleSubmit}>
+            {/* <Box component="form" onSubmit={handleSubmit}>
               <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: 2, mb: 2 }}>
                 <TextField
                   required
@@ -398,7 +400,8 @@ const Contact = () => {
                   "Send Message"
                 )}
               </Button>
-            </Box>
+            </Box> */}
+            {/* <img src ={dewi} /> */}
           </Box>
         </Box>
       </Container>

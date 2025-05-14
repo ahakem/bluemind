@@ -177,8 +177,8 @@ const Membership = () => {
                 <Button
                   variant="contained"
                   color="primary"
+                  href="/bluemind-gistration-docments.zip"
                   startIcon={<DownloadIcon />}
-                  onClick={() => downloadDocument(membershipFormDoc, 'blue-mind-membership-form.txt')}
                   sx={{ 
                     borderRadius: 1,
                     py: 1.2,
