@@ -177,7 +177,7 @@ const Membership = () => {
                 <Button
                   variant="contained"
                   color="primary"
-                  href="/bluemind-gistration-docments.zip"
+                  href="/bluemind-rgistration-docments.zip"
                   startIcon={<DownloadIcon />}
                   sx={{ 
                     borderRadius: 1,
