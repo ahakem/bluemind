@@ -1,6 +1,6 @@
 import { Box, Container, Typography, Link } from "@mui/material";
 import InstagramIcon from "@mui/icons-material/Instagram";
-import blueMindLightLogo from "../assets/Bluemind-light.png";
+import blueMindLightLogo from "../assets/bluemind-light.png";
 
 const Footer = () => {
   return (
