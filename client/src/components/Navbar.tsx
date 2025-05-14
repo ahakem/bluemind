@@ -13,10 +13,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import useScrollPosition from "../hooks/useScrollPosition";
 
 // Import the Blue Mind Freediving logos
-import logoOriginal from "../assets/Blue mind-orignal.png";
-import logoDark from "../assets/Blue mind- dark.png";
-import logoLight from "../assets/Blue mind-light.png";
-
+import logoOriginal from "../assets/bluemind-logo.png";
 const navItems = [
   { name: "Home", href: "#home" },
   { name: "About Us", href: "#about" },
