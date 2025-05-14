@@ -210,10 +210,10 @@ const Contact = () => {
                   </Box>
                   <Box>
                     <Typography variant="body2" color="white" sx={{ opacity: 0.7 }}>
-                      OUR LOCATION
+                      OUR  current Pool LOCATION
                     </Typography>
                     <Typography variant="body1" fontWeight={500} color="white">
-                      Sportplaza Mercator, Amsterdam, NL
+                      Optisport | Swimmingpool Sloterparkbad, President Allendelaan 3, 1064 GW Amsterdam, Netherlands
                     </Typography>
                   </Box>
                 </Box>
@@ -239,12 +239,12 @@ const Contact = () => {
                       EMAIL ADDRESS
                     </Typography>
                     <Typography variant="body1" fontWeight={500} color="white">
-                      info@bluemindfreediving.com
+                      bluemindfreediving@gmail.comm
                     </Typography>
                   </Box>
                 </Box>
 
-                <Box sx={{ display: "flex", alignItems: "center" }}>
+                {/* <Box sx={{ display: "flex", alignItems: "center" }}>
                   <Box
                     sx={{
                       width: 40,
@@ -268,7 +268,7 @@ const Contact = () => {
                       +31 20 123 4567
                     </Typography>
                   </Box>
-                </Box>
+                </Box> */}
               </Box>
               
               {/* Social Media - Instagram only */}
@@ -278,7 +278,7 @@ const Contact = () => {
                 </Typography>
                 <Box 
                   component="a"
-                  href="#"
+                  href="https://www.instagram.com/bluemind.freediving/"
                   aria-label="Instagram"
                   sx={{
                     width: 40,

@@ -57,6 +57,14 @@ const Footer = () => {
               gap: 1
             }}
           >
+             <Typography 
+              variant="body2" 
+              color="rgba(255,255,255,0.7)"
+              sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
+            >
+              KVK number: 96935685
+            </Typography>
+            |
             <Typography 
               variant="body2" 
               color="rgba(255,255,255,0.7)"
@@ -66,7 +74,7 @@ const Footer = () => {
             </Typography>
             
             <Link 
-              href="#" 
+              href="https://www.instagram.com/bluemind.freediving/" 
               aria-label="Instagram"
               sx={{ 
                 color: "white", 

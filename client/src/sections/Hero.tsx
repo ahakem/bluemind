@@ -1,4 +1,6 @@
 import { Box, Container, Typography, Button, Grid } from "@mui/material";
+import hero from "../assets/hero.png"
+import heroImg from "../assets/banner-img.png"
 
 const Hero = () => {
   return (
@@ -6,7 +8,7 @@ const Hero = () => {
       id="home"
       sx={{
         position: "relative",
-        height: "100vh",
+        height: "90vh",
         display: "flex",
         alignItems: "center",
         "&::before": {
@@ -17,9 +19,10 @@ const Hero = () => {
           right: 0,
           bottom: 0,
           // Pool-related freediving image
-          backgroundImage: "url('https://images.unsplash.com/photo-1544594376-0a9a6ae2c997?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&h=1080&q=80')",
-          backgroundSize: "cover",
-          backgroundPosition: "center bottom",
+          backgroundImage: `url('${heroImg}')`,
+          // backgroundSize: "cover",
+          backgroundPosition: "right top",
+          backgroundRepeat: "no-repeat",
           zIndex: 0,
         },
         "&::after": {
@@ -85,46 +88,27 @@ const Hero = () => {
               Join our specialized pool training sessions to develop essential freediving skills in a safe, controlled environment. Perfect for beginners and advanced practitioners alike.
             </Typography>
 
-            <Box sx={{ display: "flex", flexDirection: { xs: "column", sm: "row" }, gap: { xs: 2, sm: 3 } }}>
-              <Button
-                variant="contained"
-                color="primary"
-                size="large"
-                href="#services"
-                sx={{
-                  borderRadius: "50px",
-                  py: 1.5,
-                  px: 4,
-                  fontFamily: "Poppins",
-                  fontWeight: 500,
-                  textTransform: "none",
-                  boxShadow: 3,
-                }}
-              >
-                Our Programs
-              </Button>
+            <Box sx={{ flexDirection: { xs: "column", sm: "row" }, gap: { xs: 2, sm: 3 } }}>
+
 
               <Button
-                variant="outlined"
-                color="inherit"
+                variant="contained"
                 size="large"
                 href="#membership"
                 sx={{
                   borderRadius: "50px",
-                  py: 1.5,
                   px: 4,
+                  py: 1.5,
                   fontFamily: "Poppins",
-                  fontWeight: 500,
                   textTransform: "none",
-                  borderWidth: 2,
+                  bgcolor: "white",
+                  color: "primary.main",
                   "&:hover": {
-                    borderWidth: 2,
-                    backgroundColor: "white",
-                    color: "primary.main",
-                  },
+                    bgcolor: "rgba(255,255,255,0.9)",
+                  }
                 }}
               >
-                Become a Member
+                Become a Member!
               </Button>
             </Box>
           </Grid>

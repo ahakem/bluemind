@@ -1,8 +1,9 @@
 import { Box, Container, Typography, Grid, Button, Divider } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
+import ams from '../assets/ams.jpg'
 
 const aboutPoints = [
-  "Certified Freediving Instructors",
+  "Certified Freediving",
   "Indoor Heated Pools",
   "Small Class Sizes",
   "Personalized Training Plans",
@@ -12,8 +13,8 @@ const aboutPoints = [
 
 const About = () => {
   return (
-    <Box id="about" sx={{ 
-      py: 10, 
+    <Box id="about" sx={{
+      py: 10,
       background: "linear-gradient(135deg, #0d47a1, #1976d2, #42a5f5)",
       color: "white"
     }}>
@@ -41,21 +42,21 @@ const About = () => {
           <Box sx={{ width: 80, height: 3, bgcolor: "white", mx: "auto", mt: 2, mb: 4 }} />
         </Box>
 
-        <Box sx={{ 
+        <Box sx={{
           display: "flex",
           flexDirection: { xs: "column", md: "row" },
           alignItems: "center",
           gap: 6
         }}>
-          <Box sx={{ 
+          <Box sx={{
             flex: 1,
-            position: "relative", 
+            position: "relative",
             mb: { xs: 8, md: 0 },
             width: { xs: "100%", md: "auto" }
           }}>
             <Box
               component="img"
-              src="https://images.unsplash.com/photo-1544211597-a5d7a7f3d300?ixlib=rb-4.0.3&auto=format&fit=crop&w=1000&h=800&q=80"
+              src={ams}
               alt="Amsterdam canal view"
               sx={{
                 width: "100%",
@@ -64,7 +65,7 @@ const About = () => {
                 boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
               }}
             />
-            
+
             <Box
               sx={{
                 position: "absolute",
@@ -85,14 +86,14 @@ const About = () => {
               }}
             >
               <Typography variant="h3" fontWeight={700} fontFamily="Poppins">
-                2022
+                2025
               </Typography>
               <Typography variant="body2" align="center" fontWeight={500} sx={{ opacity: 0.9 }}>
                 Founded in Amsterdam
               </Typography>
             </Box>
           </Box>
-          
+
           <Box sx={{ flex: 1 }}>
             <Typography
               variant="h4"
@@ -103,24 +104,27 @@ const About = () => {
             >
               Our Amsterdam Community
             </Typography>
-            
+
             <Typography variant="body1" color="white" paragraph sx={{ opacity: 0.9 }}>
-              Blue Mind Freediving was founded to help the community in and around Amsterdam connect with the water in a meaningful way. Our club started with local enthusiasts who shared a passion for breath-hold diving and its mental and physical benefits.
+              It all started when Hakim and Dewi found themselves struggling to train comfortably in crowded Amsterdam swimming pools. Busy lanes filled with swimmers made using long freediving fins challenging and stressful, and focusing on breath-hold exercises felt nearly impossible.
             </Typography>
-            
+
             <Typography variant="body1" color="white" paragraph sx={{ opacity: 0.9 }}>
-              We believe that the controlled pool environment creates the perfect foundation for developing freediving skills in the Netherlands, where open water conditions can be challenging. Our inclusive approach welcomes all levels, creating a supportive community of like-minded individuals.
+              Frustrated but determined, we decided to <b>build Blue Mind Freediving</b>, a club designed specifically for freedivers. Our idea was simple: create dedicated lanes to train safely, comfortably, and without distractions. We wanted to offer flexibility too—so if you need extra practice outside regular sessions, we help arrange that as long as safety rules are followed.
             </Typography>
-            
-            <Box sx={{ 
-              display: "flex", 
-              flexWrap: "wrap", 
-              gap: 2, 
+            <Typography variant="body1" color="white" paragraph sx={{ opacity: 0.9 }}>
+              At Blue Mind, we believe every freediver deserves space, relaxation, and the best possible environment to improve. That’s exactly what we’re here to provide.
+            </Typography>
+
+            <Box sx={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: 2,
               mt: 4,
               mb: 4
             }}>
-              {aboutPoints.slice(0, 4).map((point, index) => (
-                <Box 
+              {aboutPoints.slice(0, 6).map((point, index) => (
+                <Box
                   key={index}
                   sx={{
                     bgcolor: "rgba(255,255,255,0.1)",
@@ -136,11 +140,11 @@ const About = () => {
                 </Box>
               ))}
             </Box>
-            
+
             <Button
               variant="contained"
               size="large"
-              href="#services"
+              href="#membership"
               sx={{
                 borderRadius: "50px",
                 px: 4,

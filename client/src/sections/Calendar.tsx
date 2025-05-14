@@ -115,13 +115,8 @@ const Calendar = () => {
                 justifyContent: "center"
               }}
             >
-              <EventIcon sx={{ fontSize: 60, color: "primary.main", mb: 2, opacity: 0.8 }} />
-              <Typography variant="h6" align="center" gutterBottom>
-                Google Calendar Integration
-              </Typography>
-              <Typography variant="body2" color="text.secondary" align="center" sx={{ maxWidth: "400px", mb: 3 }}>
-                In a live implementation, this would be replaced with an embedded Google Calendar showing all scheduled training sessions.
-              </Typography>
+             
+              <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=Europe%2FAmsterdam&showTitle=0&showPrint=0&showTz=0&mode=AGENDA&src=Ymx1ZW1pbmRmcmVlZGl2aW5nQGdtYWlsLmNvbQ&color=%23039BE5" width="100%" height="600" frameborder="0" scrolling="no"></iframe>
               <Button 
                 variant="contained" 
                 color="primary"
@@ -141,137 +136,6 @@ const Calendar = () => {
           </Paper>
         </Box>
 
-        {/* Upcoming Events Cards */}
-        <Typography
-          variant="h4"
-          fontFamily="Poppins"
-          fontWeight={600}
-          align="center"
-          mb={4}
-        >
-          Featured Sessions This Week
-        </Typography>
-
-        <Grid container spacing={3}>
-          {upcomingEvents.map((event, index) => (
-            <Grid key={index} sx={{ width: { xs: '100%', sm: '50%', md: '50%', lg: '25%' }, p: 1.5 }}>
-              <Card 
-                sx={{ 
-                  height: "100%", 
-                  borderRadius: 2,
-                  transition: "transform 0.3s ease",
-                  "&:hover": {
-                    transform: "translateY(-8px)",
-                    boxShadow: 4
-                  }
-                }}
-              >
-                <Box sx={{ 
-                  height: 8, 
-                  bgcolor: 
-                    event.type === "beginner" ? "primary.main" : 
-                    event.type === "intermediate" ? "secondary.main" : 
-                    event.type === "advanced" ? "error.main" : 
-                    "success.main"
-                }} />
-                <CardContent sx={{ p: 3 }}>
-                  <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", mb: 2 }}>
-                    <Typography variant="h6" fontWeight={600} sx={{ mb: 1 }}>
-                      {event.title}
-                    </Typography>
-                    <Chip 
-                      label={`${event.spotsLeft} spots`} 
-                      size="small" 
-                      color={event.spotsLeft <= 2 ? "error" : "primary"}
-                      variant="outlined"
-                    />
-                  </Box>
-
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 1.5 }}>
-                    <EventIcon fontSize="small" sx={{ color: "text.secondary", mr: 1 }} />
-                    <Typography variant="body2" color="text.secondary">
-                      {event.date}
-                    </Typography>
-                  </Box>
-
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 1.5 }}>
-                    <AccessTimeIcon fontSize="small" sx={{ color: "text.secondary", mr: 1 }} />
-                    <Typography variant="body2" color="text.secondary">
-                      {event.time}
-                    </Typography>
-                  </Box>
-
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 1.5 }}>
-                    <LocationOnIcon fontSize="small" sx={{ color: "text.secondary", mr: 1 }} />
-                    <Typography variant="body2" color="text.secondary">
-                      {event.location}
-                    </Typography>
-                  </Box>
-
-                  <Box sx={{ display: "flex", alignItems: "center", mb: 2 }}>
-                    <PersonIcon fontSize="small" sx={{ color: "text.secondary", mr: 1 }} />
-                    <Typography variant="body2" color="text.secondary">
-                      {event.instructor}
-                    </Typography>
-                  </Box>
-
-                  <Chip 
-                    label={
-                      event.type === "beginner" ? "Beginner Friendly" : 
-                      event.type === "intermediate" ? "Intermediate" : 
-                      event.type === "advanced" ? "Advanced" : 
-                      "All Levels"
-                    } 
-                    size="small"
-                    sx={{ mr: 1, mb: 2 }}
-                    color={
-                      event.type === "beginner" ? "primary" : 
-                      event.type === "intermediate" ? "secondary" : 
-                      event.type === "advanced" ? "error" : 
-                      "success"
-                    }
-                  />
-
-                  <Button 
-                    fullWidth 
-                    variant="outlined" 
-                    color="primary"
-                    endIcon={<PoolIcon />}
-                    sx={{
-                      borderRadius: 2,
-                      textTransform: "none",
-                      mt: 1
-                    }}
-                  >
-                    Register
-                  </Button>
-                </CardContent>
-              </Card>
-            </Grid>
-          ))}
-        </Grid>
-
-        {/* Call to Action */}
-        <Box sx={{ textAlign: "center", mt: 6 }}>
-          <Typography variant="body1" mb={3}>
-            Want to see the full schedule and register for sessions?
-          </Typography>
-          <Button
-            variant="contained"
-            color="primary"
-            size="large"
-            href="#contact"
-            sx={{
-              borderRadius: "50px",
-              px: 4,
-              py: 1.5,
-              fontFamily: "Poppins",
-              textTransform: "none",
-            }}
-          >
-            Become a Member
-          </Button>
-        </Box>
       </Container>
     </Box>
   );

@@ -185,20 +185,7 @@ const Membership = () => {
                     fontWeight: 500
                   }}
                 >
-                  Membership Form
-                </Button>
-                <Button
-                  variant="outlined"
-                  color="primary"
-                  startIcon={<DownloadIcon />}
-                  onClick={() => downloadDocument(membershipInfoDoc, 'blue-mind-membership-info.txt')}
-                  sx={{ 
-                    borderRadius: 1,
-                    py: 1.2,
-                    fontWeight: 500
-                  }}
-                >
-                  Membership Info
+                  Membership Forms
                 </Button>
               </Box>
             </Paper>

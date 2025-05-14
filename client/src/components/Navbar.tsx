@@ -20,7 +20,6 @@ import logoLight from "../assets/Blue mind-light.png";
 const navItems = [
   { name: "Home", href: "#home" },
   { name: "About Us", href: "#about" },
-  { name: "Our Programs", href: "#services" },
   { name: "Calendar", href: "#calendar" },
   { name: "Membership", href: "#membership" },
   { name: "Contact", href: "#contact" },
