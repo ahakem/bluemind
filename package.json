@@ -1,17 +1,17 @@
 {
-  "name": "Bluemind-Freediving",
+  "name": "bluemind-freediving",
   "version": "1.0.0",
   "type": "module",
   "license": "MIT",
-  "homepage": "https://bluemindfreediving.nl/",
+  "homepage": "https://bluemindfreediving.nl",
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
-    "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist/public",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc",
     "db:push": "drizzle-kit push",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist/public"
+    "deploy": "gh-pages -d dist/public --branch=gh-pages --dotfiles --force"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
