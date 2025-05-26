@@ -1,6 +1,6 @@
 import { Box, Container, Typography, Grid, Button, Divider } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-import ams from '../assets/ams.jpg'
+import ams from '../assets/BMF-founders.jpg'
 
 const aboutPoints = [
   "Certified Freediving",

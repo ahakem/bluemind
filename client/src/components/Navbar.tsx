@@ -17,8 +17,8 @@ import logoOriginal from "../assets/bluemind-logo.png";
 const navItems = [
   { name: "Home", href: "#home" },
   { name: "About Us", href: "#about" },
-  { name: "Calendar", href: "#calendar" },
   { name: "Membership", href: "#membership" },
+  { name: "Calendar", href: "#calendar" },
   { name: "Contact", href: "#contact" },
 ];
 
