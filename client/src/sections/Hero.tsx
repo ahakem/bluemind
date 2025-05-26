@@ -85,7 +85,7 @@ const Hero = () => {
                 maxWidth: "600px",
               }}
             >
-              Join our specialized pool training sessions to develop essential freediving skills in a safe, controlled environment. Perfect for beginners and advanced practitioners alike.
+              Join our pool training sessions to meet other freedivers and develop your freediving skills in a safe environment.
             </Typography>
 
             <Box sx={{ flexDirection: { xs: "column", sm: "row" }, gap: { xs: 2, sm: 3 } }}>

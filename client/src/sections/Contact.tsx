@@ -140,7 +140,7 @@ const Contact = () => {
             }}
           >
             Have questions about our freediving programs? Want to join our next session?
-            We're here to help you start your underwater journey.
+            We are here to help you start your underwater journey.
           </Typography>
         </Box>
 
@@ -186,7 +186,7 @@ const Contact = () => {
               mb={4}
               sx={{ opacity: 0.85 }}
             >
-              Connect with our Amsterdam freediving community. We're ready to answer your questions and welcome you to our pool training sessions.
+              Connect with our Amsterdam freediving community. We are ready to answer your questions and welcome you to our pool training sessions.
             </Typography>
 
             {/* Contact Information Items */}
