@@ -28,8 +28,8 @@ var sendEmail = async (req, res) => {
     }
     if (!mailService) {
       console.log("Email would be sent (simulation):", {
-        to: "info@bluemindfreediving.com",
-        from: "noreply@bluemindfreediving.com",
+        to: "info@bluemindfreediving.nl",
+        from: "noreply@bluemindfreediving.nl",
         subject: `Contact Form: ${subject}`,
         text: `From: ${name} (${email})
 
@@ -42,8 +42,8 @@ ${message}`
       });
     }
     await mailService.send({
-      to: "info@bluemindfreediving.com",
-      from: "noreply@bluemindfreediving.com",
+      to: "info@bluemindfreediving.nl",
+      from: "noreply@bluemindfreediving.nl",
       subject: `Contact Form: ${subject}`,
       text: `From: ${name} (${email})
 

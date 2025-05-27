@@ -46,8 +46,8 @@ export const sendEmail = async (req: Request, res: Response) => {
     // If SendGrid is not configured, simulate success response
     if (!mailService) {
       console.log('Email would be sent (simulation):', {
-        to: 'info@bluemindfreediving.com',
-        from: 'noreply@bluemindfreediving.com',
+        to: 'info@bluemindfreediving.nl',
+        from: 'noreply@bluemindfreediving.nl',
         subject: `Contact Form: ${subject}`,
         text: `From: ${name} (${email})\n\n${message}`,
       });
@@ -63,8 +63,8 @@ export const sendEmail = async (req: Request, res: Response) => {
 
     // Send actual email with SendGrid
     await mailService.send({
-      to: 'info@bluemindfreediving.com',
-      from: 'noreply@bluemindfreediving.com',
+      to: 'info@bluemindfreediving.nl',
+      from: 'noreply@bluemindfreediving.nl',
       subject: `Contact Form: ${subject}`,
       text: `From: ${name} (${email})\n\n${message}`,
       html: `

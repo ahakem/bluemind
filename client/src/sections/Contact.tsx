@@ -239,7 +239,7 @@ const Contact = () => {
                       EMAIL ADDRESS
                     </Typography>
                     <Typography variant="body1" fontWeight={500} color="white">
-                      <a href="mailto:info@bluemindfreediving.com">info@bluemindfreediving.com</a>
+                      <a href="mailto:info@bluemindfreediving.nl">info@bluemindfreediving.nl</a>
                     </Typography>
                   </Box>
                 </Box>

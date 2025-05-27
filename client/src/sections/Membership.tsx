@@ -250,7 +250,7 @@ const Membership = () => {
                 align="center"
                 sx={{ mb: 3 }}
               >
-                Email your completed form to <strong>info@bluemindfreediving.com</strong> or submit through our contact form.
+                Email your completed form to <strong>info@bluemindfreediving.nl</strong> 
               </Typography>
               
               <Button
