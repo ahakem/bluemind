@@ -1,5 +1,5 @@
 import { Box, Container, Typography, Grid, Card, CardMedia, CardContent } from "@mui/material";
-import { team } from "../data";
+import { team } from "../../data/index";
 
 const Team = () => {
   return (
@@ -26,12 +26,9 @@ const Team = () => {
 
         <Grid container spacing={4} justifyContent="center">
           {team.map((member, index) => (
-            <Grid size={{ xs: 12, md: 6 }} key={index}>
+            <Grid item xs={12} sm={6} md={5} key={index}>
               <Card
                 sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  height: '100%',
                   borderRadius: 2,
                   overflow: "hidden",
                   boxShadow: 3,
@@ -40,9 +37,6 @@ const Team = () => {
                     transform: "translateY(-8px)",
                     boxShadow: 6,
                   },
-                  "&:hover .MuiCardMedia-root": {
-                    filter: "grayscale(0%)",
-                  },
                 }}
               >
                 <CardMedia
@@ -50,12 +44,8 @@ const Team = () => {
                   height="300"
                   image={member.image}
                   alt={member.name}
-                  sx={{
-                    filter: "grayscale(100%)",
-                    transition: "filter 0.3s ease-in-out",
-                  }}
                 />
-                <CardContent sx={{ textAlign: "center", p: 3, flexGrow: 1 }}>
+                <CardContent sx={{ textAlign: "center", p: 3 }}>
                   <Typography
                     variant="h5"
                     fontFamily="Poppins"
@@ -72,11 +62,10 @@ const Team = () => {
                     {member.position}
                   </Typography>
                   <Typography
-                    variant="body1"
+                    variant="body2"
                     color="text.secondary"
-                    sx={{ fontSize: '1.1rem' }}
                   >
-                    {member.bio}
+                    {member.bio} xxxx
                   </Typography>
                 </CardContent>
               </Card>

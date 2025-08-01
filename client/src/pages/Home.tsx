@@ -6,6 +6,8 @@ import Services from "../sections/Services";
 import Membership from "../sections/Membership";
 import Calendar from "../sections/Calendar";
 import Contact from "../sections/Contact";
+import Team from "../sections/Team";
+import Gallery from "../sections/Gallery";
 
 const Home = () => {
   return (
@@ -14,10 +16,10 @@ const Home = () => {
       {/* <Features /> */}
       {/* <Services /> */}
       <About />
-
+      <Team />
       <Membership />
-
-      <Calendar /> 
+      <Gallery />
+      <Calendar />
       {/* <Counter /> */}
       <Contact />
     </>

@@ -68,62 +68,6 @@ export const services = [
   },
 ];
 
-// Gallery section data
-export const gallery = [
-  {
-    title: "Freediving Equipment",
-    image:
-      "https://pixabay.com/get/g7eb09de112899f2bc1d616dd92de22bcb06581e06f2ebbd2b8e86adbfe6b16568248732e284ef9a68969dc49f17c3cbf6ba226498cbb048e423f9f848460403c_1280.jpg",
-  },
-  {
-    title: "Indoor Training Pool",
-    image:
-      "https://images.unsplash.com/photo-1575429198097-0414ec08e8cd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&h=600&q=80",
-  },
-  {
-    title: "Breath Control Practice",
-    image:
-      "https://pixabay.com/get/g9005408c0d12a4eb0ee8f90f894284b1f3ac0f4c5a10220e58f8732ee7e4be0afc7239014f59eb3cf43f0f8491023677_1280.jpg",
-  },
-  {
-    title: "Dynamic Apnea Performance",
-    image:
-      "https://pixabay.com/get/gbcc9f3f37ea195f293cd45616076248b304ce757f30043b24377df5b1b550015b3141b5b2d7dd4cd8a5f1466cc5ed43f77008a2afeb07638db73bd44cb2892c9_1280.jpg",
-  },
-  {
-    title: "Group Training Session",
-    image:
-      "https://pixabay.com/get/g8be277db8fb3b5053b92680f43696d68eb38157196dd17d69391e6eafc4ef7b208135205ff5bd16d88f29f03d011e401b1c2fb1b67110c6cd52e6add9f963fcd_1280.jpg",
-  },
-];
-
-// Team section data
-export const team = [
-  {
-    name: "Michael Taylor",
-    position: "Head Coach & Founder",
-    image:
-      "https://images.unsplash.com/photo-1567784177951-6fa58317e16b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=800&q=80",
-  },
-  {
-    name: "Sarah Johnson",
-    position: "Static Apnea Specialist",
-    image:
-      "https://images.unsplash.com/photo-1519699047748-de8e457a634e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=800&q=80",
-  },
-  {
-    name: "David Chen",
-    position: "Dynamic Techniques Coach",
-    image:
-      "https://pixabay.com/get/ga2ed62ff75196cd1f31e072e304b0821a8ae786911d908250d2d8e8cfee1455a72a04ad98b5962607137143e5a7cf2dbc766ef844832e28d84f005268cdecd0e_1280.jpg",
-  },
-  {
-    name: "Emily Martinez",
-    position: "Beginner Program Leader",
-    image:
-      "https://pixabay.com/get/g302f3fbf56fbba499ed30e357b5a9f4317ad9a9b2399612de675f2c1b79493347b8d582fe9d993bd0737f56b16ee1309e0537f1f70c46eaedd87fb3694bcc0fe_1280.jpg",
-  },
-];
 
 // Testimonials section data
 export const testimonials = [
@@ -149,3 +93,55 @@ export const testimonials = [
       "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-4.0.3&auto=format&fit=crop&w=200&h=200&q=80",
   },
 ];
+export const team = [
+  {
+    name: "Hakim",
+    position: "Co-Founder | president | Athlete | AIDA Judge & Safety",
+    image:
+      "./src/assets/hakim.jpg",
+    bio: "Hakim began his freediving journey in late 2021, shortly before relocating to the Netherlands. With a background in competitive sports and a deep passion for breath-hold diving, he quickly rose through the ranks to become a 4x Egyptian national record holder. As both an AIDA-certified judge and safety diver, Hakim brings a strong foundation of professionalism and care to every training and competition environment. He has proudly represented Egypt at two World Championships, and continues to train, coach, and advocate for a safe and inclusive freediving community through BlueMind.",
+  },
+  {
+    name: "Dewi", 
+    position: "Co-Founder | vice president | Athlete | AIDA Safety",
+    image:
+      "./src/assets/dewi-2.jpg",
+    bio: "Dewi is a dedicated freediver and certified AIDA safety with a calm, focused presence both in and out of the water. She brings depth and discipline to every training session, with a special love for the purest forms of freediving — Dynamic No Fins (DNF) and Constant Weight No Fins (CNF). Her precision, reliability, and deep connection to the water make her a trusted safety and a strong asset to the freediving community. Through BlueMind, Dewi supports a culture of safety, growth, and mental clarity in the sport she loves.",
+  },
+];
+
+// Gallery section data
+export const gallery = [
+  {
+    title: "Freediver in the pool",
+    image:
+      "https://images.unsplash.com/photo-1567784177951-6fa58317e16b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=800&q=80",
+  },
+  {
+    title: "Pool lanes",
+    image:
+      "https://images.unsplash.com/photo-1519699047748-de8e457a634e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=800&q=80",
+  },
+  {
+    title: "Underwater view",
+    image:
+      "https://images.unsplash.com/photo-1567784177951-6fa58317e16b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=800&q=80",
+  },
+  {
+    title: "Pool lanes",
+    image:
+      "https://images.unsplash.com/photo-1519699047748-de8e457a634e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=800&q=80",
+  },
+  {
+    title: "Freediver in the pool",
+    image:
+      "https://images.unsplash.com/photo-1567784177951-6fa58317e16b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=800&q=80",
+  }
+  
+];
+
+
+
+
+
+

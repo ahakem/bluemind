@@ -1,6 +1,7 @@
 import { Route, Switch } from "wouter";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
+import GalleryPage from "./pages/GalleryPage";
 import NotFound from "@/pages/not-found";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
@@ -11,6 +12,7 @@ function App() {
       <Layout>
         <Switch>
           <Route path="/" component={Home} />
+          <Route path="/gallery" component={GalleryPage} />
           <Route component={NotFound} />
         </Switch>
       </Layout>
