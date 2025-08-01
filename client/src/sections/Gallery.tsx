@@ -1,9 +1,11 @@
-import { Box, Container, Typography, Grid } from "@mui/material";
+import { Box, Container, Typography, Grid, Button } from "@mui/material";
 import { gallery } from "../data";
+import { Link } from "wouter";
 
 const Gallery = () => {
   return (
-    <Box sx={{ py: 8, bgcolor: "grey.50" }}>
+    // The id="gallery" is added here for the navigation link
+    <Box id="gallery" sx={{ py: 8, bgcolor: "grey.50" }}>
       <Container maxWidth="lg">
         <Box sx={{ textAlign: "center", mb: 8 }}>
           <Typography
@@ -24,6 +26,7 @@ const Gallery = () => {
           <Box sx={{ width: 80, height: 3, bgcolor: "accent.main", mx: "auto", mt: 2 }} />
         </Box>
 
+        {/* This is your existing image grid, which is perfectly fine. */}
         <Grid container spacing={2}>
           {/* First image */}
           <Grid item xs={12} sm={6} md={3}>
@@ -158,6 +161,21 @@ const Gallery = () => {
             </Box>
           </Grid>
         </Grid>
+
+        {/* --- THIS IS THE MISSING BUTTON --- */}
+        <Box sx={{ textAlign: "center", mt: 4 }}>
+          <Link href="/gallery">
+            <Button
+              variant="contained"
+              color="primary"
+              size="large"
+            >
+              View More
+            </Button>
+          </Link>
+        </Box>
+        {/* --- END OF BUTTON SECTION --- */}
+        
       </Container>
     </Box>
   );

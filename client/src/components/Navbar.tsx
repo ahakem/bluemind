@@ -15,11 +15,12 @@ import useScrollPosition from "../hooks/useScrollPosition";
 // Import the Blue Mind Freediving logos
 import logoOriginal from "../assets/bluemind-logo.png";
 const navItems = [
-  { name: "Home", href: "#home" },
-  { name: "About Us", href: "#about" },
-  { name: "Membership", href: "#membership" },
-  { name: "Calendar", href: "#calendar" },
-  { name: "Contact", href: "#contact" },
+  { name: "Home", href: "/#home" },
+  { name: "About Us", href: "/#about" },
+  { name: "Membership", href: "/#membership" },
+  { name: "Gallery", href: "/#gallery" },
+  { name: "Calendar", href: "/#calendar" },
+  { name: "Contact", href: "/#contact" },
 ];
 
 const Navbar = () => {
