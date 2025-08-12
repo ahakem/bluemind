@@ -115,29 +115,122 @@ export const gallery = [
   {
     title: "Freediver in the pool",
     image:
-      "https://images.unsplash.com/photo-1567784177951-6fa58317e16b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=800&q=80",
-  },
-  {
-    title: "Pool lanes",
-    image:
-      "https://images.unsplash.com/photo-1519699047748-de8e457a634e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=800&q=80",
-  },
-  {
-    title: "Underwater view",
-    image:
-      "https://images.unsplash.com/photo-1567784177951-6fa58317e16b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=800&q=80",
-  },
-  {
-    title: "Pool lanes",
-    image:
-      "https://images.unsplash.com/photo-1519699047748-de8e457a634e?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=800&q=80",
+      "./src/assets/gallery/19.jpg",
   },
   {
     title: "Freediver in the pool",
     image:
-      "https://images.unsplash.com/photo-1567784177951-6fa58317e16b?ixlib=rb-4.0.3&auto=format&fit=crop&w=600&h=800&q=80",
-  }
-  
+      "./src/assets/gallery/21.jpg",
+  },
+  {
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/8.jpg",
+  },
+    {
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/22.jpg",
+  },
+  {
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/1.jpg",
+  },
+   {
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/2.jpg",
+  },
+   {
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/3.jpg",
+  },
+   {
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/4.jpg",
+  },
+   {
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/5.jpg",
+  },
+   {
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/6.jpg",
+  },
+   {
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/7.jpg",
+  },
+   
+   {
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/8.jpg",
+  },
+   {
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/9.jpg",
+  },
+   {
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/10.jpg",
+  },
+   {
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/11.jpg",
+  },
+   {
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/12.jpg",
+  },
+   {
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/13.jpg",
+  }, {
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/14.jpg",
+  }, {
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/15.jpg",
+  }, {
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/16.jpg",
+  },{
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/16.jpg",
+  },{
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/17.jpg",
+  },{
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/18.jpg",
+  },
+  {
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/20.jpg",
+  },{
+    title: "Freediver in the pool",
+    image:
+      "./src/assets/gallery/21.jpg",
+  },
 ];
 
 
