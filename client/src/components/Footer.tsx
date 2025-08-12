@@ -1,6 +1,8 @@
 import { Box, Container, Typography, Link } from "@mui/material";
 import InstagramIcon from "@mui/icons-material/Instagram";
+import CalculateIcon from "@mui/icons-material/Calculate";
 import blueMindLightLogo from "../assets/bluemind-light.png";
+import { Link as RouterLink } from "wouter";
 
 const Footer = () => {
   return (
@@ -49,7 +51,7 @@ const Footer = () => {
             </Typography>
           </Box>
           
-          {/* Instagram Link */}
+          {/* Links Section */}
           <Box 
             sx={{ 
               display: "flex",
@@ -95,6 +97,33 @@ const Footer = () => {
             >
               <InstagramIcon fontSize="small" />
             </Link>
+            
+            {/* Finance Calculator Link */}
+            <RouterLink href="/finance">
+              <Link
+                component="span"
+                aria-label="Finance Calculator"
+                sx={{ 
+                  color: "white", 
+                  width: 38, 
+                  height: 38, 
+                  bgcolor: "rgba(255,255,255,0.1)",
+                  borderRadius: "50%", 
+                  display: "flex", 
+                  alignItems: "center", 
+                  justifyContent: "center",
+                  transition: "all 0.3s ease",
+                  cursor: "pointer",
+                  "&:hover": { 
+                    bgcolor: "primary.main", 
+                    transform: "translateY(-3px)",
+                    boxShadow: "0 5px 15px rgba(0,0,0,0.2)"
+                  }
+                }}
+              >
+                <CalculateIcon fontSize="small" />
+              </Link>
+            </RouterLink>
           </Box>
         </Box>
       </Container>
