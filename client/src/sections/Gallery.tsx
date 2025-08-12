@@ -2,6 +2,26 @@ import { Box, Container, Typography, Grid, Button } from "@mui/material";
 import { gallery } from "../data";
 import { Link } from "wouter";
 
+// Reusable image container style
+const imageContainerStyle = {
+  position: "relative",
+  overflow: "hidden",
+  borderRadius: 2,
+  boxShadow: 2,
+  height: 300, // Standardized height
+  width: "100%",
+  mb: 3, // Consistent margin bottom
+  img: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    transition: "transform 0.5s ease",
+  },
+  "&:hover img": {
+    transform: "scale(1.1)",
+  },
+};
+
 const Gallery = () => {
   return (
     // The id="gallery" is added here for the navigation link
@@ -26,156 +46,41 @@ const Gallery = () => {
           <Box sx={{ width: 80, height: 3, bgcolor: "accent.main", mx: "auto", mt: 2 }} />
         </Box>
 
-        {/* This is your existing image grid, which is perfectly fine. */}
-        <Grid container spacing={2}>
-          {/* First image */}
-          <Grid item xs={12} sm={6} md={3}>
-            <Box
-              sx={{
-                position: "relative",
-                overflow: "hidden",
-                borderRadius: 2,
-                boxShadow: 2,
-                height: 240,
-                img: {
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  transition: "transform 0.5s ease",
-                },
-                "&:hover img": {
-                  transform: "scale(1.1)",
-                },
-              }}
-            >
-              <img
-                src={gallery[0].image}
-                alt={gallery[0].title}
-              />
-            </Box>
-          </Grid>
-
-          {/* Center large image */}
-          <Grid item xs={12} sm={6} md={6}>
-            <Box
-              sx={{
-                position: "relative",
-                overflow: "hidden",
-                borderRadius: 2,
-                boxShadow: 2,
-                height: 500,
-                img: {
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  transition: "transform 0.5s ease",
-                },
-                "&:hover img": {
-                  transform: "scale(1.1)",
-                },
-              }}
-            >
-              <img
-                src={gallery[1].image}
-                alt={gallery[1].title}
-              />
-            </Box>
-          </Grid>
-
-          {/* Right column images */}
-          <Grid item xs={12} sm={6} md={3}>
-            <Box
-              sx={{
-                position: "relative",
-                overflow: "hidden",
-                borderRadius: 2,
-                boxShadow: 2,
-                height: 240,
-                mb: 2,
-                img: {
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  transition: "transform 0.5s ease",
-                },
-                "&:hover img": {
-                  transform: "scale(1.1)",
-                },
-              }}
-            >
-              <img
-                src={gallery[2].image}
-                alt={gallery[2].title}
-              />
-            </Box>
-            <Box
-              sx={{
-                position: "relative",
-                overflow: "hidden",
-                borderRadius: 2,
-                boxShadow: 2,
-                height: 240,
-                img: {
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  transition: "transform 0.5s ease",
-                },
-                "&:hover img": {
-                  transform: "scale(1.1)",
-                },
-              }}
-            >
-              <img
-                src={gallery[3].image}
-                alt={gallery[3].title}
-              />
-            </Box>
-          </Grid>
-
-          {/* Bottom wide image */}
-          <Grid item xs={12} sm={12} md={6}>
-            <Box
-              sx={{
-                position: "relative",
-                overflow: "hidden",
-                borderRadius: 2,
-                boxShadow: 2,
-                height: 240,
-                mt: { xs: 2, md: 2 },
-                img: {
-                  width: "100%",
-                  height: "100%",
-                  objectFit: "cover",
-                  transition: "transform 0.5s ease",
-                },
-                "&:hover img": {
-                  transform: "scale(1.1)",
-                },
-              }}
-            >
-              <img
-                src={gallery[4].image}
-                alt={gallery[4].title}
-              />
-            </Box>
-          </Grid>
+        {/* Redesigned image grid with consistent sizes */}
+        <Grid container spacing={3}>
+          {gallery.slice(0, 6).map((item, index) => (
+            <Grid item xs={12} sm={6} md={4} key={index}>
+              <Box sx={imageContainerStyle}>
+                <img
+                  src={item.image}
+                  alt={item.title}
+                />
+              </Box>
+            </Grid>
+          ))}
         </Grid>
 
-        {/* --- THIS IS THE MISSING BUTTON --- */}
-        <Box sx={{ textAlign: "center", mt: 4 }}>
+        <Box sx={{ textAlign: "center", mt: 6 }}>
           <Link href="/gallery">
             <Button
               variant="contained"
               color="primary"
               size="large"
+              sx={{
+                px: 4,
+                py: 1.5,
+                fontWeight: 600,
+                borderRadius: 2,
+                boxShadow: 3,
+                '&:hover': {
+                  boxShadow: 5,
+                },
+              }}
             >
-              View More
+              View Full Gallery
             </Button>
           </Link>
         </Box>
-        {/* --- END OF BUTTON SECTION --- */}
-        
       </Container>
     </Box>
   );
