@@ -12,7 +12,6 @@ import MenuItem from "@mui/material/MenuItem";
 import MenuIcon from "@mui/icons-material/Menu";
 import useScrollPosition from "../hooks/useScrollPosition";
 
-// Import the Blue Mind Freediving logos
 import logoOriginal from "../assets/bluemind-logo.png";
 const navItems = [
   { name: "Home", href: "/#home" },
@@ -56,20 +55,21 @@ const Navbar = () => {
     >
       <Container maxWidth="lg">
         <Toolbar disableGutters>
-          {/* Desktop Logo */}
-          <Box 
-            component="img"
-            src={logoOriginal}
-            alt="Blue Mind Freediving"
-            sx={{ 
-              display: { xs: "none", md: "flex" }, 
-              mr: 2,
-              height: 50,
-              width: "auto"
-            }} 
-          />
+          <RouterLink to="/">
+            <Box 
+              component="img"
+              src={logoOriginal}
+              alt="Blue Mind Freediving"
+              sx={{ 
+                display: { xs: "none", md: "flex" }, 
+                mr: 2,
+                height: 50,
+                width: "auto",
+                cursor: "pointer",
+              }} 
+            />
+          </RouterLink>
 
-          {/* Mobile Menu */}
           <Box sx={{ flexGrow: 0, display: { xs: "flex", md: "none" } }}>
             <IconButton
               size="large"
@@ -116,49 +116,32 @@ const Navbar = () => {
                   </Typography>
                 </MenuItem>
               ))}
-              <MenuItem onClick={handleCloseNavMenu}>
-                <Button
-                  component="a"
-                  href="#contact"
-                  variant="contained"
-                  color="primary"
-                  fullWidth
-                  sx={{
-                    fontFamily: "Poppins",
-                    borderRadius: "50px",
-                    textTransform: "none",
-                    mt: 1
-                  }}
-                >
-                  Join Now
-                </Button>
-              </MenuItem>
             </Menu>
           </Box>
 
-          {/* Mobile Logo */}
-          <Box 
-            sx={{
-              display: { xs: "flex", md: "none" },
-              flexGrow: 1,
-              justifyContent: "center",
-              alignItems: "center"
-            }}
-          >
-            <Box
-              component="img"
-              src={logoOriginal}
-              alt="Blue Mind Freediving"
-              sx={{ 
-                height: 40,
-                width: "auto",
-                objectFit: "contain",
-                maxWidth: "200px"
-              }} 
-            />
-          </Box>
+          <RouterLink to="/">
+            <Box 
+              sx={{
+                display: { xs: "flex", md: "none" },
+                flexGrow: 1,
+                justifyContent: "center",
+                alignItems: "center"
+              }}
+            >
+              <Box
+                component="img"
+                src={logoOriginal}
+                alt="Blue Mind Freediving"
+                sx={{ 
+                  height: 40,
+                  width: "auto",
+                  objectFit: "contain",
+                  maxWidth: "200px"
+                }} 
+              />
+            </Box>
+          </RouterLink>
 
-          {/* Desktop Menu */}
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, justifyContent: "center" }}>
             {navItems.map((item) => (
               <Button
@@ -185,11 +168,10 @@ const Navbar = () => {
             ))}
           </Box>
 
-          {/* CTA Button (Desktop) */}
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
             <Button
               component="a"
-              href="#contact"
+              href="/#contact" // Make this absolute too
               variant="contained"
               color="primary"
               sx={{

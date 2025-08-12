@@ -1,8 +1,8 @@
-import { Box, Container, Typography, Link } from "@mui/material";
+import { Box, Container, Typography, Link as MuiLink, IconButton } from "@mui/material";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import blueMindLightLogo from "../assets/bluemind-light.png";
-import { Link as RouterLink } from "wouter";
+import { Link } from "wouter"; // Import the Link component from wouter
 
 const Footer = () => {
   return (
@@ -30,7 +30,6 @@ const Footer = () => {
               gap: { xs: 2, sm: 3 }
             }}
           >
-            {/* Logo */}
             <Box 
               component="img"
               src={blueMindLightLogo}
@@ -40,8 +39,6 @@ const Footer = () => {
                 width: "auto"
               }} 
             />
-            
-            {/* Copyright */}
             <Typography 
               variant="body2" 
               color="rgba(255,255,255,0.7)"
@@ -75,8 +72,10 @@ const Footer = () => {
               Follow us
             </Typography>
             
-            <Link 
+            <MuiLink // This is a standard HTML link for an external site
               href="https://www.instagram.com/bluemind.freediving/" 
+              target="_blank"
+              rel="noopener noreferrer"
               aria-label="Instagram"
               sx={{ 
                 color: "white", 
@@ -96,24 +95,19 @@ const Footer = () => {
               }}
             >
               <InstagramIcon fontSize="small" />
-            </Link>
+            </MuiLink>
             
-            {/* Finance Calculator Link */}
-            <RouterLink href="/finance">
-              <Link
-                component="span"
+            {/* Finance Calculator Link - Simplified and Fixed */}
+            <Link href="/finance">
+              <IconButton
                 aria-label="Finance Calculator"
                 sx={{ 
                   color: "white", 
                   width: 38, 
                   height: 38, 
                   bgcolor: "rgba(255,255,255,0.1)",
-                  borderRadius: "50%", 
-                  display: "flex", 
-                  alignItems: "center", 
-                  justifyContent: "center",
+                  borderRadius: "50%",
                   transition: "all 0.3s ease",
-                  cursor: "pointer",
                   "&:hover": { 
                     bgcolor: "primary.main", 
                     transform: "translateY(-3px)",
@@ -122,8 +116,8 @@ const Footer = () => {
                 }}
               >
                 <CalculateIcon fontSize="small" />
-              </Link>
-            </RouterLink>
+              </IconButton>
+            </Link>
           </Box>
         </Box>
       </Container>

@@ -15,7 +15,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import EmailIcon from "@mui/icons-material/Email";
 
 import InstagramIcon from "@mui/icons-material/Instagram";
-import dewi from "../assets/dewi.jpg"
+import contact from "../assets/contact.jpg"
 
 // Email form interface
 interface ContactFormData {
@@ -308,7 +308,7 @@ const Contact = () => {
               flex: { xs: "1 1 auto", md: "0 0 65%" },
               p: 0,
               backgroundColor: "red",
-              backgroundImage: `url('${dewi}')`,
+              backgroundImage: `url('${contact}')`,
               backgroundSize: "cover"
             }}
           >
