@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Link as RouterLink } from "wouter";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -11,21 +10,25 @@ import Button from "@mui/material/Button";
 import MenuItem from "@mui/material/MenuItem";
 import MenuIcon from "@mui/icons-material/Menu";
 import useScrollPosition from "../hooks/useScrollPosition";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 
 import logoOriginal from "../assets/bluemind-logo.png";
+
 const navItems = [
-  { name: "Home", href: "/#home" },
-  { name: "About Us", href: "/#about" },
-  { name: "Membership", href: "/#membership" },
-  { name: "Gallery", href: "/#gallery" },
-  { name: "Calendar", href: "/#calendar" },
-  { name: "Contact", href: "/#contact" },
+  { name: "Home", hash: "#home" },
+  { name: "About Us", hash: "#about" },
+  { name: "Membership", hash: "#membership" },
+  { name: "Gallery", hash: "#gallery" },
+  { name: "Calendar", hash: "#calendar" },
+  { name: "Contact", hash: "#contact" },
 ];
 
 const Navbar = () => {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
   const [elevated, setElevated] = useState(false);
   const scrollPosition = useScrollPosition();
+  const navigate = useNavigate();
+  const location = useLocation();
 
   useEffect(() => {
     if (scrollPosition > 50) {
@@ -43,6 +46,19 @@ const Navbar = () => {
     setAnchorElNav(null);
   };
 
+  const handleScrollToSection = (hash: string) => {
+    handleCloseNavMenu();
+    
+    if (location.pathname === "/") {
+      const element = document.querySelector(hash);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      navigate("/", { state: { scrollTo: hash } });
+    }
+  };
+
   return (
     <AppBar 
       position="sticky" 
@@ -55,7 +71,7 @@ const Navbar = () => {
     >
       <Container maxWidth="lg">
         <Toolbar disableGutters>
-          <RouterLink to="/">
+          <Link to="/">
             <Box 
               component="img"
               src={logoOriginal}
@@ -68,100 +84,44 @@ const Navbar = () => {
                 cursor: "pointer",
               }} 
             />
-          </RouterLink>
+          </Link>
 
           <Box sx={{ flexGrow: 0, display: { xs: "flex", md: "none" } }}>
-            <IconButton
-              size="large"
-              aria-label="menu"
-              aria-controls="menu-appbar"
-              aria-haspopup="true"
-              onClick={handleOpenNavMenu}
-              color="inherit"
-            >
+            <IconButton size="large" onClick={handleOpenNavMenu} color="inherit">
               <MenuIcon />
             </IconButton>
             <Menu
               id="menu-appbar"
               anchorEl={anchorElNav}
-              anchorOrigin={{
-                vertical: "bottom",
-                horizontal: "left",
-              }}
+              anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
               keepMounted
-              transformOrigin={{
-                vertical: "top",
-                horizontal: "left",
-              }}
+              transformOrigin={{ vertical: "top", horizontal: "left" }}
               open={Boolean(anchorElNav)}
               onClose={handleCloseNavMenu}
-              sx={{
-                display: { xs: "block", md: "none" },
-              }}
+              sx={{ display: { xs: "block", md: "none" } }}
             >
               {navItems.map((item) => (
-                <MenuItem key={item.name} onClick={handleCloseNavMenu}>
-                  <Typography 
-                    textAlign="center"
-                    component="a"
-                    href={item.href}
-                    sx={{
-                      color: "text.primary",
-                      textDecoration: "none",
-                      fontFamily: "Poppins",
-                      fontWeight: 500
-                    }}
-                  >
+                <MenuItem key={item.name} onClick={() => handleScrollToSection(item.hash)}>
+                  <Typography textAlign="center" sx={{ color: "text.primary", textDecoration: "none", fontFamily: "Poppins", fontWeight: 500 }}>
                     {item.name}
                   </Typography>
                 </MenuItem>
               ))}
             </Menu>
           </Box>
-
-          <RouterLink to="/">
-            <Box 
-              sx={{
-                display: { xs: "flex", md: "none" },
-                flexGrow: 1,
-                justifyContent: "center",
-                alignItems: "center"
-              }}
-            >
-              <Box
-                component="img"
-                src={logoOriginal}
-                alt="Blue Mind Freediving"
-                sx={{ 
-                  height: 40,
-                  width: "auto",
-                  objectFit: "contain",
-                  maxWidth: "200px"
-                }} 
-              />
+          
+          <Link to="/" style={{ flexGrow: 1, textDecoration: 'none', display: 'flex', justifyContent: 'center' }}>
+            <Box sx={{ display: { xs: "flex", md: "none" }, alignItems: "center" }}>
+              <Box component="img" src={logoOriginal} alt="Blue Mind Freediving" sx={{ height: 40, width: "auto", objectFit: "contain", maxWidth: "200px" }} />
             </Box>
-          </RouterLink>
+          </Link>
 
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, justifyContent: "center" }}>
             {navItems.map((item) => (
               <Button
                 key={item.name}
-                component="a"
-                href={item.href}
-                onClick={handleCloseNavMenu}
-                sx={{ 
-                  my: 2, 
-                  mx: 1,
-                  display: "block", 
-                  color: "text.primary",
-                  fontFamily: "Poppins",
-                  textTransform: "none",
-                  fontWeight: 500,
-                  "&:hover": {
-                    color: "primary.main",
-                    background: "transparent"
-                  }
-                }}
+                onClick={() => handleScrollToSection(item.hash)}
+                sx={{ my: 2, mx: 1, display: "block", color: "text.primary", fontFamily: "Poppins", textTransform: "none", fontWeight: 500, "&:hover": { color: "primary.main", background: "transparent" } }}
               >
                 {item.name}
               </Button>
@@ -170,16 +130,10 @@ const Navbar = () => {
 
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
             <Button
-              component="a"
-              href="/#contact" // Make this absolute too
+              onClick={() => handleScrollToSection("#contact")}
               variant="contained"
               color="primary"
-              sx={{
-                fontFamily: "Poppins",
-                borderRadius: "50px",
-                textTransform: "none",
-                px: 3
-              }}
+              sx={{ fontFamily: "Poppins", borderRadius: "50px", textTransform: "none", px: 3 }}
             >
               Join Now
             </Button>

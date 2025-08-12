@@ -2,7 +2,7 @@ import { Box, Container, Typography, Link as MuiLink, IconButton } from "@mui/ma
 import InstagramIcon from "@mui/icons-material/Instagram";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import blueMindLightLogo from "../assets/bluemind-light.png";
-import { Link } from "wouter"; // Import the Link component from wouter
+import { Link } from "react-router-dom";
 
 const Footer = () => {
   return (
@@ -22,7 +22,6 @@ const Footer = () => {
             gap: 2
           }}
         >
-          {/* Logo & Copyright */}
           <Box 
             sx={{ 
               display: "flex",
@@ -48,7 +47,6 @@ const Footer = () => {
             </Typography>
           </Box>
           
-          {/* Links Section */}
           <Box 
             sx={{ 
               display: "flex",
@@ -72,7 +70,7 @@ const Footer = () => {
               Follow us
             </Typography>
             
-            <MuiLink // This is a standard HTML link for an external site
+            <MuiLink
               href="https://www.instagram.com/bluemind.freediving/" 
               target="_blank"
               rel="noopener noreferrer"
@@ -97,8 +95,7 @@ const Footer = () => {
               <InstagramIcon fontSize="small" />
             </MuiLink>
             
-            {/* Finance Calculator Link - Simplified and Fixed */}
-            <Link href="/finance">
+            <Link to="/finance">
               <IconButton
                 aria-label="Finance Calculator"
                 sx={{ 

@@ -1,23 +1,25 @@
-import { Route, Switch } from "wouter";
+import { HashRouter, Routes, Route } from "react-router-dom";
 import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import GalleryPage from "./pages/GalleryPage";
+import FinancePage from "./pages/FinancePage";
 import NotFound from "@/pages/not-found";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
-import FinancePage from "./pages/FinancePage"; // Import the new page
 
 function App() {
   return (
     <TooltipProvider>
-      <Layout>
-        <Switch>
-          <Route path="/" component={Home} />
-          <Route path="/gallery" component={GalleryPage} />
-          <Route path="/finance" component={FinancePage} />
-          <Route component={NotFound} />
-        </Switch>
-      </Layout>
+      <HashRouter>
+        <Layout>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/gallery" element={<GalleryPage />} />
+            <Route path="/finance" element={<FinancePage />} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </Layout>
+      </HashRouter>
       <Toaster />
     </TooltipProvider>
   );

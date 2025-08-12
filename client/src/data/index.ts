@@ -65,16 +65,17 @@ export const gallery = [
   },
   {
     title: "Freediver in the pool",
+    image: gallery4,
+  },
+  {
+    title: "Freediver in the pool",
     image: gallery2,
   },
   {
     title: "Freediver in the pool",
     image: gallery3,
   },
-  {
-    title: "Freediver in the pool",
-    image: gallery4,
-  },
+  
   {
     title: "Freediver in the pool",
     image: gallery5,
