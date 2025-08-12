@@ -98,14 +98,14 @@ export const team = [
     name: "Hakim",
     position: "Co-Founder | president | Athlete | AIDA Judge & Safety",
     image:
-      "./src/assets/hakim.jpg",
+      "./assets/hakim.jpg",
     bio: "Hakim began his freediving journey in late 2021, shortly before relocating to the Netherlands. With a background in competitive sports and a deep passion for breath-hold diving, he quickly rose through the ranks to become a 4x Egyptian national record holder. As both an AIDA-certified judge and safety diver, Hakim brings a strong foundation of professionalism and care to every training and competition environment. He has proudly represented Egypt at two World Championships, and continues to train, coach, and advocate for a safe and inclusive freediving community through BlueMind.",
   },
   {
     name: "Dewi", 
     position: "Co-Founder | vice president | Athlete | AIDA Safety",
     image:
-      "./src/assets/dewi-2.jpg",
+      "./assets/dewi-2.jpg",
     bio: "Dewi is a dedicated freediver and certified AIDA safety with a calm, focused presence both in and out of the water. She brings depth and discipline to every training session, with a special love for the purest forms of freediving — Dynamic No Fins (DNF) and Constant Weight No Fins (CNF). Her precision, reliability, and deep connection to the water make her a trusted safety and a strong asset to the freediving community. Through BlueMind, Dewi supports a culture of safety, growth, and mental clarity in the sport she loves.",
   },
 ];
@@ -115,121 +115,121 @@ export const gallery = [
   {
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/19.jpg",
+      "./assets/gallery/19.jpg",
   },
   {
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/21.jpg",
+      "./assets/gallery/21.jpg",
   },
   {
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/8.jpg",
+      "./assets/gallery/8.jpg",
   },
     {
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/22.jpg",
+      "./assets/gallery/22.jpg",
   },
   {
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/1.jpg",
+      "./assets/gallery/1.jpg",
   },
    {
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/2.jpg",
+      "./assets/gallery/2.jpg",
   },
    {
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/3.jpg",
+      "./assets/gallery/3.jpg",
   },
    {
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/4.jpg",
+      "./assets/gallery/4.jpg",
   },
    {
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/5.jpg",
+      "./assets/gallery/5.jpg",
   },
    {
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/6.jpg",
+      "./assets/gallery/6.jpg",
   },
    {
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/7.jpg",
+      "./assets/gallery/7.jpg",
   },
    
    {
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/8.jpg",
+      "./assets/gallery/8.jpg",
   },
    {
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/9.jpg",
+      "./assets/gallery/9.jpg",
   },
    {
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/10.jpg",
+      "./assets/gallery/10.jpg",
   },
    {
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/11.jpg",
+      "./assets/gallery/11.jpg",
   },
    {
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/12.jpg",
+      "./assets/gallery/12.jpg",
   },
    {
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/13.jpg",
+      "./assets/gallery/13.jpg",
   }, {
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/14.jpg",
+      "./assets/gallery/14.jpg",
   }, {
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/15.jpg",
+      "./assets/gallery/15.jpg",
   }, {
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/16.jpg",
+      "./assets/gallery/16.jpg",
   },{
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/16.jpg",
+      "./assets/gallery/16.jpg",
   },{
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/17.jpg",
+      "./assets/gallery/17.jpg",
   },{
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/18.jpg",
+      "./assets/gallery/18.jpg",
   },
   {
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/20.jpg",
+      "./assets/gallery/20.jpg",
   },{
     title: "Freediver in the pool",
     image:
-      "./src/assets/gallery/21.jpg",
+      "./assets/gallery/21.jpg",
   },
 ];
 
