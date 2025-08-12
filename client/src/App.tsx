@@ -5,6 +5,7 @@ import GalleryPage from "./pages/GalleryPage";
 import NotFound from "@/pages/not-found";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
+import FinancePage from "./pages/FinancePage"; // Import the new page
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
         <Switch>
           <Route path="/" component={Home} />
           <Route path="/gallery" component={GalleryPage} />
+          <Route path="/finance" component={FinancePage} />
           <Route component={NotFound} />
         </Switch>
       </Layout>
