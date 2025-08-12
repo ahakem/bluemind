@@ -205,10 +205,6 @@ export const gallery = [
     title: "Freediver in the pool",
     image:
       "./assets/gallery/15.jpg",
-  }, {
-    title: "Freediver in the pool",
-    image:
-      "./assets/gallery/16.jpg",
   },{
     title: "Freediver in the pool",
     image:
