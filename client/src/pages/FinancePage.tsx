@@ -7,50 +7,65 @@ import {
   TextField,
   Card,
   CardContent,
-  Divider,
   Paper,
 } from "@mui/material";
 
+// A small component for the colored result boxes
+const ResultBox = ({ title, value, bgColor }: { title: string, value: string, bgColor: string }) => (
+  <Grid item xs={12} sm={6}>
+    <Paper 
+      elevation={3} 
+      sx={{ 
+        p: 2, 
+        textAlign: 'center', 
+        height: '100%',
+        backgroundColor: bgColor,
+        color: 'white',
+        display: 'flex',
+        flexDirection: 'column',
+        justifyContent: 'center'
+      }}
+    >
+      <Typography variant="subtitle1" sx={{ opacity: 0.8 }}>{title}</Typography>
+      <Typography variant="h5" fontWeight="bold">
+        €{value}
+      </Typography>
+    </Paper>
+  </Grid>
+);
+
 const FinancePage = () => {
-  const [lanes, setLanes] = useState(1);
-  const [costPerLane, setCostPerLane] = useState(17.59);
-  const [members, setMembers] = useState(2);
-  const [boardMembers, setBoardMembers] = useState(2);
+  // Store inputs as strings to handle comma decimals, with initial values
+  const [lanes, setLanes] = useState<string>("1");
+  const [costPerLane, setCostPerLane] = useState<string>("17,59");
+  const [members, setMembers] = useState<string>("2");
+  const [boardMembers, setBoardMembers] = useState<string>("2");
 
   const calculation = useMemo(() => {
-    const numLanes = Number(lanes) || 0;
-    const costLane = Number(costPerLane) || 0;
-    const numMembers = Number(members) || 0;
-    const numBoardMembers = Number(boardMembers) || 0;
+    // Replace comma with dot for calculations
+    const numLanes = Number(lanes.replace(',', '.')) || 0;
+    const costLane = Number(costPerLane.replace(',', '.')) || 0;
+    const numMembers = Number(members.replace(',', '.')) || 0;
+    const numBoardMembers = Number(boardMembers.replace(',', '.')) || 0;
+    
+    const totalPeople = numMembers + numBoardMembers;
+    const totalCost = numLanes * costLane;
 
-    if (numLanes === 0 || costLane === 0 || (numMembers + numBoardMembers === 0)) {
+    if (totalCost === 0 || totalPeople === 0) {
       return { totalCost: 0, costPerMember: 0, costPerBoardMember: 0 };
     }
 
-    const totalCost = numLanes * costLane;
+    // Correct logic: Calculate the fair share first
+    const fairShare = totalCost / totalPeople;
+    const boardMemberCost = fairShare;
+    const memberCost = fairShare * 1.10;
 
-    // If there are no regular members, we shouldn't calculate their cost
-    if (numMembers === 0) {
-      // If there are only board members, they split the cost equally
-      const boardMemberCost = numBoardMembers > 0 ? totalCost / numBoardMembers : 0;
-      return { totalCost, costPerMember: 0, costPerBoardMember: boardMemberCost };
-    }
-
-    // The weighted number of shares. Each member counts as 1.1 shares.
-    const weightedShares = (numMembers * 1.1) + numBoardMembers;
-
-    // Cost of a single share (what a board member pays)
-    const baseShareCost = totalCost / weightedShares;
-    
-    // Member's cost is 10% more than the base share
-    const memberCost = baseShareCost * 1.1;
-
-    return {
-      totalCost: totalCost,
-      costPerMember: memberCost,
-      costPerBoardMember: baseShareCost,
-    };
+    // The fix is here: return the correct variable name
+    return { totalCost, costPerMember: memberCost, costPerBoardMember: boardMemberCost };
   }, [lanes, costPerLane, members, boardMembers]);
+
+  // This calculates the actual total that will be collected
+  const totalCollected = (calculation.costPerMember * (Number(members.replace(',', '.')) || 0)) + (calculation.costPerBoardMember * (Number(boardMembers.replace(',', '.')) || 0));
 
   return (
     <Box sx={{ py: 8, bgcolor: "grey.50" }}>
@@ -62,52 +77,24 @@ const FinancePage = () => {
           <Box sx={{ width: 80, height: 3, bgcolor: "accent.main", mx: "auto", mt: 2 }} />
         </Box>
 
-        <Grid container spacing={4} justifyContent="center">
+        <Grid container spacing={4} justifyContent="center" alignItems="stretch">
           {/* Input Section */}
           <Grid item xs={12} md={5}>
-            <Card elevation={3}>
+            <Card sx={{ height: '100%' }}>
               <CardContent>
-                <Typography variant="h5" mb={2} fontWeight={600}>Inputs</Typography>
+                <Typography variant="h5" mb={2}>Inputs</Typography>
                 <Grid container spacing={2}>
                   <Grid item xs={12} sm={6}>
-                    <TextField
-                      label="Number of Lanes"
-                      type="number"
-                      value={lanes}
-                      onChange={(e) => setLanes(Number(e.target.value))}
-                      fullWidth
-                      InputProps={{ inputProps: { min: 0 } }}
-                    />
+                    <TextField label="Number of Lanes" type="text" value={lanes} onChange={(e) => setLanes(e.target.value)} fullWidth />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <TextField
-                      label="Cost per Lane (€)"
-                      type="number"
-                      value={costPerLane}
-                      onChange={(e) => setCostPerLane(Number(e.target.value))}
-                      fullWidth
-                      InputProps={{ inputProps: { min: 0, step: 0.01 } }}
-                    />
+                    <TextField label="Cost per Lane (€)" type="text" value={costPerLane} onChange={(e) => setCostPerLane(e.target.value)} fullWidth />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <TextField
-                      label="Regular Members"
-                      type="number"
-                      value={members}
-                      onChange={(e) => setMembers(Number(e.target.value))}
-                      fullWidth
-                      InputProps={{ inputProps: { min: 0 } }}
-                    />
+                    <TextField label="Regular Members" type="text" value={members} onChange={(e) => setMembers(e.target.value)} fullWidth />
                   </Grid>
                   <Grid item xs={12} sm={6}>
-                    <TextField
-                      label="Board Members"
-                      type="number"
-                      value={boardMembers}
-                      onChange={(e) => setBoardMembers(Number(e.target.value))}
-                      fullWidth
-                      InputProps={{ inputProps: { min: 0 } }}
-                    />
+                    <TextField label="Board Members" type="text" value={boardMembers} onChange={(e) => setBoardMembers(e.target.value)} fullWidth />
                   </Grid>
                 </Grid>
               </CardContent>
@@ -115,47 +102,26 @@ const FinancePage = () => {
           </Grid>
 
           {/* Results Section */}
-          <Grid item xs={12} md={5}>
-            <Card elevation={3} sx={{ height: "100%" }}>
-              <CardContent>
-                <Typography variant="h5" mb={2} fontWeight={600}>Results</Typography>
-                <Paper elevation={0} sx={{ p: 2, bgcolor: "grey.100", borderRadius: 2 }}>
-                  <Typography variant="h6" mb={1} fontWeight={500}>
-                    Total Cost
-                  </Typography>
-                  <Typography variant="h4" color="text.primary" fontWeight={700}>
-                    €{calculation.totalCost.toFixed(2)}
-                  </Typography>
-                </Paper>
+          <Grid item xs={12} md={7}>
+            <Card sx={{ height: "100%" }}>
+              <CardContent sx={{ display: 'flex', flexDirection: 'column', gap: 2, height: '100%' }}>
+                <Typography variant="h5" align="center">Results</Typography>
                 
-                <Divider sx={{ my: 3 }} />
-                
-                <Grid container spacing={2}>
-                  <Grid item xs={12} sm={6}>
-                    <Paper elevation={0} sx={{ p: 2, bgcolor: "primary.light", color: "primary.contrastText", borderRadius: 2 }}>
-                      <Typography variant="body1" mb={1}>
-                        Regular Member Pays
-                      </Typography>
-                      <Typography variant="h5" fontWeight={700}>
-                        {Number(members) > 0 
-                          ? `€${calculation.costPerMember.toFixed(2)}`
-                          : "N/A"}
-                      </Typography>
-                    </Paper>
-                  </Grid>
-                  <Grid item xs={12} sm={6}>
-                    <Paper elevation={0} sx={{ p: 2, bgcolor: "secondary.light", color: "secondary.contrastText", borderRadius: 2 }}>
-                      <Typography variant="body1" mb={1}>
-                        Board Member Pays
-                      </Typography>
-                      <Typography variant="h5" fontWeight={700}>
-                        {Number(boardMembers) > 0 
-                          ? `€${calculation.costPerBoardMember.toFixed(2)}`
-                          : "N/A"}
-                      </Typography>
-                    </Paper>
-                  </Grid>
+                <Grid container spacing={2} sx={{ flexGrow: 1 }}>
+                  {/* Regular Member Box First */}
+                  <ResultBox title="Each Regular Member Pays" value={calculation.costPerMember.toFixed(2)} bgColor="primary.main" />
+                  {/* Board Member Box Second */}
+                  <ResultBox title="Each Board Member Pays" value={calculation.costPerBoardMember.toFixed(2)} bgColor="secondary.main" />
                 </Grid>
+
+                <Box sx={{ textAlign: 'center', mt: 'auto' }}>
+                  <Typography variant="body1" color="text.secondary">
+                    Total Cost: €{calculation.totalCost.toFixed(2)}
+                  </Typography>
+                  <Typography variant="body1" color="text.secondary">
+                    Total Collected: €{totalCollected.toFixed(2)}
+                  </Typography>
+                </Box>
               </CardContent>
             </Card>
           </Grid>
