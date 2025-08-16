@@ -41,18 +41,22 @@ const FinancePage = () => {
   const [members, setMembers] = useState<string>("2");
   const [boardMembers, setBoardMembers] = useState<string>("2");
 
-  const calculation = useMemo(() => {
+  const { calculation, numMembers, numBoardMembers } = useMemo(() => {
     // Replace comma with dot for calculations
-    const numLanes = Number(lanes.replace(',', '.')) || 0;
-    const costLane = Number(costPerLane.replace(',', '.')) || 0;
-    const numMembers = Number(members.replace(',', '.')) || 0;
-    const numBoardMembers = Number(boardMembers.replace(',', '.')) || 0;
+    const parsedLanes = Number(lanes.replace(',', '.')) || 0;
+    const parsedCostPerLane = Number(costPerLane.replace(',', '.')) || 0;
+    const parsedMembers = Number(members.replace(',', '.')) || 0;
+    const parsedBoardMembers = Number(boardMembers.replace(',', '.')) || 0;
     
-    const totalPeople = numMembers + numBoardMembers;
-    const totalCost = numLanes * costLane;
+    const totalPeople = parsedMembers + parsedBoardMembers;
+    const totalCost = parsedLanes * parsedCostPerLane;
 
     if (totalCost === 0 || totalPeople === 0) {
-      return { totalCost: 0, costPerMember: 0, costPerBoardMember: 0 };
+      return { 
+        calculation: { totalCost: 0, costPerMember: 0, costPerBoardMember: 0 },
+        numMembers: parsedMembers,
+        numBoardMembers: parsedBoardMembers
+      };
     }
 
     // Correct logic: Calculate the fair share first
@@ -60,12 +64,15 @@ const FinancePage = () => {
     const boardMemberCost = fairShare;
     const memberCost = fairShare * 1.10;
 
-    // The fix is here: return the correct variable name
-    return { totalCost, costPerMember: memberCost, costPerBoardMember: boardMemberCost };
+    return {
+      calculation: { totalCost, costPerMember: memberCost, costPerBoardMember: boardMemberCost },
+      numMembers: parsedMembers,
+      numBoardMembers: parsedBoardMembers
+    };
   }, [lanes, costPerLane, members, boardMembers]);
 
   // This calculates the actual total that will be collected
-  const totalCollected = (calculation.costPerMember * (Number(members.replace(',', '.')) || 0)) + (calculation.costPerBoardMember * (Number(boardMembers.replace(',', '.')) || 0));
+  const totalCollected = (calculation.costPerMember * numMembers) + (calculation.costPerBoardMember * numBoardMembers);
 
   return (
     <Box sx={{ py: 8, bgcolor: "grey.50" }}>
@@ -108,13 +115,17 @@ const FinancePage = () => {
                 <Typography variant="h5" align="center">Results</Typography>
                 
                 <Grid container spacing={2} sx={{ flexGrow: 1 }}>
-                  {/* Regular Member Box First */}
-                  <ResultBox title="Each Regular Member Pays" value={calculation.costPerMember.toFixed(2)} bgColor="primary.main" />
-                  {/* Board Member Box Second */}
-                  <ResultBox title="Each Board Member Pays" value={calculation.costPerBoardMember.toFixed(2)} bgColor="secondary.main" />
+                  {/* Regular Member Box First - Conditionally Rendered */}
+                  {numMembers > 0 && (
+                    <ResultBox title="Each Regular Member Pays" value={calculation.costPerMember.toFixed(2)} bgColor="primary.main" />
+                  )}
+                  {/* Board Member Box Second - Conditionally Rendered */}
+                  {numBoardMembers > 0 && (
+                     <ResultBox title="Each Board Member Pays" value={calculation.costPerBoardMember.toFixed(2)} bgColor="secondary.main" />
+                  )}
                 </Grid>
 
-                <Box sx={{ textAlign: 'center', mt: 'auto' }}>
+                <Box sx={{ textAlign: 'center', mt: 'auto', pt: 2 }}>
                   <Typography variant="body1" color="text.secondary">
                     Total Cost: €{calculation.totalCost.toFixed(2)}
                   </Typography>
