@@ -3,6 +3,15 @@ import hero from "../assets/hero.png"
 import heroImg from "../assets/banner-img.png"
 
 const Hero = () => {
+  // Function to handle smooth scrolling
+  const scrollToSection = (sectionId: string) => (event: React.MouseEvent) => {
+    event.preventDefault();
+    const section = document.getElementById(sectionId);
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth' });
+    }
+  };
+
   return (
     <Box
       id="home"
@@ -94,7 +103,7 @@ const Hero = () => {
               <Button
                 variant="contained"
                 size="large"
-                href="#membership"
+                onClick={scrollToSection('membership')}
                 sx={{
                   borderRadius: "50px",
                   px: 4,
@@ -134,7 +143,7 @@ const Hero = () => {
         }}
       >
         <Button
-          href="#about"
+          onClick={scrollToSection('about')}
           sx={{
             minWidth: "auto",
             color: "white",

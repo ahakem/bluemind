@@ -62,7 +62,7 @@ const FinancePage = () => {
     // Correct logic: Calculate the fair share first
     const fairShare = totalCost / totalPeople;
     const boardMemberCost = fairShare;
-    const memberCost = fairShare * 1.10;
+    const memberCost = fairShare * 1.05; // Changed from 1.10 to 1.05 (5% premium)
 
     return {
       calculation: { totalCost, costPerMember: memberCost, costPerBoardMember: boardMemberCost },

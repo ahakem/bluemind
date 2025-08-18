@@ -1,6 +1,6 @@
 import { Box, Container, Typography, Grid, Button } from "@mui/material";
 import { gallery } from "../data";
-import { Link } from "react-router-dom";
+import { Link } from "react-router-dom"; // Changed back to react-router-dom
 
 const Gallery = () => {
   return (
@@ -58,15 +58,19 @@ const Gallery = () => {
         </Grid>
 
         <Box sx={{ textAlign: "center", mt: 4 }}>
-          <Link to="/gallery">
-            <Button
-              variant="contained"
-              color="primary"
-              size="large"
-            >
-              View More
-            </Button>
-          </Link>
+          {/* Use onClick for navigation to avoid hash routing issues */}
+          <Button
+            variant="contained"
+            color="primary"
+            size="large"
+            component="a"
+            onClick={(e) => {
+              e.preventDefault();
+              window.location.href = "/gallery";
+            }}
+          >
+            View More
+          </Button>
         </Box>
         
       </Container>
