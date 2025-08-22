@@ -1,8 +1,11 @@
 import { Box, Container, Typography, Grid, Button } from "@mui/material";
 import { gallery } from "../data";
-import { Link } from "react-router-dom"; // Changed back to react-router-dom
+import { Link } from "react-router-dom";
 
 const Gallery = () => {
+  // Get only the first 6 items for the gallery preview
+  const galleryPreview = gallery.slice(0, 6);
+
   return (
     <Box id="gallery" sx={{ py: 8, bgcolor: "grey.50" }}>
       <Container maxWidth="lg">
@@ -27,8 +30,8 @@ const Gallery = () => {
 
         {/* Simple 3x2 Grid */}
         <Grid container spacing={2}>
-          {gallery.slice(0, 6).map((item, index) => (
-            <Grid item xs={12} sm={6} md={4} key={index}>
+          {galleryPreview.map((item, index) => (
+            <Grid item xs={12} sm={6} md={4} key={`gallery-preview-${index}`}>
               <Box
                 sx={{
                   position: "relative",
@@ -58,7 +61,7 @@ const Gallery = () => {
         </Grid>
 
         <Box sx={{ textAlign: "center", mt: 4 }}>
-          {/* Use onClick for navigation to avoid hash routing issues */}
+          {/* Fixed navigation for hash routing */}
           <Button
             variant="contained"
             color="primary"
@@ -66,7 +69,7 @@ const Gallery = () => {
             component="a"
             onClick={(e) => {
               e.preventDefault();
-              window.location.href = "/gallery";
+              window.location.href = "/#/gallery";
             }}
           >
             View More

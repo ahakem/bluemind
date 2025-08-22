@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { AlertCircle } from "lucide-react";
+import { Helmet } from 'react-helmet-async';
 
 export default function NotFound() {
   return (

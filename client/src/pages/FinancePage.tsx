@@ -9,6 +9,7 @@ import {
   CardContent,
   Paper,
 } from "@mui/material";
+import { Helmet } from 'react-helmet-async';
 
 // A small component for the colored result boxes
 const ResultBox = ({ title, value, bgColor }: { title: string, value: string, bgColor: string }) => (
@@ -75,6 +76,22 @@ const FinancePage = () => {
   const totalCollected = (calculation.costPerMember * numMembers) + (calculation.costPerBoardMember * numBoardMembers);
 
   return (
+    <>
+      <Helmet>
+        <title>Lane Cost Calculator | Blue Mind Freediving</title>
+        <meta 
+          name="description" 
+          content="Calculate lane costs for Blue Mind Freediving sessions. Our finance calculator helps distribute costs fairly between regular and board members."
+        />
+        <meta name="keywords" content="freediving cost calculator, lane cost, pool training fees, freediving membership" />
+        <meta property="og:title" content="Lane Cost Calculator | Blue Mind Freediving" />
+        <meta property="og:description" content="Calculate lane costs for freediving sessions and fairly distribute expenses." />
+        <meta property="og:type" content="website" />
+        <meta property="og:url" content="https://bluemindfreediving.nl/#/finance" />
+        <meta name="robots" content="noindex, follow" />
+        <link rel="canonical" href="https://bluemindfreediving.nl" />
+      </Helmet>
+
     <Box sx={{ py: 8, bgcolor: "grey.50" }}>
       <Container maxWidth="lg">
         <Box sx={{ textAlign: "center", mb: 8 }}>
@@ -139,7 +156,7 @@ const FinancePage = () => {
         </Grid>
       </Container>
     </Box>
-  );
-};
+  </>
+);};
 
 export default FinancePage;
