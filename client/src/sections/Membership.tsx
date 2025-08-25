@@ -177,7 +177,8 @@ const Membership = () => {
                 <Button
                   variant="contained"
                   color="primary"
-                  href="/bluemind-rgistration-docments.zip"
+                  target="_blank"
+                  href="https://drive.google.com/drive/folders/1Zk8XN5P0G88ijiw7bgBdCxdy73Zef-F5?usp=sharing"
                   startIcon={<DownloadIcon />}
                   sx={{ 
                     borderRadius: 1,
