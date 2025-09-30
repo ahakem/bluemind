@@ -145,7 +145,12 @@ const About = () => {
             <Button
               variant="contained"
               size="large"
-              href="#membership"
+              onClick={() => {
+                const element = document.querySelector("#membership");
+                if (element) {
+                  element.scrollIntoView({ behavior: "smooth" });
+                }
+              }}
               sx={{
                 borderRadius: "50px",
                 px: 4,

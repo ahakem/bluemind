@@ -61,16 +61,12 @@ const Gallery = () => {
         </Grid>
 
         <Box sx={{ textAlign: "center", mt: 4 }}>
-          {/* Fixed navigation for hash routing */}
           <Button
             variant="contained"
             color="primary"
             size="large"
-            component="a"
-            onClick={(e) => {
-              e.preventDefault();
-              window.location.href = "/#/gallery";
-            }}
+            component={Link}
+            to="/gallery"
           >
             View More
           </Button>

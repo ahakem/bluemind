@@ -31,7 +31,7 @@ export const team = [
     name: "Hakim",
      position: "Co-Founder | president | Athlete | AIDA Judge & Safety",
     image:hakim,
-    bio: "Hakim began his freediving journey in late 2021, shortly before relocating to the Netherlands. With a background in competitive sports and a deep passion for breath-hold diving, he quickly rose through the ranks to become a 4x Egyptian national record holder. As both an AIDA-certified judge and safety diver, Hakim brings a strong foundation of professionalism and care to every training and competition environment. He has proudly represented Egypt at two World Championships, and continues to train, coach, and advocate for a safe and inclusive freediving community through BlueMind.",
+    bio: "Hakim discovered freediving in 2021, just before relocating to the Netherlands. What started as curiosity quickly grew into passion, leading him to become a 4x Egyptian national record holder. He is an AIDA-certified judge and safety diver, and has represented Egypt at two World Championships. Beyond competing, Hakim enjoys training, coaching, and building a safe and welcoming freediving community through BlueMind.",
   },
   {
     name: "Dewi",

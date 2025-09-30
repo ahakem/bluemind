@@ -257,7 +257,12 @@ const Membership = () => {
               <Button
                 variant="contained"
                 color="secondary"
-                href="#contact"
+                onClick={() => {
+                  const element = document.querySelector("#contact");
+                  if (element) {
+                    element.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
                 sx={{ 
                   borderRadius: 1,
                   py: 1.2,
@@ -335,7 +340,12 @@ const Membership = () => {
               <Button
                 variant="outlined"
                 color="primary"
-                href="#calendar"
+                onClick={() => {
+                  const element = document.querySelector("#calendar");
+                  if (element) {
+                    element.scrollIntoView({ behavior: "smooth" });
+                  }
+                }}
                 sx={{ 
                   borderRadius: 1,
                   py: 1.2,
@@ -372,7 +382,12 @@ const Membership = () => {
             variant="contained"
             color="secondary"
             size="large"
-            href="#contact"
+            onClick={() => {
+              const element = document.querySelector("#contact");
+              if (element) {
+                element.scrollIntoView({ behavior: "smooth" });
+              }
+            }}
             sx={{ 
               borderRadius: "50px",
               px: 5,

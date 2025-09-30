@@ -166,7 +166,12 @@ const Services = () => {
                       {service.duration}
                     </Typography>
                     <Button
-                      href="#contact"
+                      onClick={() => {
+                        const element = document.querySelector("#contact");
+                        if (element) {
+                          element.scrollIntoView({ behavior: "smooth" });
+                        }
+                      }}
                       color="error"
                       size="small"
                       sx={{
@@ -326,7 +331,12 @@ const Services = () => {
             variant="contained"
             color="primary"
             size="large"
-            href="#contact"
+            onClick={() => {
+              const element = document.querySelector("#contact");
+              if (element) {
+                element.scrollIntoView({ behavior: "smooth" });
+              }
+            }}
             sx={{
               borderRadius: "50px",
               px: 4,
