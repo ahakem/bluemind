@@ -1,6 +1,6 @@
 import { Box, Container, Typography, Button, Grid } from "@mui/material";
-import hero from "../assets/hero.png"
-import heroImg from "../assets/banner-img.png"
+import hero from "../assets/hero.webp"
+import heroImg from "../assets/banner-img.webp"
 
 const Hero = () => {
   // Function to handle smooth scrolling

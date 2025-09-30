@@ -50,6 +50,7 @@ const Team = () => {
                   height="300"
                   image={member.image}
                   alt={member.name}
+                  loading="lazy"
                   sx={{
                     filter: "grayscale(100%)",
                     transition: "filter 0.3s ease-in-out",

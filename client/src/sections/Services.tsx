@@ -103,6 +103,7 @@ const Services = () => {
                     height="180"
                     image={service.image}
                     alt={service.title}
+                    loading="lazy"
                     sx={{
                       transition: "transform 0.5s ease",
                     }}

@@ -1,29 +1,29 @@
-import hakim from "@/assets/hakim.jpg";
-import dewi from "@/assets/dewi-2.jpg"; // Corrected file extension from .jpeg to .jpg
+import hakim from "@/assets/hakim.webp";
+import dewi from "@/assets/dewi-2.webp"; // Corrected file extension from .jpeg to .webp
 
 // --- Import Gallery Images ---
-import gallery1 from "@/assets/gallery/1.jpg";
-import gallery2 from "@/assets/gallery/2.jpg";
-import gallery3 from "@/assets/gallery/3.jpg";
-import gallery4 from "@/assets/gallery/4.jpg";
-import gallery5 from "@/assets/gallery/5.jpg";
-import gallery6 from "@/assets/gallery/6.jpg";
-import gallery7 from "@/assets/gallery/7.jpg";
-import gallery8 from "@/assets/gallery/8.jpg";
-import gallery9 from "@/assets/gallery/9.jpg";
-import gallery10 from "@/assets/gallery/10.jpg";
-import gallery11 from "@/assets/gallery/11.jpg";
-import gallery12 from "@/assets/gallery/12.jpg";
-import gallery13 from "@/assets/gallery/13.jpg";
-import gallery14 from "@/assets/gallery/14.jpg";
-import gallery15 from "@/assets/gallery/15.jpg";
-import gallery16 from "@/assets/gallery/16.jpg";
-import gallery17 from "@/assets/gallery/17.jpg";
-import gallery18 from "@/assets/gallery/18.jpg";
-import gallery19 from "@/assets/gallery/19.jpg";
-import gallery20 from "@/assets/gallery/20.jpg";
-import gallery21 from "@/assets/gallery/21.jpg";
-import gallery22 from "@/assets/gallery/22.jpg";
+import gallery1 from "@/assets/gallery/1.webp";
+import gallery2 from "@/assets/gallery/2.webp";
+import gallery3 from "@/assets/gallery/3.webp";
+import gallery4 from "@/assets/gallery/4.webp";
+import gallery5 from "@/assets/gallery/5.webp";
+import gallery6 from "@/assets/gallery/6.webp";
+import gallery7 from "@/assets/gallery/7.webp";
+import gallery8 from "@/assets/gallery/8.webp";
+import gallery9 from "@/assets/gallery/9.webp";
+import gallery10 from "@/assets/gallery/10.webp";
+import gallery11 from "@/assets/gallery/11.webp";
+import gallery12 from "@/assets/gallery/12.webp";
+import gallery13 from "@/assets/gallery/13.webp";
+import gallery14 from "@/assets/gallery/14.webp";
+import gallery15 from "@/assets/gallery/15.webp";
+import gallery16 from "@/assets/gallery/16.webp";
+import gallery17 from "@/assets/gallery/17.webp";
+import gallery18 from "@/assets/gallery/18.webp";
+import gallery19 from "@/assets/gallery/19.webp";
+import gallery20 from "@/assets/gallery/20.webp";
+import gallery21 from "@/assets/gallery/21.webp";
+import gallery22 from "@/assets/gallery/22.webp";
 
 // Team section data
 export const team = [

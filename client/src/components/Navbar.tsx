@@ -12,7 +12,7 @@ import MenuIcon from "@mui/icons-material/Menu";
 import useScrollPosition from "../hooks/useScrollPosition";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 
-import logoOriginal from "../assets/bluemind-logo.png";
+import logoOriginal from "../assets/bluemind-logo.webp";
 
 const navItems = [
   { name: "Home", hash: "#home" },

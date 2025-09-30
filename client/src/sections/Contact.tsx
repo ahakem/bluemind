@@ -15,7 +15,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import EmailIcon from "@mui/icons-material/Email";
 
 import InstagramIcon from "@mui/icons-material/Instagram";
-import contact from "../assets/contact.jpg"
+import contact from "../assets/contact.webp"
 
 // Email form interface
 interface ContactFormData {
