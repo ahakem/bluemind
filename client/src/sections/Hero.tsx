@@ -14,7 +14,10 @@ const Hero = () => {
 
   return (
     <Box
+      component="section"
       id="home"
+      role="banner"
+      aria-label="Blue Mind Freediving Amsterdam - Welcome section"
       sx={{
         position: "relative",
         height: "90vh",
@@ -46,58 +49,57 @@ const Hero = () => {
         },
       }}
     >
-      <Container maxWidth="lg" sx={{ position: "relative", zIndex: 2, color: "white" }}>
-        <Grid container>
-          <Grid container size={{ xs: 12, md: 9, lg: 7 }}>
-            <Typography
-              variant="h5"
-              component="h5"
-              fontFamily="Montserrat"
-              color="accent.main"
-              mb={1}
-              sx={{
-                animation: "float 3s ease-in-out infinite",
-                "@keyframes float": {
-                  "0%, 100%": { transform: "translateY(0)" },
-                  "50%": { transform: "translateY(-10px)" },
-                },
-              }}
-            >
-              Welcome to Blue Mind Freediving
-            </Typography>
+        <Container maxWidth="lg" sx={{ position: "relative", zIndex: 2, color: "white" }}>
+          <Grid container>
+            <Grid container size={{ xs: 12, md: 9, lg: 7 }}>
+              <Typography
+                variant="h5"
+                component="p"
+                fontFamily="Montserrat"
+                color="accent.main"
+                mb={1}
+                sx={{
+                  animation: "float 3s ease-in-out infinite",
+                  "@keyframes float": {
+                    "0%, 100%": { transform: "translateY(0)" },
+                    "50%": { transform: "translateY(-10px)" },
+                  },
+                }}
+              >
+                Welcome to Blue Mind Freediving
+              </Typography>
 
-            <Typography
-              variant="h1"
-              component="h1"
-              fontFamily="Poppins"
-              fontWeight={700}
-              mb={3}
-              sx={{
-                fontSize: { xs: "2.5rem", md: "3.5rem", lg: "4rem" },
-                lineHeight: 1.2,
-                textShadow: "1px 1px 3px rgba(0, 0, 0, 0.3)",
-              }}
-            >
-              Train Your Mind,{" "}
-              <Box component="span" color="secondary.main">
-                Master Your Breath
-              </Box>
-            </Typography>
+              <Typography
+                variant="h1"
+                component="h1"
+                fontFamily="Poppins"
+                fontWeight={700}
+                mb={3}
+                sx={{
+                  fontSize: { xs: "2rem", md: "2.5rem", lg: "3rem" },
+                  lineHeight: 1.2,
+                  textShadow: "1px 1px 3px rgba(0, 0, 0, 0.3)",
+                }}
+              >
+                Train Your Mind,{" "}
+                <Box component="span" color="secondary.main">
+                  Master Your Breath
+                </Box>
+              </Typography>
 
-            <Typography
-              variant="h6"
-              fontFamily="Roboto"
-              fontWeight={400}
-              sx={{
-                opacity: 0.9,
-                mb: 4,
-                maxWidth: "600px",
-              }}
-            >
-              Join our pool training sessions to meet other freedivers and develop your freediving skills in a safe environment.
-            </Typography>
-
-            <Box sx={{ flexDirection: { xs: "column", sm: "row" }, gap: { xs: 2, sm: 3 } }}>
+              <Typography
+                variant="h6"
+                component="p"
+                fontFamily="Roboto"
+                fontWeight={400}
+                sx={{
+                  opacity: 0.9,
+                  mb: 4,
+                  maxWidth: "600px",
+                }}
+              >
+                Join our Amsterdam freediving community for professional pool training sessions. Develop your skills with certified instructors in a safe, supportive environment.
+              </Typography>            <Box sx={{ flexDirection: { xs: "column", sm: "row" }, gap: { xs: 2, sm: 3 } }}>
 
 
               <Button

@@ -33,11 +33,18 @@ const reasonsData = [
 
 const Services = () => {
   return (
-    <Box id="services" sx={{ py: 10, bgcolor: "white" }}>
+    <Box 
+      component="section" 
+      id="services" 
+      role="main"
+      aria-labelledby="services-heading"
+      sx={{ py: 10, bgcolor: "white" }}
+    >
       <Container maxWidth="lg">
-        <Box sx={{ textAlign: "center", mb: 8 }}>
+        <Box component="header" sx={{ textAlign: "center", mb: 8 }}>
           <Typography
             variant="subtitle1"
+            component="p"
             fontFamily="Montserrat"
             color="primary"
             mb={1}
@@ -45,7 +52,9 @@ const Services = () => {
             What We Offer
           </Typography>
           <Typography
+            id="services-heading"
             variant="h3"
+            component="h2"
             fontFamily="Poppins"
             fontWeight={700}
           >

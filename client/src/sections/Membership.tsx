@@ -42,17 +42,24 @@ const Membership = () => {
   };
 
   return (
-    <Box id="membership" sx={{ 
-      py: 10, 
-      backgroundColor: "#f5f9ff",
-      backgroundImage: "linear-gradient(rgba(13, 71, 161, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(13, 71, 161, 0.03) 1px, transparent 1px)",
-      backgroundSize: "20px 20px"
-    }}>
+    <Box 
+      component="section"
+      id="membership" 
+      role="main"
+      aria-labelledby="membership-heading"
+      sx={{ 
+        py: 10, 
+        backgroundColor: "#f5f9ff",
+        backgroundImage: "linear-gradient(rgba(13, 71, 161, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(13, 71, 161, 0.03) 1px, transparent 1px)",
+        backgroundSize: "20px 20px"
+      }}
+    >
       <Container maxWidth="lg">
         {/* Section Header */}
-        <Box sx={{ textAlign: "center", mb: 5 }}>
+        <Box component="header" sx={{ textAlign: "center", mb: 5 }}>
           <Typography
             variant="subtitle1"
+            component="p"
             fontFamily="Montserrat"
             color="primary"
             mb={1}
@@ -60,7 +67,9 @@ const Membership = () => {
             Join Our Club
           </Typography>
           <Typography
+            id="membership-heading"
             variant="h3"
+            component="h2"
             fontFamily="Poppins"
             fontWeight={700}
             mb={1}

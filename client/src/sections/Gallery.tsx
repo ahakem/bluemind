@@ -7,11 +7,18 @@ const Gallery = () => {
   const galleryPreview = gallery.slice(0, 6);
 
   return (
-    <Box id="gallery" sx={{ py: 8, bgcolor: "grey.50" }}>
+    <Box 
+      component="section"
+      id="gallery" 
+      role="main"
+      aria-labelledby="gallery-heading"
+      sx={{ py: 8, bgcolor: "grey.50" }}
+    >
       <Container maxWidth="lg">
-        <Box sx={{ textAlign: "center", mb: 8 }}>
+        <Box component="header" sx={{ textAlign: "center", mb: 8 }}>
           <Typography
             variant="subtitle1"
+            component="p"
             fontFamily="Montserrat"
             color="primary"
             mb={1}
@@ -19,7 +26,9 @@ const Gallery = () => {
             Our Facilities
           </Typography>
           <Typography
+            id="gallery-heading"
             variant="h3"
+            component="h2"
             fontFamily="Poppins"
             fontWeight={700}
           >
@@ -29,9 +38,9 @@ const Gallery = () => {
         </Box>
 
         {/* Simple 3x2 Grid */}
-        <Grid container spacing={2}>
+        <Grid container spacing={2} role="img" aria-label="Blue Mind Freediving training photos">
           {galleryPreview.map((item, index) => (
-            <Grid item xs={12} sm={6} md={4} key={`gallery-preview-${index}`}>
+            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={`gallery-preview-${index}`}>
               <Box
                 sx={{
                   position: "relative",
@@ -52,7 +61,7 @@ const Gallery = () => {
               >
                 <img
                   src={item.image}
-                  alt={item.title}
+                  alt={`Blue Mind Freediving training session in Amsterdam pool - ${item.title} ${index + 1}`}
                   loading="lazy"
                 />
               </Box>

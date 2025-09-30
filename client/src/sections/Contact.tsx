@@ -89,21 +89,27 @@ const Contact = () => {
   };
 
   return (
-    <Box id="contact" sx={{
-      py: 10,
-      background: "linear-gradient(135deg, #f3f7ff 0%, #e6f0ff 100%)",
-      position: "relative",
-      overflow: "hidden",
-      "&::before": {
-        content: '""',
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        height: "50%",
-        background: "radial-gradient(circle at top right, rgba(65, 145, 255, 0.05) 0%, rgba(65, 145, 255, 0) 70%)",
-      }
-    }}>
+    <Box 
+      component="section"
+      id="contact" 
+      role="main"
+      aria-labelledby="contact-heading"
+      sx={{
+        py: 10,
+        background: "linear-gradient(135deg, #f3f7ff 0%, #e6f0ff 100%)",
+        position: "relative",
+        overflow: "hidden",
+        "&::before": {
+          content: '""',
+          position: "absolute",
+          top: 0,
+          left: 0,
+          right: 0,
+          height: "50%",
+          background: "radial-gradient(circle at top right, rgba(65, 145, 255, 0.05) 0%, rgba(65, 145, 255, 0) 70%)",
+        }
+      }}
+    >
       <Container maxWidth="lg">
         <Box sx={{
           textAlign: "center",
@@ -113,6 +119,7 @@ const Contact = () => {
         }}>
           <Typography
             variant="subtitle1"
+            component="p"
             fontFamily="Montserrat"
             color="primary"
             mb={1}
@@ -120,7 +127,9 @@ const Contact = () => {
             Reach Out To Us
           </Typography>
           <Typography
+            id="contact-heading"
             variant="h3"
+            component="h2"
             fontFamily="Poppins"
             fontWeight={700}
             mb={1}

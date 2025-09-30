@@ -13,16 +13,23 @@ const aboutPoints = [
 
 const About = () => {
   return (
-    <Box id="about" sx={{
-      py: 10,
-      background: "linear-gradient(135deg, #0d47a1, #1976d2, #42a5f5)",
-      color: "white"
-    }}>
+    <Box 
+      component="section" 
+      id="about" 
+      role="main"
+      aria-labelledby="about-heading"
+      sx={{
+        py: 10,
+        background: "linear-gradient(135deg, #0d47a1, #1976d2, #42a5f5)",
+        color: "white"
+      }}
+    >
       <Container maxWidth="lg">
         {/* Section Header */}
-        <Box sx={{ textAlign: "center", mb: 6 }}>
+        <Box component="header" sx={{ textAlign: "center", mb: 6 }}>
           <Typography
             variant="subtitle1"
+            component="p"
             fontFamily="Montserrat"
             color="white"
             mb={1}
@@ -31,7 +38,9 @@ const About = () => {
             Our Story
           </Typography>
           <Typography
+            id="about-heading"
             variant="h3"
+            component="h2"
             fontFamily="Poppins"
             fontWeight={700}
             mb={2}
@@ -57,7 +66,8 @@ const About = () => {
             <Box
               component="img"
               src={ams}
-              alt="Amsterdam canal view"
+              alt="Beautiful Amsterdam canal view showing the city where Blue Mind Freediving offers professional pool training sessions"
+              loading="lazy"
               sx={{
                 width: "100%",
                 height: "auto",
@@ -97,24 +107,29 @@ const About = () => {
           <Box sx={{ flex: 1 }}>
             <Typography
               variant="h4"
+              component="h3"
               fontFamily="Poppins"
               fontWeight={600}
               mb={3}
               color="white"
             >
-              Our Amsterdam Community
+              Amsterdam's Premier Freediving Community
             </Typography>
 
             <Typography variant="body1" color="white" paragraph sx={{ opacity: 0.9 }}>
-              We, Hakim and Dewi, met in 2024 and started training regularly in swimming pools in the Amsterdam area. Busy lanes filled with swimmers made it challenging to complete our training plan. Determined to have an optimal training environment, we decided to start Blue Mind Freediving, an association designed specifically for freedive training. Our idea was simple: create dedicated lanes to train safely, comfortably, and without distractions. From the start, many people showed interest to join. For our members, we wanted to offer flexibility in training options too, so as a member - based on the available options - you decide when you want to train. Currently we rent lanes in the Sloterparkbad on Monday evening, and are looking to expand soon, in line with the increasing number of members.
+              Founded by Hakim and Dewi in 2024, Blue Mind Freediving emerged from our shared passion for freediving and the challenges we faced training in Amsterdam's busy swimming pools. After meeting in 2024 and training regularly together, we recognized the need for dedicated freediving lanes where athletes could practice safely without distractions.
             </Typography>
 
             <Typography variant="body1" color="white" paragraph sx={{ opacity: 0.9 }}>
-              At Blue Mind, we want to offer freedivers a great and safe training experience. We are always present at the pool at least 30 min before the training starts, so come meet us there! We also offer the opportunity for you to share and discuss your training plan with us.
-
+              Our vision was simple: create Amsterdam's first dedicated freediving training environment where members can develop their breath-hold techniques, dynamic apnea, and static apnea skills under professional supervision. Currently operating at Sloterparkbad every Monday evening, we're expanding our program to meet growing demand from the Amsterdam freediving community.
             </Typography>
+
             <Typography variant="body1" color="white" paragraph sx={{ opacity: 0.9 }}>
-              The name Blue Mind comes from a book by marine biologist Wallace J. Nichols and refers to the positive effect that water has on human health and wellbeing: being near, in, on, or under water can make you happier, healthier, more connected, and better at what you do. As freedivers we fully support this view!
+              At Blue Mind Freediving, safety and community are our core values. Our certified instructors arrive 30 minutes before each session to ensure optimal training conditions. We offer personalized training plan consultations and foster a supportive environment where freedivers of all levels can improve their underwater performance.
+            </Typography>
+            
+            <Typography variant="body1" color="white" paragraph sx={{ opacity: 0.9 }}>
+              The name "Blue Mind" comes from marine biologist Wallace J. Nichols' research on water's positive effects on human health and wellbeing. As Amsterdam's freediving specialists, we fully embrace this philosophy that being near, in, on, or under water enhances happiness, health, and performance.
             </Typography>
 
             <Box sx={{
