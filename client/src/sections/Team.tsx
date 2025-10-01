@@ -41,7 +41,7 @@ const Team = () => {
                     transform: "translateY(-8px)",
                     boxShadow: 6,
                   },
-                  "&:hover .MuiCardMedia-root": {
+                  "&:hover img": {
                     filter: "grayscale(0%)",
                   },
                 }}
