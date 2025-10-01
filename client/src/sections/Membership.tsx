@@ -187,8 +187,10 @@ const Membership = () => {
                   variant="contained"
                   color="primary"
                   target="_blank"
+                  rel="noopener noreferrer"
                   href="https://drive.google.com/drive/folders/1Zk8XN5P0G88ijiw7bgBdCxdy73Zef-F5?usp=sharing"
                   startIcon={<DownloadIcon />}
+                  aria-label="Download membership forms from Google Drive (opens in new tab)"
                   sx={{ 
                     borderRadius: 1,
                     py: 1.2,

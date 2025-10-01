@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { Box } from '@mui/material';
 
 interface OptimizedImageProps {
@@ -11,6 +11,41 @@ interface OptimizedImageProps {
   sx?: any;
   className?: string;
 }
+
+// Hook for intersection observer-based lazy loading
+const useIntersectionObserver = (options = {}) => {
+  const [isIntersecting, setIsIntersecting] = useState(false);
+  const [hasIntersected, setHasIntersected] = useState(false);
+  const elementRef = useRef<HTMLImageElement>(null);
+
+  useEffect(() => {
+    const element = elementRef.current;
+    if (!element) return;
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !hasIntersected) {
+          setIsIntersecting(true);
+          setHasIntersected(true);
+          observer.unobserve(element);
+        }
+      },
+      {
+        rootMargin: '50px', // Start loading 50px before the image comes into view
+        threshold: 0.1,
+        ...options,
+      }
+    );
+
+    observer.observe(element);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [hasIntersected]);
+
+  return { elementRef, isIntersecting, hasIntersected };
+};
 
 export const OptimizedImage = ({
   src,
@@ -62,15 +97,46 @@ export const OptimizedImage = ({
   );
 };
 
-// High-performance image with intersection observer for better lazy loading
-export const LazyImage = ({ src, alt, className, style, ...props }: OptimizedImageProps) => {
+// Advanced lazy image with intersection observer
+export const LazyImage = ({ src, alt, className, style, sx, ...props }: OptimizedImageProps) => {
+  const [isLoaded, setIsLoaded] = useState(false);
+  const [hasError, setHasError] = useState(false);
+  const { elementRef, isIntersecting, hasIntersected } = useIntersectionObserver();
+
+  const handleLoad = () => {
+    setIsLoaded(true);
+  };
+
+  const handleError = () => {
+    setHasError(true);
+  };
+
   return (
-    <OptimizedImage
-      src={src}
+    <Box
+      ref={elementRef}
+      component="img"
+      src={isIntersecting || hasIntersected ? src : undefined}
       alt={alt}
       loading="lazy"
+      decoding="async"
+      onLoad={handleLoad}
+      onError={handleError}
+      sx={{
+        opacity: isLoaded ? 1 : 0,
+        transition: 'opacity 0.3s ease-in-out',
+        backgroundColor: hasError ? '#f5f5f5' : '#e5e7eb',
+        minHeight: '200px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        ...sx,
+      }}
+      style={{
+        maxWidth: '100%',
+        height: 'auto',
+        ...style,
+      }}
       className={className}
-      style={style}
       {...props}
     />
   );

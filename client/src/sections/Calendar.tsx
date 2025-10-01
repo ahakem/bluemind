@@ -129,6 +129,8 @@ const Calendar = () => {
                 color="primary"
                 href="https://calendar.google.com" 
                 target="_blank"
+                rel="noopener noreferrer"
+                aria-label="Open Google Calendar in new tab"
                 sx={{
                   borderRadius: 50,
                   px: 3,
