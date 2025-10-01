@@ -111,7 +111,21 @@ var vite_config_default = defineConfig({
   root: path.resolve(import.meta.dirname, "client"),
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
-    emptyOutDir: true
+    emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor chunk for large libraries
+          vendor: ["react", "react-dom"],
+          mui: ["@mui/material", "@mui/icons-material"]
+          // Material UI can be quite large, separate it
+        }
+      }
+    },
+    // Optimize chunk sizes
+    chunkSizeWarningLimit: 1e3,
+    // Enable source maps for debugging in production (optional)
+    sourcemap: false
   }
 });
 
