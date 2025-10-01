@@ -1,6 +1,5 @@
 import { Box, Container, Typography, Button, Grid } from "@mui/material";
 import { PriorityImage } from '../components/OptimizedImage';
-import hero from "../assets/hero.webp"
 import heroImg from "../assets/banner-img.webp"
 
 const Hero = () => {
@@ -24,22 +23,30 @@ const Hero = () => {
         height: "90vh",
         display: "flex",
         alignItems: "center",
-        "&::before": {
-          content: '""',
+        overflow: "hidden", // Ensure images don't overflow
+      }}
+    >
+      {/* Background hero image */}
+      <PriorityImage
+        src={heroImg}
+        alt="Freediving training pool in Amsterdam - Blue Mind Freediving community"
+        priority={true}
+        sizes="100vw"
+        sx={{
           position: "absolute",
           top: 0,
           left: 0,
-          right: 0,
-          bottom: 0,
-          // Pool-related freediving image
-          backgroundImage: `url('${heroImg}')`,
-          // backgroundSize: "cover",
-          backgroundPosition: "right top",
-          backgroundRepeat: "no-repeat",
+          width: "100%",
+          height: "100%",
+          objectFit: "cover",
+          objectPosition: "right top",
           zIndex: 0,
-        },
-        "&::after": {
-          content: '""',
+        }}
+      />
+      
+      {/* Dark overlay */}
+      <Box
+        sx={{
           position: "absolute",
           top: 0,
           left: 0,
@@ -47,9 +54,8 @@ const Hero = () => {
           bottom: 0,
           backgroundColor: "rgba(0, 0, 0, 0.55)",
           zIndex: 1,
-        },
-      }}
-    >
+        }}
+      />
         <Container maxWidth="lg" sx={{ position: "relative", zIndex: 2, color: "white" }}>
           <Grid container>
             <Grid container size={{ xs: 12, md: 9, lg: 7 }}>
