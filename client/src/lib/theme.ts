@@ -41,72 +41,59 @@ export const theme = createTheme({
   },
   typography: {
     fontFamily: [
-      "Roboto",
-      "-apple-system",
-      "BlinkMacSystemFont",
-      "Segoe UI",
+      "Helvetica Neue",
       "Arial",
       "sans-serif",
     ].join(","),
     h1: {
-      fontFamily: "Poppins, -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif",
+      fontFamily: "Helvetica Neue, Arial, sans-serif",
       fontWeight: 700,
-      fontDisplay: "swap",
     },
     h2: {
-      fontFamily: "Poppins, -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif",
+      fontFamily: "Helvetica Neue, Arial, sans-serif",
       fontWeight: 700,
-      fontDisplay: "swap",
     },
     h3: {
-      fontFamily: "Poppins, -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif",
+      fontFamily: "Helvetica Neue, Arial, sans-serif",
       fontWeight: 700,
-      fontDisplay: "swap",
     },
     h4: {
-      fontFamily: "Poppins, -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif",
+      fontFamily: "Helvetica Neue, Arial, sans-serif",
       fontWeight: 600,
-      fontDisplay: "swap",
     },
     h5: {
-      fontFamily: "Poppins, -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif",
+      fontFamily: "Helvetica Neue, Arial, sans-serif",
       fontWeight: 600,
-      fontDisplay: "swap",
     },
     h6: {
-      fontFamily: "Poppins, -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif",
+      fontFamily: "Helvetica Neue, Arial, sans-serif",
       fontWeight: 600,
-      fontDisplay: "swap",
     },
     subtitle1: {
-      fontFamily: "Montserrat, -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif",
+      fontFamily: "Helvetica Neue, Arial, sans-serif",
       fontWeight: 500,
-      fontDisplay: "swap",
     },
     subtitle2: {
-      fontFamily: "Montserrat, -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif",
+      fontFamily: "Helvetica Neue, Arial, sans-serif",
       fontWeight: 500,
-      fontDisplay: "swap",
     },
     body1: {
-      fontFamily: "Roboto, -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif",
-      fontDisplay: "swap",
+      fontFamily: "Helvetica Neue, Arial, sans-serif",
     },
     body2: {
-      fontFamily: "Roboto, -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif",
-      fontDisplay: "swap",
+      fontFamily: "Helvetica Neue, Arial, sans-serif",
     },
     button: {
-      fontFamily: "Poppins, -apple-system, BlinkMacSystemFont, Segoe UI, Arial, sans-serif",
+      fontFamily: "Helvetica Neue, Arial, sans-serif",
       fontWeight: 500,
       textTransform: "none",
-      fontDisplay: "swap",
     },
   },
   components: {
     MuiButton: {
       styleOverrides: {
         root: {
+          fontFamily: "Helvetica Neue, Arial, sans-serif !important",
           borderRadius: 50,
           padding: "8px 22px",
           fontWeight: 500,
@@ -121,6 +108,28 @@ export const theme = createTheme({
         },
       },
     },
+    MuiAppBar: {
+      styleOverrides: {
+        root: {
+          fontFamily: "Helvetica Neue, Arial, sans-serif !important",
+          boxShadow: "0 2px 10px rgba(0, 0, 0, 0.08)",
+        },
+      },
+    },
+    MuiToolbar: {
+      styleOverrides: {
+        root: {
+          fontFamily: "Helvetica Neue, Arial, sans-serif !important",
+        },
+      },
+    },
+    MuiTypography: {
+      styleOverrides: {
+        root: {
+          fontFamily: "Helvetica Neue, Arial, sans-serif !important",
+        },
+      },
+    },
     MuiCard: {
       styleOverrides: {
         root: {
@@ -130,13 +139,6 @@ export const theme = createTheme({
           "&:hover": {
             boxShadow: "0 8px 25px rgba(0, 0, 0, 0.15)",
           },
-        },
-      },
-    },
-    MuiAppBar: {
-      styleOverrides: {
-        root: {
-          boxShadow: "0 2px 10px rgba(0, 0, 0, 0.08)",
         },
       },
     },

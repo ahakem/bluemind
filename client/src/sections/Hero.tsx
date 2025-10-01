@@ -62,7 +62,6 @@ const Hero = () => {
               <Typography
                 variant="h5"
                 component="p"
-                fontFamily="Montserrat"
                 color="accent.main"
                 mb={1}
                 sx={{

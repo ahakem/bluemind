@@ -116,7 +116,7 @@ const Navbar = () => {
             >
               {navItems.map((item) => (
                 <MenuItem key={item.name} onClick={() => handleScrollToSection(item.hash)}>
-                  <Typography textAlign="center" sx={{ color: "text.primary", textDecoration: "none", fontFamily: "Poppins", fontWeight: 500 }}>
+                  <Typography textAlign="center" sx={{ color: "text.primary", textDecoration: "none", fontWeight: 500 }}>
                     {item.name}
                   </Typography>
                 </MenuItem>
@@ -135,7 +135,7 @@ const Navbar = () => {
               <Button
                 key={item.name}
                 onClick={() => handleScrollToSection(item.hash)}
-                sx={{ my: 2, mx: 1, display: "block", color: "text.primary", fontFamily: "Poppins", textTransform: "none", fontWeight: 500, "&:hover": { color: "primary.main", background: "transparent" } }}
+                sx={{ my: 2, mx: 1, display: "block", color: "text.primary", textTransform: "none", fontWeight: 500, "&:hover": { color: "primary.main", background: "transparent" } }}
               >
                 {item.name}
               </Button>
@@ -147,7 +147,7 @@ const Navbar = () => {
               onClick={() => handleScrollToSection("#contact")}
               variant="contained"
               color="primary"
-              sx={{ fontFamily: "Poppins", borderRadius: "50px", textTransform: "none", px: 3 }}
+              sx={{ borderRadius: "50px", textTransform: "none", px: 3 }}
             >
               Join Now
             </Button>

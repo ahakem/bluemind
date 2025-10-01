@@ -6,9 +6,10 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        roboto: ["Roboto", "sans-serif"],
-        poppins: ["Poppins", "sans-serif"],
-        montserrat: ["Montserrat", "sans-serif"],
+        // Simple, clean font stack - Helvetica Neue, Arial, sans-serif only
+        roboto: ["Helvetica Neue", "Arial", "sans-serif"],
+        poppins: ["Helvetica Neue", "Arial", "sans-serif"],
+        montserrat: ["Helvetica Neue", "Arial", "sans-serif"],
       },
       borderRadius: {
         lg: "var(--radius)",
