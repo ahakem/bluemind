@@ -8,8 +8,12 @@ import NotFound from "@/pages/not-found";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "@/components/ui/toaster";
 import SEO from "./components/SEO";
+import { useAccessibilityEnhancements } from "./hooks/useAccessibility";
 
 function App() {
+  // Initialize accessibility enhancements
+  useAccessibilityEnhancements();
+  
   return (
     <HelmetProvider>
       <TooltipProvider>

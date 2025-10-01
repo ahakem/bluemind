@@ -68,7 +68,7 @@ const Membership = () => {
           </Typography>
           <Typography
             id="membership-heading"
-            variant="h3"
+            variant="h2"
             component="h2"
             fontFamily="Poppins"
             fontWeight={700}

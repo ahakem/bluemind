@@ -113,12 +113,14 @@ const GalleryPage = () => {
             <Box onClick={handleClose} sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0, 0, 0, 0.8)' }} />
             <IconButton
               onClick={handleClose}
+              aria-label="Close gallery modal"
               sx={{ position: "absolute", top: 16, right: 16, color: "white", zIndex: 1 }}
             >
               <Close />
             </IconButton>
             <IconButton
               onClick={handlePrev}
+              aria-label="Previous image"
               sx={{ position: "absolute", left: 16, color: "white", zIndex: 1 }}
             >
               <ArrowBack fontSize="large" />
@@ -136,6 +138,7 @@ const GalleryPage = () => {
             />
             <IconButton
               onClick={handleNext}
+              aria-label="Next image"
               sx={{ position: "absolute", right: 16, color: "white", zIndex: 1 }}
             >
               <ArrowForward fontSize="large" />

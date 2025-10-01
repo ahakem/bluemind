@@ -3,7 +3,55 @@
 
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  
+  <!-- Resource hints for performance -->
+  <link rel="dns-prefetch" href="//fonts.googleapis.com">
+  <link rel="dns-prefetch" href="//fonts.gstatic.com">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  
+  <!-- Preload critical resources -->
+  <link rel="preload" href="/src/assets/hero.webp" as="image" type="image/webp">
+  <link rel="preload" href="/src/assets/banner-img.webp" as="image" type="image/webp">
+  <link rel="preload" href="/src/assets/bluemind-logo.webp" as="image" type="image/webp">
+  
+  <!-- Preload and optimize fonts -->
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto:wght@300;400;500&family=Montserrat:wght@400;500;600&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+  <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&family=Roboto:wght@300;400;500&family=Montserrat:wght@400;500;600&display=swap"></noscript>
+  
+  <!-- Critical CSS inlined -->
+  <style>
+    /* Critical above-the-fold styles */
+    :root {
+      --primary: 210 100% 35%;
+      --primary-foreground: 0 0% 100%;
+      --secondary: 187 100% 42%;
+      --accent: 16 100% 57%;
+    }
+    
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    html { scroll-behavior: smooth; }
+    
+    body { 
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      line-height: 1.5;
+      color: #1f2937;
+      background-color: #f9fafb;
+    }
+    
+    /* Prevent layout shift for hero section */
+    .hero-container {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #0d47a1, #1976d2);
+    }
+    
+    /* Loading animation to prevent CLS */
+    .loading { opacity: 0; animation: fadeIn 0.3s ease-in forwards; }
+    @keyframes fadeIn { to { opacity: 1; } }
+  </style>
+  
   <title>Blue Mind Freediving | Dutch Freediving Amsterdam Pool Training Netherlands</title>
   <meta name="description"
     content="Join Dutch freediving experts in Amsterdam. Professional pool training sessions, certified instructors, and Netherlands' premier freediving community. Learn breath-hold techniques safely at Sloterparkbad." />

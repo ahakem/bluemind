@@ -15,7 +15,7 @@ const Team = () => {
             Meet Our Board
           </Typography>
           <Typography
-            variant="h3"
+            variant="h2"
             fontFamily="Poppins"
             fontWeight={700}
           >

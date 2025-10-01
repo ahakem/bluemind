@@ -27,5 +27,19 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          // Vendor chunk for large libraries
+          vendor: ['react', 'react-dom'],
+          mui: ['@mui/material', '@mui/icons-material'],
+          // Material UI can be quite large, separate it
+        },
+      },
+    },
+    // Optimize chunk sizes
+    chunkSizeWarningLimit: 1000,
+    // Enable source maps for debugging in production (optional)
+    sourcemap: false,
   },
 });

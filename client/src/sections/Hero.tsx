@@ -146,6 +146,7 @@ const Hero = () => {
       >
         <Button
           onClick={scrollToSection('about')}
+          aria-label="Scroll down to about section"
           sx={{
             minWidth: "auto",
             color: "white",

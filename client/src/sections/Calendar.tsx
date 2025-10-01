@@ -59,7 +59,7 @@ const Calendar = () => {
             Training Schedule
           </Typography>
           <Typography
-            variant="h3"
+            variant="h2"
             fontFamily="Poppins"
             fontWeight={700}
             mb={2}
@@ -116,7 +116,14 @@ const Calendar = () => {
               }}
             >
              
-              <iframe src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=Europe%2FAmsterdam&showTitle=0&showPrint=0&showTz=0&mode=AGENDA&src=Ymx1ZW1pbmRmcmVlZGl2aW5nQGdtYWlsLmNvbQ&color=%23039BE5" width="100%" height="600" frameborder="0" scrolling="no"></iframe>
+              <iframe 
+                src="https://calendar.google.com/calendar/embed?height=600&wkst=1&ctz=Europe%2FAmsterdam&showTitle=0&showPrint=0&showTz=0&mode=AGENDA&src=Ymx1ZW1pbmRmcmVlZGl2aW5nQGdtYWlsLmNvbQ&color=%23039BE5" 
+                width="100%" 
+                height="600" 
+                frameBorder="0" 
+                scrolling="no"
+                title="Blue Mind Freediving Training Calendar - View upcoming freediving sessions and events"
+              ></iframe>
               <Button 
                 variant="contained" 
                 color="primary"

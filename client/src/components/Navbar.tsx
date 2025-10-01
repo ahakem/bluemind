@@ -61,8 +61,15 @@ const Navbar = () => {
 
   return (
     <AppBar 
-      position="sticky" 
+      position="sticky"
+      component="header"
+      id="navigation"
+      role="banner"
+      aria-label="Main navigation"
       sx={{
+        position: "sticky",
+        top: 0,
+        zIndex: 1100,
         background: "white",
         color: "text.primary",
         boxShadow: elevated ? 2 : 0,
@@ -87,7 +94,14 @@ const Navbar = () => {
           </Link>
 
           <Box sx={{ flexGrow: 0, display: { xs: "flex", md: "none" } }}>
-            <IconButton size="large" onClick={handleOpenNavMenu} color="inherit">
+            <IconButton 
+              size="large" 
+              onClick={handleOpenNavMenu} 
+              color="inherit"
+              aria-label="Open navigation menu"
+              aria-controls="menu-appbar"
+              aria-expanded={Boolean(anchorElNav)}
+            >
               <MenuIcon />
             </IconButton>
             <Menu

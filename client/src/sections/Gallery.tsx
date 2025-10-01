@@ -27,7 +27,7 @@ const Gallery = () => {
           </Typography>
           <Typography
             id="gallery-heading"
-            variant="h3"
+            variant="h2"
             component="h2"
             fontFamily="Poppins"
             fontWeight={700}
