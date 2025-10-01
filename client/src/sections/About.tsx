@@ -95,7 +95,7 @@ const About = () => {
                 color: "white",
               }}
             >
-              <Typography variant="h3" fontWeight={700} fontFamily="Poppins">
+              <Typography variant="h2" fontWeight={700} fontFamily="Poppins" component="div">
                 2025
               </Typography>
               <Typography variant="body2" align="center" fontWeight={500} sx={{ opacity: 0.9 }}>

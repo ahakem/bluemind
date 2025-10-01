@@ -27,13 +27,22 @@ export default defineConfig({
   build: {
     outDir: path.resolve(import.meta.dirname, "docs"),
     emptyOutDir: false, // Don't empty docs folder to preserve CNAME, robots.txt, etc.
+    // Additional optimizations
+    minify: 'terser',
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
+      },
+    },
     rollupOptions: {
       output: {
         manualChunks: {
           // Vendor chunk for large libraries
           vendor: ['react', 'react-dom'],
-          mui: ['@mui/material', '@mui/icons-material'],
-          // Material UI can be quite large, separate it
+          mui: ['@mui/material', '@mui/icons-material', '@emotion/react', '@emotion/styled'],
+          router: ['react-router-dom'],
+          query: ['@tanstack/react-query'],
         },
         // Preserve the assets folder structure
         assetFileNames: (assetInfo) => {
@@ -54,7 +63,17 @@ export default defineConfig({
     },
     // Optimize chunk sizes
     chunkSizeWarningLimit: 1000,
-    // Enable source maps for debugging in production (optional)
     sourcemap: false,
+  },
+  // Optimize dependencies
+  optimizeDeps: {
+    include: [
+      'react',
+      'react-dom',
+      '@mui/material',
+      '@mui/icons-material',
+      'react-router-dom',
+      '@tanstack/react-query',
+    ],
   },
 });

@@ -1,0 +1,37 @@
+{
+  "name": "Blue Mind Freediving",
+  "short_name": "BlueMind",
+  "description": "Professional freediving training in Amsterdam with certified Dutch instructors",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d47a1",
+  "theme_color": "#1976d2",
+  "orientation": "portrait-primary",
+  "categories": ["sports", "fitness", "education"],
+  "lang": "en-US",
+  "icons": [
+    {
+      "src": "/src/assets/favicon-16x16.png",
+      "sizes": "16x16",
+      "type": "image/png"
+    },
+    {
+      "src": "/src/assets/favicon-32x32.png",
+      "sizes": "32x32",
+      "type": "image/png"
+    },
+    {
+      "src": "/src/assets/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/src/assets/hero.webp",
+      "sizes": "1920x1080",
+      "type": "image/webp",
+      "label": "Hero section of Blue Mind Freediving"
+    }
+  ]
+}

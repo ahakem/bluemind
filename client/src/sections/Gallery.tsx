@@ -1,6 +1,7 @@
 import { Box, Container, Typography, Grid, Button } from "@mui/material";
-import { gallery } from "../data";
+import { gallery } from "../data/index";
 import { Link } from "react-router-dom";
+import { LazyImage } from '../components/OptimizedImage';
 
 const Gallery = () => {
   // Get only the first 6 items for the gallery preview
@@ -59,10 +60,16 @@ const Gallery = () => {
                   },
                 }}
               >
-                <img
+                <LazyImage
                   src={item.image}
                   alt={`Blue Mind Freediving training session in Amsterdam pool - ${item.title} ${index + 1}`}
-                  loading="lazy"
+                  sx={{
+                    width: "100%",
+                    height: "100%",
+                    objectFit: "cover",
+                    borderRadius: 2,
+                  }}
+                  sizes="(max-width: 600px) 100vw, (max-width: 960px) 50vw, 33vw"
                 />
               </Box>
             </Grid>

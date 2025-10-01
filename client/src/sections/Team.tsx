@@ -1,5 +1,6 @@
 import { Box, Container, Typography, Grid, Card, CardMedia, CardContent } from "@mui/material";
-import { team } from "../data";
+import { team } from "../data/index";
+import { LazyImage } from '../components/OptimizedImage';
 
 const Team = () => {
   return (
@@ -45,16 +46,17 @@ const Team = () => {
                   },
                 }}
               >
-                <CardMedia
-                  component="img"
-                  height="300"
-                  image={member.image}
+                <LazyImage
+                  src={member.image}
                   alt={member.name}
-                  loading="lazy"
                   sx={{
+                    height: "300px",
+                    width: "100%",
+                    objectFit: "cover",
                     filter: "grayscale(100%)",
                     transition: "filter 0.3s ease-in-out",
                   }}
+                  sizes="(max-width: 600px) 100vw, (max-width: 960px) 50vw, 33vw"
                 />
                 <CardContent sx={{ textAlign: "center", p: 3, flexGrow: 1 }}>
                   <Typography

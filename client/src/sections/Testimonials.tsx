@@ -165,6 +165,7 @@ const Testimonials = () => {
           {/* Navigation buttons */}
           <IconButton
             onClick={handlePrev}
+            aria-label="Previous testimonial"
             sx={{
               position: "absolute",
               top: "50%",
@@ -180,6 +181,7 @@ const Testimonials = () => {
           </IconButton>
           <IconButton
             onClick={handleNext}
+            aria-label="Next testimonial"
             sx={{
               position: "absolute",
               top: "50%",
