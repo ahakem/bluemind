@@ -1,4 +1,5 @@
 import { Box, Container, Typography, Button, Grid } from "@mui/material";
+import { PriorityImage } from '../components/OptimizedImage';
 import hero from "../assets/hero.webp"
 import heroImg from "../assets/banner-img.webp"
 
