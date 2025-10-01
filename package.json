@@ -6,12 +6,13 @@
   "homepage": "https://bluemindfreediving.nl",
   "scripts": {
     "dev": "NODE_ENV=development tsx server/index.ts",
-    "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
+    "build": "node build.js",
+    "build:vite": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outdir=dist",
     "start": "NODE_ENV=production node dist/index.js",
     "check": "tsc",
     "db:push": "drizzle-kit push",
     "predeploy": "npm run build",
-    "deploy": "gh-pages -d dist --branch=gh-pages --dotfiles --force"
+    "deploy": "gh-pages -d docs --branch=gh-pages --dotfiles --force"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
@@ -104,6 +105,7 @@
     "esbuild": "^0.25.0",
     "gh-pages": "^6.3.0",
     "postcss": "^8.4.47",
+    "react-snap": "^1.23.0",
     "tailwindcss": "^3.4.17",
     "tsx": "^4.19.1",
     "typescript": "5.6.3",
@@ -111,5 +113,30 @@
   },
   "optionalDependencies": {
     "bufferutil": "^4.0.8"
+  },
+  "reactSnap": {
+    "source": "docs",
+    "destination": "docs", 
+    "crawl": true,
+    "include": [
+      "/",
+      "/#/gallery",
+      "/#/finance"
+    ],
+    "userAgent": "ReactSnap",
+    "headless": true,
+    "waitFor": 2000,
+    "fixWebpackChunksIssue": "CRA2",
+    "skipThirdPartyRequests": true,
+    "cacheAjaxRequests": false,
+    "preloadImages": true,
+    "minifyHtml": {
+      "collapseWhitespace": true,
+      "removeComments": true,
+      "removeRedundantAttributes": true,
+      "removeScriptTypeAttributes": true,
+      "removeStyleLinkTypeAttributes": true,
+      "useShortDoctype": true
+    }
   }
 }
