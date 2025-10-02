@@ -35,11 +35,11 @@ const Hero = () => {
         sx={{
           position: "absolute",
           top: 0,
-          left: 0,
-          width: "100%",
+          right: 0,
+          width: { xs: "100%", md: "50%" },
           height: "100%",
-          objectFit: "cover",
-          objectPosition: "right top",
+          objectFit: "contain",
+          objectPosition: { xs: "center top", md: "top right" },
           zIndex: 0,
         }}
       />
