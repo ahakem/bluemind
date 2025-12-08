@@ -1,6 +1,0 @@
-User-agent: *
-Allow: /
-Disallow: /#/finance
-
-# Sitemap location
-Sitemap: https://bluemindfreediving.nl/sitemap.xml
