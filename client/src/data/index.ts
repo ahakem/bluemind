@@ -1,5 +1,5 @@
 import hakim from "@/assets/hakim.webp";
-import dewi from "@/assets/dewi-2.webp";
+import dewi from "@/assets/Dewi-2.webp";
 
 // --- Import Gallery Images ---
 import gallery1 from "@/assets/gallery/1.webp";
