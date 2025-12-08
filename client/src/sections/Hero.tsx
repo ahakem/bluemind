@@ -1,4 +1,4 @@
-import { Box, Container, Typography, Button, Grid } from "@mui/material";
+import { Box, Container, Typography, Button, Grid, Stack } from "@mui/material";
 import { PriorityImage } from '../components/OptimizedImage';
 import heroImg from "../assets/banner-img.webp"
 
@@ -105,13 +105,19 @@ const Hero = () => {
                 }}
               >
                 Join our Amsterdam freediving community for professional pool training sessions. Develop your skills with certified instructors in a safe, supportive environment.
-              </Typography>            <Box sx={{ flexDirection: { xs: "column", sm: "row" }, gap: { xs: 2, sm: 3 } }}>
-
-
+              </Typography>
+            <Stack
+              direction={{ xs: "column", sm: "row" }}
+              spacing={2}
+              sx={{ width: "100%", maxWidth: 400 }}
+            >
               <Button
                 variant="contained"
                 size="large"
-                onClick={scrollToSection('membership')}
+                component="a"
+                href="https://app.bluemindfreediving.nl/#/register"
+                target="_blank"
+                rel="noopener noreferrer"
                 sx={{
                   borderRadius: "50px",
                   px: 4,
@@ -120,14 +126,32 @@ const Hero = () => {
                   textTransform: "none",
                   bgcolor: "white",
                   color: "primary.main",
-                  "&:hover": {
-                    bgcolor: "rgba(255,255,255,0.9)",
-                  }
+                  "&:hover": { bgcolor: "rgba(255,255,255,0.9)" }
                 }}
               >
-                Become a Member!
+                Register Now
               </Button>
-            </Box>
+              <Button
+                variant="outlined"
+                size="large"
+                component="a"
+                href="http://app.bluemindfreediving.nl/"
+                target="_blank"
+                rel="noopener noreferrer"
+                sx={{
+                  borderRadius: "50px",
+                  px: 4,
+                  py: 1.5,
+                  fontFamily: "Poppins",
+                  textTransform: "none",
+                  color: "white",
+                  borderColor: "white",
+                  "&:hover": { borderColor: "white", bgcolor: "rgba(255,255,255,0.1)" }
+                }}
+              >
+                Member Login
+              </Button>
+            </Stack>
           </Grid>
         </Grid>
       </Container>

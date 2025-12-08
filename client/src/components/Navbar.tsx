@@ -144,12 +144,14 @@ const Navbar = () => {
 
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
             <Button
-              onClick={() => handleScrollToSection("#contact")}
+              href="https://app.bluemindfreediving.nl"
+              target="_blank"
+              rel="noopener noreferrer"
               variant="contained"
               color="primary"
               sx={{ borderRadius: "50px", textTransform: "none", px: 3 }}
             >
-              Join Now
+              Member Login
             </Button>
           </Box>
         </Toolbar>

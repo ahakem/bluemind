@@ -2,44 +2,14 @@ import {
   Box, 
   Container, 
   Typography, 
-  Grid, 
-  Card, 
-  CardContent, 
-  CardActions, 
   Button, 
-  List, 
-  ListItem, 
-  ListItemIcon, 
-  ListItemText,
   Paper
 } from "@mui/material";
-import CheckIcon from "@mui/icons-material/Check";
-import DownloadIcon from "@mui/icons-material/Download";
-import DocumentScannerIcon from "@mui/icons-material/DocumentScanner";
+import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import EmailIcon from "@mui/icons-material/Email";
 import PoolIcon from "@mui/icons-material/Pool";
 
-// Import document paths
-import membershipFormDoc from "../assets/documents/membership-form.txt";
-import membershipInfoDoc from "../assets/documents/membership-info.txt";
-
-// No membership plans needed now
-
 const Membership = () => {
-  // Function to download a text file
-  const downloadDocument = (documentPath: string, filename: string) => {
-    fetch(documentPath)
-      .then(response => response.text())
-      .then(text => {
-        const element = document.createElement('a');
-        const file = new Blob([text], {type: 'text/plain'});
-        element.href = URL.createObjectURL(file);
-        element.download = filename;
-        document.body.appendChild(element);
-        element.click();
-        document.body.removeChild(element);
-      });
-  };
 
   return (
     <Box 
@@ -74,7 +44,7 @@ const Membership = () => {
             fontWeight={700}
             mb={1}
           >
-            How to Become a Member
+            Become a Member
           </Typography>
           <Box sx={{ width: 80, height: 3, bgcolor: "accent.main", mx: "auto", mt: 2, mb: 3 }} />
           <Typography 
@@ -86,7 +56,7 @@ const Membership = () => {
               mb: 4
             }}
           >
-            Joining Blue Mind Freediving is easy! Download our membership documents, complete them, and submit your application. Our team will contact you to finalize your membership.
+            Joining Blue Mind Freediving is easy! Register online and start your freediving journey with our Amsterdam community.
           </Typography>
         </Box>
 
@@ -147,7 +117,7 @@ const Membership = () => {
                 borderColor: "primary.main"
               }}
             >
-              <DocumentScannerIcon sx={{ fontSize: 40, color: "primary.main" }} />
+              <PersonAddIcon sx={{ fontSize: 40, color: "primary.main" }} />
             </Box>
             
             <Typography 
@@ -156,7 +126,7 @@ const Membership = () => {
               align="center"
               sx={{ mb: 2 }}
             >
-              1. Download Forms
+              1. Register Online
             </Typography>
             
             <Paper
@@ -179,7 +149,7 @@ const Membership = () => {
                 align="center"
                 sx={{ mb: 3 }}
               >
-                Our membership documents contain all the information you need to get started with Blue Mind Freediving.
+                Complete our simple online registration form to get started with Blue Mind Freediving.
               </Typography>
               
               <Box sx={{ display: "flex", flexDirection: "column", gap: 2 }}>
@@ -188,16 +158,16 @@ const Membership = () => {
                   color="primary"
                   target="_blank"
                   rel="noopener noreferrer"
-                  href="https://drive.google.com/drive/folders/1Zk8XN5P0G88ijiw7bgBdCxdy73Zef-F5?usp=sharing"
-                  startIcon={<DownloadIcon />}
-                  aria-label="Download membership forms from Google Drive (opens in new tab)"
+                  href="https://app.bluemindfreediving.nl/#/register"
+                  startIcon={<PersonAddIcon />}
+                  aria-label="Register online (opens in new tab)"
                   sx={{ 
                     borderRadius: 1,
                     py: 1.2,
                     fontWeight: 500
                   }}
                 >
-                  Membership Forms
+                  Register Now
                 </Button>
               </Box>
             </Paper>
@@ -239,7 +209,7 @@ const Membership = () => {
               align="center"
               sx={{ mb: 2 }}
             >
-              2. Submit Your Application
+              2. Get Confirmed
             </Typography>
             
             <Paper
@@ -262,7 +232,7 @@ const Membership = () => {
                 align="center"
                 sx={{ mb: 3 }}
               >
-                Email your completed form to <strong>info@bluemindfreediving.nl</strong> 
+                Our team will review your registration and send you a confirmation email with next steps.
               </Typography>
               
               <Button
@@ -281,7 +251,7 @@ const Membership = () => {
                   mt: "auto"
                 }}
               >
-                Contact Us
+                Questions? Contact Us
               </Button>
             </Paper>
           </Box>
