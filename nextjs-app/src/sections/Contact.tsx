@@ -52,11 +52,15 @@ const Contact = () => {
       const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || 'YOUR_PUBLIC_KEY';
 
       const templateParams = {
-        from_name: formData.name,
-        from_email: formData.email,
-        subject: formData.subject,
+        name: formData.name,
+        email: formData.email,
+        title: formData.subject,
+        time: new Date().toLocaleString('en-US', { 
+          timeZone: 'Europe/Amsterdam',
+          dateStyle: 'medium',
+          timeStyle: 'short'
+        }),
         message: formData.message,
-        to_email: 'info@bluemindfreediving.nl',
       };
 
       await emailjs.send(serviceId, templateId, templateParams, publicKey);
