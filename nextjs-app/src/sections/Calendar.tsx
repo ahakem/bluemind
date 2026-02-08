@@ -61,7 +61,7 @@ const Calendar = () => {
           </Paper>
           <Paper elevation={2} sx={{ p: 3, borderRadius: 2, textAlign: 'center', minWidth: 200 }}>
             <Typography variant="h6" color="primary" fontWeight={600}>Duration</Typography>
-            <Typography variant="body1">2-3 Hours</Typography>
+            <Typography variant="body1">1 Hour</Typography>
             <Typography variant="body2" color="text.secondary">Pool Training</Typography>
           </Paper>
         </Box>

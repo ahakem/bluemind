@@ -14,7 +14,7 @@ import LocationOnIcon from "@mui/icons-material/LocationOn";
 import EmailIcon from "@mui/icons-material/Email";
 import InstagramIcon from "@mui/icons-material/Instagram";
 import { useState } from "react";
-import Image from "next/image";
+import emailjs from '@emailjs/browser';
 
 interface ContactFormData {
   name: string;
@@ -46,12 +46,26 @@ const Contact = () => {
     setErrorMessage("");
 
     try {
-      // Simulate form submission - replace with actual API call
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      // EmailJS configuration
+      const serviceId = process.env.NEXT_PUBLIC_EMAILJS_SERVICE_ID || 'service_bluemind';
+      const templateId = process.env.NEXT_PUBLIC_EMAILJS_TEMPLATE_ID || 'template_contact';
+      const publicKey = process.env.NEXT_PUBLIC_EMAILJS_PUBLIC_KEY || 'YOUR_PUBLIC_KEY';
+
+      const templateParams = {
+        from_name: formData.name,
+        from_email: formData.email,
+        subject: formData.subject,
+        message: formData.message,
+        to_email: 'info@bluemindfreediving.nl',
+      };
+
+      await emailjs.send(serviceId, templateId, templateParams, publicKey);
+
       setSuccessMessage("Thank you! Your message has been sent successfully. We'll get back to you soon.");
       setFormData({ name: "", email: "", subject: "", message: "" });
-    } catch {
-      setErrorMessage("Failed to send message. Please try again or email us directly.");
+    } catch (error) {
+      console.error('Email send error:', error);
+      setErrorMessage("Failed to send message. Please try again or email us directly at info@bluemindfreediving.nl");
     } finally {
       setLoading(false);
     }

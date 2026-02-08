@@ -4,12 +4,12 @@ import About from '@/sections/About';
 import Gallery from '@/sections/Gallery';
 
 export const metadata: Metadata = {
-  title: 'Blue Mind Freediving | Amsterdam Freediving Club',
-  description: 'Join Amsterdam\'s premier freediving community at Blue Mind Freediving. Expert training at Sloterparkbad pool, from beginners to advanced. Start your underwater journey today!',
-  keywords: ['freediving Amsterdam', 'freediving club Netherlands', 'apnea training', 'breath hold diving', 'underwater sports', 'Blue Mind Freediving', 'Sloterparkbad freediving'],
+  title: 'Freediving Amsterdam | Blue Mind Freediving Club',
+  description: 'Freediving Amsterdam - Join Blue Mind Freediving, Amsterdam\'s #1 freediving club. Professional pool training at Sloterparkbad. Learn freediving in Amsterdam from AIDA certified instructors. Beginners welcome!',
+  keywords: ['freediving amsterdam', 'freediving amsterdam club', 'freedive amsterdam', 'freediving training amsterdam', 'freediving lessons amsterdam', 'freediving course amsterdam', 'apnea amsterdam', 'freediving pool amsterdam', 'sloterparkbad freediving', 'amsterdam freediving community', 'blue mind freediving', 'learn freediving amsterdam'],
   openGraph: {
-    title: 'Blue Mind Freediving | Amsterdam Freediving Club',
-    description: 'Join Amsterdam\'s premier freediving community. Expert training from beginners to advanced at Sloterparkbad.',
+    title: 'Freediving Amsterdam | Blue Mind Freediving Club',
+    description: 'Freediving Amsterdam - Join Blue Mind, Amsterdam\'s premier freediving club. Professional pool training at Sloterparkbad. AIDA certified instructors.',
     url: 'https://bluemindfreediving.nl',
     type: 'website',
     images: [
@@ -23,8 +23,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Blue Mind Freediving | Amsterdam',
-    description: 'Join Amsterdam\'s premier freediving community',
+    title: 'Freediving Amsterdam | Blue Mind Freediving',
+    description: 'Freediving Amsterdam - Professional freediving training at Sloterparkbad',
   },
   alternates: {
     canonical: 'https://bluemindfreediving.nl',

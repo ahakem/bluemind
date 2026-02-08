@@ -73,7 +73,7 @@ const Hero = () => {
                 },
               }}
             >
-              Welcome to Blue Mind Freediving
+              Freediving Amsterdam
             </Typography>
 
             <Typography
@@ -88,9 +88,9 @@ const Hero = () => {
                 textShadow: "1px 1px 3px rgba(0, 0, 0, 0.3)",
               }}
             >
-              Train Your Mind,{" "}
+              Blue Mind -{" "}
               <Box component="span" color="secondary.main">
-                Master Your Breath
+                Train Your Mind, Master Your Breath
               </Box>
             </Typography>
 
@@ -105,7 +105,7 @@ const Hero = () => {
                 maxWidth: "600px",
               }}
             >
-              Join our Amsterdam freediving community for professional pool training sessions. Develop your skills with certified instructors in a safe, supportive environment.
+              Amsterdam&apos;s #1 freediving club. Join our professional pool training sessions at Sloterparkbad with AIDA certified instructors. All levels welcome!
             </Typography>
 
             <Stack
