@@ -32,5 +32,5 @@ export const metadata: Metadata = {
 };
 
 export default function GalleryPage() {
-  return <Gallery showAll={true} />;
+  return <Gallery showAll={true} enableModal={true} />;
 }

@@ -36,7 +36,7 @@ export default function HomePage() {
     <>
       <Hero />
       <About showCTA />
-      <Gallery />
+      <Gallery enableModal={false} />
     </>
   );
 }

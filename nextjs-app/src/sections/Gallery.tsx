@@ -1,16 +1,36 @@
 'use client';
 
-import { Box, Container, Typography, Grid, Button } from "@mui/material";
+import { Box, Container, Typography, Button } from "@mui/material";
 import { gallery } from "@/data";
 import Link from "next/link";
 import Image from "next/image";
+import { useState } from "react";
+import GalleryModal from "@/components/GalleryModal";
 
 interface GalleryProps {
   showAll?: boolean;
+  enableModal?: boolean;
 }
 
-const Gallery = ({ showAll = false }: GalleryProps) => {
+const Gallery = ({ showAll = false, enableModal = true }: GalleryProps) => {
   const galleryItems = showAll ? gallery : gallery.slice(0, 6);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  const handleImageClick = (index: number) => {
+    if (enableModal) {
+      setCurrentImageIndex(index);
+      setModalOpen(true);
+    }
+  };
+
+  const handleNext = () => {
+    setCurrentImageIndex((prev) => (prev + 1) % galleryItems.length);
+  };
+
+  const handlePrev = () => {
+    setCurrentImageIndex((prev) => (prev - 1 + galleryItems.length) % galleryItems.length);
+  };
 
   return (
     <Box 
@@ -54,9 +74,26 @@ const Gallery = ({ showAll = false }: GalleryProps) => {
         </Box>
 
         {/* Gallery Grid */}
-        <Grid container spacing={2} role="list" aria-label="Blue Mind Freediving training photos">
+        <Box 
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              sm: 'repeat(2, 1fr)',
+              md: 'repeat(3, 1fr)'
+            },
+            gap: 2
+          }}
+          role="list" 
+          aria-label="Blue Mind Freediving training photos"
+        >
           {galleryItems.map((item, index) => (
-            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={`gallery-${index}`} role="listitem">
+            <Box 
+              key={`gallery-${index}`} 
+              role="listitem"
+              onClick={() => handleImageClick(index)}
+              sx={{ cursor: enableModal ? 'pointer' : 'default' }}
+            >
               <Box
                 sx={{
                   position: "relative",
@@ -65,7 +102,10 @@ const Gallery = ({ showAll = false }: GalleryProps) => {
                   boxShadow: 2,
                   height: 250,
                   "&:hover img": {
-                    transform: "scale(1.05)",
+                    transform: enableModal ? "scale(1.05)" : "scale(1.02)",
+                  },
+                  "&:hover": {
+                    boxShadow: enableModal ? 4 : 3,
                   },
                 }}
               >
@@ -81,9 +121,9 @@ const Gallery = ({ showAll = false }: GalleryProps) => {
                   loading="lazy"
                 />
               </Box>
-            </Grid>
+            </Box>
           ))}
-        </Grid>
+        </Box>
 
         {!showAll && (
           <Box sx={{ textAlign: "center", mt: 4 }}>
@@ -98,6 +138,17 @@ const Gallery = ({ showAll = false }: GalleryProps) => {
               View Full Gallery
             </Button>
           </Box>
+        )}
+
+        {enableModal && (
+          <GalleryModal
+            open={modalOpen}
+            onClose={() => setModalOpen(false)}
+            images={galleryItems}
+            currentIndex={currentImageIndex}
+            onNext={handleNext}
+            onPrev={handlePrev}
+          />
         )}
       </Container>
     </Box>

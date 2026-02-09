@@ -1,6 +1,6 @@
 'use client';
 
-import { Box, Container, Typography, Grid, Card, CardContent } from "@mui/material";
+import { Box, Container, Typography, Card, CardContent } from "@mui/material";
 import { team } from "@/data";
 import Image from "next/image";
 
@@ -35,9 +35,19 @@ const Team = () => {
           <Box sx={{ width: 80, height: 3, bgcolor: "accent.main", mx: "auto", mt: 2 }} />
         </Box>
 
-        <Grid container spacing={4} justifyContent="center">
+        <Box 
+          sx={{
+            display: 'grid',
+            gridTemplateColumns: {
+              xs: '1fr',
+              md: 'repeat(2, 1fr)'
+            },
+            gap: 4,
+            justifyItems: 'center'
+          }}
+        >
           {team.map((member, index) => (
-            <Grid size={{ xs: 12, md: 6 }} key={index}>
+            <Box key={index} sx={{ maxWidth: 600, width: '100%' }}>
               <Card
                 sx={{
                   display: 'flex',
@@ -51,12 +61,21 @@ const Team = () => {
                     transform: "translateY(-8px)",
                     boxShadow: 6,
                   },
-                  "&:hover img": {
-                    filter: "grayscale(0%)",
-                  },
                 }}
               >
-                <Box sx={{ position: 'relative', width: '100%', height: 300, overflow: 'hidden' }}>
+                <Box 
+                  sx={{ 
+                    position: 'relative', 
+                    width: '100%', 
+                    height: 300, 
+                    overflow: 'hidden',
+                    filter: 'grayscale(100%)',
+                    transition: 'filter 0.3s ease-in-out',
+                    '&:hover': {
+                      filter: 'grayscale(0%)',
+                    },
+                  }}
+                >
                   <Image
                     src={member.image}
                     alt={`${member.name} - ${member.position} at Blue Mind Freediving Amsterdam`}
@@ -64,8 +83,6 @@ const Team = () => {
                     sizes="(max-width: 768px) 100vw, 50vw"
                     style={{
                       objectFit: 'cover',
-                      filter: 'grayscale(100%)',
-                      transition: 'filter 0.3s ease-in-out',
                     }}
                     loading="lazy"
                   />
@@ -95,9 +112,9 @@ const Team = () => {
                   </Typography>
                 </CardContent>
               </Card>
-            </Grid>
+            </Box>
           ))}
-        </Grid>
+        </Box>
       </Container>
     </Box>
   );
