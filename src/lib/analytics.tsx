@@ -3,53 +3,22 @@
 import { useEffect, Suspense } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 
-// Firebase Analytics configuration
-const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX';
-
 // Check if user has consented to cookies
 const hasConsent = () => {
   if (typeof window === 'undefined') return false;
   return localStorage.getItem('cookie-consent') === 'accepted';
 };
 
-// Analytics component that uses useSearchParams
+// Analytics component that tracks page views
 function AnalyticsContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
-  useEffect(() => {
-    // Only load GA if user has consented
-    if (typeof window !== 'undefined' && GA_MEASUREMENT_ID && GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX' && hasConsent()) {
-      // Check if script already exists
-      if (!document.querySelector(`script[src*="googletagmanager.com/gtag/js"]`)) {
-        const script = document.createElement('script');
-        script.src = `https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`;
-        script.async = true;
-        document.head.appendChild(script);
-
-        // Initialize gtag with consent mode
-        window.dataLayer = window.dataLayer || [];
-        function gtag(...args: any[]) {
-          window.dataLayer.push(args);
-        }
-        window.gtag = gtag;
-        
-        // Set default consent to denied
-        gtag('consent', 'default', {
-          analytics_storage: 'granted',
-        });
-        
-        gtag('js', new Date());
-        gtag('config', GA_MEASUREMENT_ID);
-      }
-    }
-  }, []);
-
   // Track page views on route change
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.gtag && GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX' && hasConsent()) {
+    if (typeof window !== 'undefined' && window.gtag && hasConsent()) {
       const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
-      window.gtag('config', GA_MEASUREMENT_ID, {
+      window.gtag('event', 'page_view', {
         page_path: url,
       });
     }

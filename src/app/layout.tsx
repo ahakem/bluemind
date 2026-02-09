@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next';
+import Script from 'next/script';
 import ThemeRegistry from '@/components/ThemeRegistry';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
@@ -148,6 +149,8 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '';
+  
   return (
     <html lang="en">
       <head>
@@ -162,6 +165,38 @@ export default function RootLayout({
         />
       </head>
       <body>
+        {/* Google Analytics - Load first */}
+        {GA_MEASUREMENT_ID && GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX' && (
+          <>
+            <Script
+              strategy="afterInteractive"
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+            />
+            <Script id="google-analytics" strategy="afterInteractive">
+              {`
+                window.dataLayer = window.dataLayer || [];
+                function gtag(){dataLayer.push(arguments);}
+                gtag('js', new Date());
+                
+                // Check consent
+                const consent = localStorage.getItem('cookie-consent');
+                if (consent === 'accepted') {
+                  gtag('consent', 'update', {
+                    analytics_storage: 'granted'
+                  });
+                  gtag('config', '${GA_MEASUREMENT_ID}', {
+                    page_path: window.location.pathname,
+                  });
+                } else {
+                  gtag('consent', 'default', {
+                    analytics_storage: 'denied'
+                  });
+                }
+              `}
+            </Script>
+          </>
+        )}
+        
         <Analytics />
         <ThemeRegistry>
           <SkipLinks />
