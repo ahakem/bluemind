@@ -73,9 +73,10 @@ export default function CookieConsent() {
               🍪 We use cookies
             </Typography>
             <Typography variant="body2" sx={{ opacity: 0.9 }}>
-              We use cookies and similar technologies to help personalize content and offer a better experience. 
-              You can opt to customize them by clicking the preferences button. 
-              By clicking "Accept All", you agree to the use of all cookies.{' '}
+              We use cookies to improve your experience and analyze site traffic. 
+              By clicking "Accept All", you consent to our use of cookies for analytics. 
+              Click "Decline" to browse without tracking. 
+              Learn more in our{' '}
               <Link 
                 href="https://app.bluemindfreediving.nl/documents/privacy-policy" 
                 target="_blank"
@@ -88,6 +89,7 @@ export default function CookieConsent() {
               >
                 Privacy Policy
               </Link>
+              .
             </Typography>
           </Box>
           
