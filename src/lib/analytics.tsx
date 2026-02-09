@@ -6,14 +6,20 @@ import { usePathname, useSearchParams } from 'next/navigation';
 // Firebase Analytics configuration
 const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || 'G-XXXXXXXXXX';
 
+// Check if user has consented to cookies
+const hasConsent = () => {
+  if (typeof window === 'undefined') return false;
+  return localStorage.getItem('cookie-consent') === 'accepted';
+};
+
 // Analytics component that uses useSearchParams
 function AnalyticsContent() {
   const pathname = usePathname();
   const searchParams = useSearchParams();
 
   useEffect(() => {
-    // Load GA script
-    if (typeof window !== 'undefined' && GA_MEASUREMENT_ID && GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX') {
+    // Only load GA if user has consented
+    if (typeof window !== 'undefined' && GA_MEASUREMENT_ID && GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX' && hasConsent()) {
       // Check if script already exists
       if (!document.querySelector(`script[src*="googletagmanager.com/gtag/js"]`)) {
         const script = document.createElement('script');
@@ -21,12 +27,18 @@ function AnalyticsContent() {
         script.async = true;
         document.head.appendChild(script);
 
-        // Initialize gtag
+        // Initialize gtag with consent mode
         window.dataLayer = window.dataLayer || [];
         function gtag(...args: any[]) {
           window.dataLayer.push(args);
         }
         window.gtag = gtag;
+        
+        // Set default consent to denied
+        gtag('consent', 'default', {
+          analytics_storage: 'granted',
+        });
+        
         gtag('js', new Date());
         gtag('config', GA_MEASUREMENT_ID);
       }
@@ -35,7 +47,7 @@ function AnalyticsContent() {
 
   // Track page views on route change
   useEffect(() => {
-    if (typeof window !== 'undefined' && window.gtag && GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX') {
+    if (typeof window !== 'undefined' && window.gtag && GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX' && hasConsent()) {
       const url = pathname + (searchParams?.toString() ? `?${searchParams.toString()}` : '');
       window.gtag('config', GA_MEASUREMENT_ID, {
         page_path: url,

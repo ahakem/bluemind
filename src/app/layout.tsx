@@ -4,6 +4,7 @@ import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BackToTop from '@/components/BackToTop';
 import SkipLinks from '@/components/SkipLinks';
+import CookieConsent from '@/components/CookieConsent';
 import { Analytics } from '@/lib/analytics';
 
 export const viewport: Viewport = {
@@ -172,6 +173,7 @@ export default function RootLayout({
             <Footer />
           </footer>
           <BackToTop />
+          <CookieConsent />
         </ThemeRegistry>
       </body>
     </html>
