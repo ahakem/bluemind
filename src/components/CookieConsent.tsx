@@ -77,7 +77,9 @@ export default function CookieConsent() {
               You can opt to customize them by clicking the preferences button. 
               By clicking "Accept All", you agree to the use of all cookies.{' '}
               <Link 
-                href="/contact" 
+                href="https://app.bluemindfreediving.nl/documents/privacy-policy" 
+                target="_blank"
+                rel="noopener noreferrer"
                 sx={{ 
                   color: '#4A90E2',
                   textDecoration: 'underline',
