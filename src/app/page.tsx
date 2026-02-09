@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Script from 'next/script';
 import Hero from '@/sections/Hero';
 import About from '@/sections/About';
 import Gallery from '@/sections/Gallery';
@@ -14,7 +15,7 @@ export const metadata: Metadata = {
     type: 'website',
     images: [
       {
-        url: '/images/hero1.jpg',
+        url: '/images/hero.webp',
         width: 1200,
         height: 630,
         alt: 'Blue Mind Freediving - Amsterdam Freediving Club',
@@ -25,15 +26,35 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Freediving Amsterdam | Blue Mind Freediving',
     description: 'Freediving Amsterdam - Professional freediving training at Sloterparkbad',
+    images: ['/images/hero.webp'],
   },
   alternates: {
     canonical: 'https://bluemindfreediving.nl',
   },
 };
 
+// Breadcrumb structured data for homepage
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: 'Home',
+      item: 'https://bluemindfreediving.nl',
+    },
+  ],
+};
+
 export default function HomePage() {
   return (
     <>
+      <Script
+        id="breadcrumb-schema"
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
       <Hero />
       <About showCTA />
       <Gallery enableModal={false} />
