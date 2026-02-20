@@ -2,6 +2,7 @@
 
 import { Box, Container, Typography, Link as MuiLink, IconButton } from "@mui/material";
 import InstagramIcon from "@mui/icons-material/Instagram";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import CalculateIcon from "@mui/icons-material/Calculate";
 import Link from "next/link";
 import Image from "next/image";
@@ -97,6 +98,31 @@ const Footer = () => {
               }}
             >
               <InstagramIcon fontSize="small" />
+            </MuiLink>
+
+            <MuiLink
+              href="https://wa.me/31611234567" 
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="WhatsApp"
+              sx={{ 
+                color: "white", 
+                width: 38, 
+                height: 38, 
+                bgcolor: "rgba(255,255,255,0.1)",
+                borderRadius: "50%", 
+                display: "flex", 
+                alignItems: "center", 
+                justifyContent: "center",
+                transition: "all 0.3s ease",
+                "&:hover": { 
+                  bgcolor: "#25D366", 
+                  transform: "translateY(-3px)",
+                  boxShadow: "0 5px 15px rgba(0,0,0,0.2)"
+                }
+              }}
+            >
+              <WhatsAppIcon fontSize="small" />
             </MuiLink>
           </Box>
         </Box>

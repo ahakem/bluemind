@@ -13,6 +13,7 @@ import {
 import LocationOnIcon from "@mui/icons-material/LocationOn";
 import EmailIcon from "@mui/icons-material/Email";
 import InstagramIcon from "@mui/icons-material/Instagram";
+import WhatsAppIcon from "@mui/icons-material/WhatsApp";
 import { useState } from "react";
 import emailjs from '@emailjs/browser';
 
@@ -257,29 +258,56 @@ const Contact = () => {
                 <Typography variant="body2" color="white" sx={{ opacity: 0.7, mb: 2 }}>
                   FOLLOW US
                 </Typography>
-                <Box
-                  component="a"
-                  href="https://www.instagram.com/bluemind.freediving/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Follow Blue Mind Freediving on Instagram"
-                  sx={{
-                    width: 40,
-                    height: 40,
-                    borderRadius: "50%",
-                    bgcolor: "rgba(255,255,255,0.2)",
-                    color: "white",
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    transition: "all 0.3s ease",
-                    "&:hover": {
-                      bgcolor: "rgba(255,255,255,0.3)",
-                      transform: "translateY(-3px)"
-                    },
-                  }}
-                >
-                  <InstagramIcon sx={{ fontSize: 20 }} />
+                <Box sx={{ display: "flex", gap: 1 }}>
+                  <Box
+                    component="a"
+                    href="https://www.instagram.com/bluemind.freediving/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Follow Blue Mind Freediving on Instagram"
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: "50%",
+                      bgcolor: "rgba(255,255,255,0.2)",
+                      color: "white",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        bgcolor: "rgba(255,255,255,0.3)",
+                        transform: "translateY(-3px)"
+                      },
+                    }}
+                  >
+                    <InstagramIcon sx={{ fontSize: 20 }} />
+                  </Box>
+
+                  <Box
+                    component="a"
+                    href="https://wa.me/31611234567"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label="Contact Blue Mind Freediving on WhatsApp"
+                    sx={{
+                      width: 40,
+                      height: 40,
+                      borderRadius: "50%",
+                      bgcolor: "rgba(255,255,255,0.2)",
+                      color: "white",
+                      display: "inline-flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      transition: "all 0.3s ease",
+                      "&:hover": {
+                        bgcolor: "#25D366",
+                        transform: "translateY(-3px)"
+                      },
+                    }}
+                  >
+                    <WhatsAppIcon sx={{ fontSize: 20 }} />
+                  </Box>
                 </Box>
               </Box>
             </Box>

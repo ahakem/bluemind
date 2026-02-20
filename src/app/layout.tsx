@@ -1,11 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import ThemeRegistry from '@/components/ThemeRegistry';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import BackToTop from '@/components/BackToTop';
-import SkipLinks from '@/components/SkipLinks';
-import CookieConsent from '@/components/CookieConsent';
+import LayoutContent from '@/components/LayoutContent';
 import { Analytics } from '@/lib/analytics';
 
 export const viewport: Viewport = {
@@ -199,16 +195,9 @@ export default function RootLayout({
         
         <Analytics />
         <ThemeRegistry>
-          <SkipLinks />
-          <Navbar />
-          <main id="main-content" role="main" tabIndex={-1}>
+          <LayoutContent>
             {children}
-          </main>
-          <footer id="footer" role="contentinfo">
-            <Footer />
-          </footer>
-          <BackToTop />
-          <CookieConsent />
+          </LayoutContent>
         </ThemeRegistry>
       </body>
     </html>

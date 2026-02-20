@@ -1,0 +1,13 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="200" height="200">
+  <defs>
+    <style>
+      .placeholder-bg { fill: #003366; }
+      .placeholder-circle { fill: #0077be; }
+      .placeholder-text { fill: #ffffff; font-size: 14px; font-family: Arial, sans-serif; text-anchor: middle; }
+    </style>
+  </defs>
+  <rect width="200" height="200" class="placeholder-bg"/>
+  <circle cx="100" cy="70" r="40" class="placeholder-circle"/>
+  <rect x="60" y="120" width="80" height="40" rx="5" class="placeholder-circle"/>
+  <text x="100" y="175" class="placeholder-text">Instructor Photo</text>
+</svg>

@@ -39,3 +39,74 @@ export const gallery = [
   { title: "Freediver in the pool", image: "/images/gallery/18.webp" },
   { title: "Freediver in the pool", image: "/images/gallery/20.webp" },
 ];
+
+// Community Partners data
+export const partners = [
+  {
+    id: 1,
+    name: "Partner Name 1",
+    logo: "/images/partners/partner-placeholder.svg",
+    description: "Brief description of the partner organization and their connection to the freediving community.",
+    website: "https://example.com",
+    socialLink: "https://instagram.com/",
+    socialPlatform: "Instagram",
+  },
+  {
+    id: 2,
+    name: "Partner Name 2",
+    logo: "/images/partners/partner-placeholder.svg",
+    description: "Brief description of the partner organization and their connection to the freediving community.",
+    website: "https://example.com",
+    socialLink: "https://instagram.com/",
+    socialPlatform: "Instagram",
+  },
+  {
+    id: 3,
+    name: "Partner Name 3",
+    logo: "/images/partners/partner-placeholder.svg",
+    description: "Brief description of the partner organization and their connection to the freediving community.",
+    website: "https://example.com",
+    socialLink: "https://instagram.com/",
+    socialPlatform: "Instagram",
+  },
+  {
+    id: 4,
+    name: "Partner Name 4",
+    logo: "/images/partners/partner-placeholder.svg",
+    description: "Brief description of the partner organization and their connection to the freediving community.",
+    website: "https://example.com",
+    socialLink: "https://instagram.com/",
+    socialPlatform: "Instagram",
+  },
+];
+
+// Guest Instructors / Collaborators data
+export const guestInstructors = [
+  {
+    id: 1,
+    name: "Instructor Name",
+    image: "/images/instructors/instructor-placeholder.svg",
+    specialty: "AIDA Instructor",
+    bio: "Brief bio about the instructor's background and expertise in freediving.",
+    socialLink: "https://instagram.com/",
+    socialPlatform: "Instagram",
+  },
+  {
+    id: 2,
+    name: "Instructor Name",
+    image: "/images/instructors/instructor-placeholder.svg",
+    specialty: "SSI Instructor",
+    bio: "Brief bio about the instructor's background and expertise in freediving.",
+    socialLink: "https://instagram.com/",
+    socialPlatform: "Website",
+  },
+  {
+    id: 3,
+    name: "Instructor Name",
+    image: "/images/instructors/instructor-placeholder.svg",
+    specialty: "Depth Specialist",
+    bio: "Brief bio about the instructor's background and expertise in freediving.",
+    socialLink: "https://instagram.com/",
+    socialPlatform: "Instagram",
+  },
+];
