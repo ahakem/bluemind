@@ -3,6 +3,7 @@ import Script from 'next/script';
 import ThemeRegistry from '@/components/ThemeRegistry';
 import LayoutContent from '@/components/LayoutContent';
 import { Analytics } from '@/lib/analytics';
+import { generateLocalBusinessSchema } from '@/lib/schemaGenerator';
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -83,62 +84,10 @@ export const metadata: Metadata = {
   },
 };
 
-// JSON-LD Structured Data
-const jsonLd = {
-  '@context': 'https://schema.org',
-  '@graph': [
-    {
-      '@type': 'Organization',
-      '@id': 'https://bluemindfreediving.nl/#organization',
-      name: 'Blue Mind Freediving',
-      alternateName: ['Blue Mind Freediving Amsterdam', 'Dutch Freediving Amsterdam'],
-      url: 'https://bluemindfreediving.nl',
-      logo: {
-        '@type': 'ImageObject',
-        url: 'https://bluemindfreediving.nl/images/bluemind-logo.webp',
-        width: 200,
-        height: 60,
-      },
-      contactPoint: {
-        '@type': 'ContactPoint',
-        email: 'info@bluemindfreediving.nl',
-        contactType: 'customer service',
-        availableLanguage: ['English', 'Dutch'],
-      },
-      address: {
-        '@type': 'PostalAddress',
-        addressLocality: 'Amsterdam',
-        addressRegion: 'North Holland',
-        addressCountry: 'Netherlands',
-      },
-      sameAs: ['https://www.instagram.com/bluemind.freediving/'],
-      foundingDate: '2024',
-    },
-    {
-      '@type': 'LocalBusiness',
-      '@id': 'https://bluemindfreediving.nl/#localbusiness',
-      name: 'Blue Mind Freediving Amsterdam',
-      description: 'Professional freediving training facility in Amsterdam, Netherlands.',
-      url: 'https://bluemindfreediving.nl',
-      email: 'info@bluemindfreediving.nl',
-      address: {
-        '@type': 'PostalAddress',
-        streetAddress: 'Sloterparkbad',
-        addressLocality: 'Amsterdam',
-        addressRegion: 'North Holland',
-        postalCode: '1064',
-        addressCountry: 'Netherlands',
-      },
-      geo: {
-        '@type': 'GeoCoordinates',
-        latitude: 52.370227,
-        longitude: 4.817489,
-      },
-      openingHours: 'Mo 18:00-21:00',
-      priceRange: '€€',
-    },
-  ],
-};
+// JSON-LD Structured Data - Enhanced LocalBusiness + SportsClub + ExerciseGym Schema
+const jsonLd = generateLocalBusinessSchema({
+  baseUrl: 'https://bluemindfreediving.nl',
+});
 
 export default function RootLayout({
   children,
