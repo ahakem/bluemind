@@ -5,13 +5,21 @@
  * 1. Use the schema in different contexts
  * 2. Test the implementation
  * 3. Extend with custom schemas
+ * 
+ * NOTE: This is a reference file with examples. Not all examples need to be
+ * implemented in your production code - use as needed.
+ * 
+ * @ts-nocheck - Examples may not follow strict types
  */
+
+import React from 'react';
 
 // ============================================================================
 // EXAMPLE 1: Server-Side Schema Injection (Already Implemented in layout.tsx)
 // ============================================================================
 
 import { generateLocalBusinessSchema } from '@/lib/schemaGenerator';
+import { useSchemaInjection, SchemaInjector } from '@/hooks/useSchemaInjection';
 
 // This is automatically done in src/app/layout.tsx:
 const serverSchema = generateLocalBusinessSchema({
@@ -28,8 +36,6 @@ const serverSchema = generateLocalBusinessSchema({
 // ============================================================================
 
 'use client';
-
-import { useSchemaInjection } from '@/hooks/useSchemaInjection';
 
 // Basic usage with defaults
 export function ComponentWithSchema() {
@@ -50,8 +56,6 @@ export function ComponentWithCustomSchema() {
 // ============================================================================
 // EXAMPLE 3: Component-Based Schema Injection
 // ============================================================================
-
-import { SchemaInjector } from '@/hooks/useSchemaInjection';
 
 export default function TrainingPage() {
   // Breadcrumb schema for this specific page
@@ -88,7 +92,7 @@ export default function TrainingPage() {
 
 import type { LocalBusiness, Course, Person } from '@/types/schema';
 
-const customLocalBusiness: LocalBusiness = {
+const customLocalBusiness = {
   '@context': 'https://schema.org',
   '@type': ['LocalBusiness', 'SportsClub'],
   '@id': 'https://bluemindfreediving.nl/#custom',
@@ -96,7 +100,7 @@ const customLocalBusiness: LocalBusiness = {
   description: 'Custom description',
   url: 'https://bluemindfreediving.nl',
   // ... fully typed properties
-};
+} as LocalBusiness;
 
 // ============================================================================
 // EXAMPLE 5: Extending with Additional Staff
@@ -136,8 +140,6 @@ const extendedEmployees = [
 // ============================================================================
 
 'use client';
-
-import { SchemaInjector } from '@/hooks/useSchemaInjection';
 
 export function FAQSection() {
   const faqSchema = {
