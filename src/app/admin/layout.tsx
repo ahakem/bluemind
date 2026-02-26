@@ -8,6 +8,7 @@ import DashboardIcon from '@mui/icons-material/Dashboard';
 import HandshakeIcon from '@mui/icons-material/Handshake';
 import SchoolIcon from '@mui/icons-material/School';
 import PeopleIcon from '@mui/icons-material/People';
+import ArticleIcon from '@mui/icons-material/Article';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
 import Link from 'next/link';
@@ -17,6 +18,7 @@ const drawerWidth = 260;
 
 const menuItems = [
   { text: 'Dashboard', icon: <DashboardIcon />, href: '/admin' },
+  { text: 'Blog Posts', icon: <ArticleIcon />, href: '/admin/blog' },
   { text: 'Partners', icon: <HandshakeIcon />, href: '/admin/partners' },
   { text: 'Guest Instructors', icon: <SchoolIcon />, href: '/admin/instructors' },
   { text: 'User Management', icon: <PeopleIcon />, href: '/admin/users' },
@@ -152,8 +154,11 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
               {adminUser?.displayName || adminUser?.email}
             </Typography>
             <IconButton onClick={handleMenuOpen}>
-              <Avatar sx={{ bgcolor: '#0077be', width: 36, height: 36 }}>
-                {(adminUser?.displayName || adminUser?.email || 'A')[0].toUpperCase()}
+              <Avatar 
+                src={adminUser?.avatar} 
+                sx={{ bgcolor: '#0077be', width: 36, height: 36 }}
+              >
+                {!adminUser?.avatar && (adminUser?.displayName || adminUser?.email || 'A')[0].toUpperCase()}
               </Avatar>
             </IconButton>
             <Menu
@@ -165,6 +170,9 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
                 <Typography variant="body2" color="text.secondary">
                   Role: {adminUser?.role}
                 </Typography>
+              </MenuItem>
+              <MenuItem component={Link} href="/admin/profile" onClick={handleMenuClose}>
+                Edit Profile
               </MenuItem>
               <Divider />
               <MenuItem onClick={handleSignOut}>

@@ -15,7 +15,8 @@ export interface AdminUser {
   uid: string;
   email: string;
   displayName?: string;
-  role: 'admin' | 'editor';
+  avatar?: string;
+  role: 'admin' | 'editor' | 'author';
   createdAt: Date;
   lastLogin?: Date;
 }
@@ -27,9 +28,10 @@ interface AuthContextType {
   isAdmin: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
-  createAdminUser: (email: string, password: string, displayName: string, role: 'admin' | 'editor') => Promise<void>;
+  createAdminUser: (email: string, password: string, displayName: string, role: 'admin' | 'editor' | 'author') => Promise<void>;
   getAdminUsers: () => Promise<AdminUser[]>;
   updateAdminUser: (uid: string, data: Partial<AdminUser>) => Promise<void>;
+  updateProfile: (displayName: string, avatar?: string) => Promise<void>;
   deleteAdminUser: (uid: string) => Promise<void>;
 }
 
@@ -109,7 +111,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     email: string, 
     password: string, 
     displayName: string, 
-    role: 'admin' | 'editor'
+    role: 'admin' | 'editor' | 'author'
   ) => {
     if (!auth || !db) throw new Error('Firebase not configured');
     // Create Firebase Auth user
@@ -136,6 +138,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const updateAdminUser = async (uid: string, data: Partial<AdminUser>) => {
     if (!db) throw new Error('Firebase not configured');
     await updateDoc(doc(db, 'adminUsers', uid), data);
+    
+    // If updating current user, refresh adminUser state
+    if (uid === user?.uid && adminUser) {
+      setAdminUser({ ...adminUser, ...data });
+    }
+  };
+
+  const updateProfile = async (displayName: string, avatar?: string) => {
+    if (!user || !db) throw new Error('Not authenticated');
+    const updates: Partial<AdminUser> = { displayName };
+    if (avatar) updates.avatar = avatar;
+    await updateAdminUser(user.uid, updates);
   };
 
   const deleteAdminUser = async (uid: string) => {
@@ -155,6 +169,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     createAdminUser,
     getAdminUsers,
     updateAdminUser,
+    updateProfile,
     deleteAdminUser,
   };
 

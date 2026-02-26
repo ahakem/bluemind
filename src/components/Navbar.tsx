@@ -21,6 +21,7 @@ const navItems = [
   { name: "About Us", href: "/about" },
   { name: "Membership", href: "/membership" },
   { name: "Gallery", href: "/gallery" },
+  { name: "Blog", href: "/blog" },
   { name: "Community", href: "/community" },
   { name: "Schedule", href: "/schedule" },
   { name: "Contact", href: "/contact" },
@@ -155,11 +156,13 @@ const Navbar = () => {
                 href={item.href}
                 sx={{ 
                   my: 2, 
-                  mx: 1, 
+                  mx: 0.5, 
+                  px: 1.5,
                   display: "block", 
                   color: isActive(item.href) ? "primary.main" : "text.primary", 
                   textTransform: "none", 
                   fontWeight: isActive(item.href) ? 600 : 500,
+                  fontSize: '0.9rem',
                   borderBottom: isActive(item.href) ? '2px solid' : 'none',
                   borderColor: 'primary.main',
                   borderRadius: 0,

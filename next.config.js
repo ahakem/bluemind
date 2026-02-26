@@ -1,13 +1,11 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  output: 'export',
+  // Remove static export to support dynamic routes with database queries
+  // This enables proper SEO-friendly slug-based URLs for blog posts
   trailingSlash: true,
   images: {
     unoptimized: true,
   },
-  // Ensure static export for GitHub Pages
-  basePath: '',
-  assetPrefix: '',
 };
 
 module.exports = nextConfig;

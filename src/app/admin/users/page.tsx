@@ -52,7 +52,7 @@ export default function UsersManagement() {
     email: '',
     password: '',
     displayName: '',
-    role: 'editor' as 'admin' | 'editor',
+    role: 'editor' as 'admin' | 'editor' | 'author',
   });
 
   useEffect(() => {
@@ -76,13 +76,13 @@ export default function UsersManagement() {
   };
 
   const handleOpenDialog = () => {
-    setFormData({ email: '', password: '', displayName: '', role: 'editor' });
+    setFormData({ email: '', password: '', displayName: '', role: 'author' });
     setDialogOpen(true);
   };
 
   const handleCloseDialog = () => {
     setDialogOpen(false);
-    setFormData({ email: '', password: '', displayName: '', role: 'editor' });
+    setFormData({ email: '', password: '', displayName: '', role: 'author' });
   };
 
   const handleSave = async () => {
@@ -180,7 +180,7 @@ export default function UsersManagement() {
       </Box>
 
       <Alert severity="info" sx={{ mb: 3 }}>
-        Admin users can manage all content and other users. Editor users can only manage partners and instructors.
+        <strong>Admin</strong> users can manage all content and other users. <strong>Editor</strong> users can manage partners, instructors and blog. <strong>Author</strong> users can only create blog posts.
       </Alert>
 
       <Card sx={{ borderRadius: 3, boxShadow: 2 }}>
@@ -191,7 +191,6 @@ export default function UsersManagement() {
                 <TableRow sx={{ bgcolor: '#f5f7fa' }}>
                   <TableCell sx={{ fontWeight: 600 }}>User</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Email</TableCell>
-                  <TableCell sx={{ fontWeight: 600 }}>Role</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Created</TableCell>
                   <TableCell sx={{ fontWeight: 600 }}>Last Login</TableCell>
                   <TableCell sx={{ fontWeight: 600, textAlign: 'right' }}>Actions</TableCell>
@@ -200,7 +199,7 @@ export default function UsersManagement() {
               <TableBody>
                 {users.length === 0 ? (
                   <TableRow>
-                    <TableCell colSpan={6} sx={{ textAlign: 'center', py: 6 }}>
+                    <TableCell colSpan={5} sx={{ textAlign: 'center', py: 6 }}>
                       <Typography color="text.secondary">
                         No admin users found.
                       </Typography>
@@ -211,30 +210,37 @@ export default function UsersManagement() {
                     <TableRow key={user.uid} hover>
                       <TableCell>
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
-                          <Avatar sx={{ bgcolor: user.role === 'admin' ? '#ff6b6b' : '#0077be' }}>
-                            {(user.displayName || user.email || 'U')[0].toUpperCase()}
+                          <Avatar 
+                            src={user.avatar} 
+                            sx={{ 
+                              bgcolor: user.role === 'admin' ? '#ff6b6b' : 
+                                       user.role === 'author' ? '#4caf50' : '#0077be',
+                              width: 40,
+                              height: 40
+                            }}
+                          >
+                            {!user.avatar && (() => {
+                              const name = user.displayName || user.email || 'U';
+                              if (name.includes('@')) {
+                                return name.split('@')[0][0].toUpperCase();
+                              }
+                              return name[0].toUpperCase();
+                            })()}
                           </Avatar>
-                          <Typography fontWeight={500}>
-                            {user.displayName || 'No name'}
-                            {user.uid === adminUser?.uid && (
-                              <Chip label="You" size="small" sx={{ ml: 1 }} />
-                            )}
-                          </Typography>
+                          <Box>
+                            <Typography component="div" fontWeight={500}>
+                              {user.displayName || user.email?.split('@')[0] || 'No name'}
+                              {user.uid === adminUser?.uid && (
+                                <Chip label="You" size="small" sx={{ ml: 1 }} />
+                              )}
+                            </Typography>
+                            <Typography variant="caption" color="text.secondary">
+                              {user.role.charAt(0).toUpperCase() + user.role.slice(1)}
+                            </Typography>
+                          </Box>
                         </Box>
                       </TableCell>
                       <TableCell>{user.email}</TableCell>
-                      <TableCell>
-                        <Chip
-                          label={user.role}
-                          size="small"
-                          sx={{
-                            bgcolor: user.role === 'admin' ? 'rgba(255, 107, 107, 0.1)' : 'rgba(0, 119, 190, 0.1)',
-                            color: user.role === 'admin' ? '#ff6b6b' : '#0077be',
-                            fontWeight: 600,
-                            textTransform: 'capitalize',
-                          }}
-                        />
-                      </TableCell>
                       <TableCell>
                         <Typography variant="body2" color="text.secondary">
                           {user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}
@@ -297,9 +303,10 @@ export default function UsersManagement() {
               <Select
                 value={formData.role}
                 label="Role"
-                onChange={(e) => setFormData({ ...formData, role: e.target.value as 'admin' | 'editor' })}
+                onChange={(e) => setFormData({ ...formData, role: e.target.value as 'admin' | 'editor' | 'author' })}
               >
-                <MenuItem value="editor">Editor - Can manage partners & instructors</MenuItem>
+                <MenuItem value="author">Author - Can create blog posts only</MenuItem>
+                <MenuItem value="editor">Editor - Can manage partners, instructors & blog</MenuItem>
                 <MenuItem value="admin">Admin - Full access including user management</MenuItem>
               </Select>
             </FormControl>

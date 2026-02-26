@@ -9,7 +9,7 @@ export const team = [
   {
     name: "Dewi",
     position: "Co-Founder | vice president | Athlete | AIDA Safety",
-    image: "/images/dewi.webp",
+    image: "/images/dewi-2.webp",
     bio: "Dewi is a dedicated freediver and certified AIDA safety with a calm, focused presence both in and outside of the water. She has a special love for the purest form of freediving - Dynamic No Fins (DNF) and Constant Weight No Fins (CNF). She has a background as emergency responder, rescue and safety diver. She loves to read books on freediving and focus on technical progress.",
   },
 ];

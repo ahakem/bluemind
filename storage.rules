@@ -12,5 +12,17 @@ service firebase.storage {
       allow read: if true;
       allow write: if request.auth != null;
     }
+    
+    // Blog post images
+    match /blog/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null;
+    }
+    
+    // Admin user avatars
+    match /avatars/{userId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null && request.auth.uid == userId;
+    }
   }
 }

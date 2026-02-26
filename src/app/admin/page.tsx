@@ -5,6 +5,7 @@ import { Box, Card, CardContent, Typography, Grid } from '@mui/material';
 import HandshakeIcon from '@mui/icons-material/Handshake';
 import SchoolIcon from '@mui/icons-material/School';
 import PeopleIcon from '@mui/icons-material/People';
+import ArticleIcon from '@mui/icons-material/Article';
 import { collection, getDocs } from 'firebase/firestore';
 import { db, isFirebaseConfigured } from '@/lib/firebase';
 
@@ -12,10 +13,11 @@ interface Stats {
   partners: number;
   instructors: number;
   users: number;
+  blogPosts: number;
 }
 
 export default function AdminDashboard() {
-  const [stats, setStats] = useState<Stats>({ partners: 0, instructors: 0, users: 0 });
+  const [stats, setStats] = useState<Stats>({ partners: 0, instructors: 0, users: 0, blogPosts: 0 });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -26,16 +28,18 @@ export default function AdminDashboard() {
       }
       
       try {
-        const [partnersSnap, instructorsSnap, usersSnap] = await Promise.all([
+        const [partnersSnap, instructorsSnap, usersSnap, blogSnap] = await Promise.all([
           getDocs(collection(db, 'partners')),
           getDocs(collection(db, 'guestInstructors')),
           getDocs(collection(db, 'adminUsers')),
+          getDocs(collection(db, 'blog_posts')),
         ]);
         
         setStats({
           partners: partnersSnap.size,
           instructors: instructorsSnap.size,
           users: usersSnap.size,
+          blogPosts: blogSnap.size,
         });
       } catch (error) {
         console.error('Error fetching stats:', error);
@@ -50,6 +54,7 @@ export default function AdminDashboard() {
   const statCards = [
     { title: 'Partners', value: stats.partners, icon: <HandshakeIcon sx={{ fontSize: 48 }} />, color: '#0077be' },
     { title: 'Guest Instructors', value: stats.instructors, icon: <SchoolIcon sx={{ fontSize: 48 }} />, color: '#00a86b' },
+    { title: 'Blog Posts', value: stats.blogPosts, icon: <ArticleIcon sx={{ fontSize: 48 }} />, color: '#f39c12' },
     { title: 'Admin Users', value: stats.users, icon: <PeopleIcon sx={{ fontSize: 48 }} />, color: '#ff6b6b' },
   ];
 
@@ -93,6 +98,7 @@ export default function AdminDashboard() {
               Welcome to the Blue Mind Freediving admin panel. Here you can manage:
             </Typography>
             <Box component="ul" sx={{ pl: 2, color: 'text.secondary' }}>
+              <li><strong>Blog Posts:</strong> Create, edit, and manage blog content with a rich text editor. Publish directly or submit for review.</li>
               <li><strong>Partners:</strong> Add, edit, or remove community partners displayed on the Community page.</li>
               <li><strong>Guest Instructors:</strong> Manage guest instructors and collaborators with their photos and social links.</li>
               <li><strong>User Management:</strong> Add or remove admin users who can access this panel.</li>
