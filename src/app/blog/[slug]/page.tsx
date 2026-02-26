@@ -7,12 +7,25 @@ import { Container, Box, Typography, Chip, Avatar, Button } from '@mui/material'
 import { ArrowBack } from '@mui/icons-material';
 import Link from 'next/link';
 import { Metadata } from 'next';
-import { getBlogPostBySlug, getAuthorInfo } from '@/lib/blogService';
+import { getBlogPostBySlug, getBlogPosts, getAuthorInfo } from '@/lib/blogService';
 import { notFound } from 'next/navigation';
 import ViewTracker from '@/components/ViewTracker';
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
+}
+
+// Generate static params for all published blog posts at build time
+export async function generateStaticParams() {
+  try {
+    const posts = await getBlogPosts('published');
+    return posts.map((post) => ({
+      slug: post.slug,
+    }));
+  } catch (error) {
+    console.error('Error generating static params:', error);
+    return [];
+  }
 }
 
 // Generate metadata for SEO
