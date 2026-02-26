@@ -10,6 +10,9 @@ interface ViewTrackerProps {
 
 export default function ViewTracker({ postId }: ViewTrackerProps) {
   useEffect(() => {
+    // Only run in browser, not during SSR/SSG
+    if (typeof window === 'undefined') return;
+    
     // Increment view count when component mounts
     const incrementView = async () => {
       try {
@@ -29,8 +32,11 @@ export default function ViewTracker({ postId }: ViewTrackerProps) {
       }
     };
 
-    incrementView();
+    // Delay to ensure page is fully loaded
+    const timer = setTimeout(incrementView, 1000);
+    return () => clearTimeout(timer);
   }, [postId]);
 
   return null; // This component doesn't render anything
 }
+

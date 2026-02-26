@@ -6,6 +6,13 @@ on:
     branches:
       - main
   workflow_dispatch:
+    inputs:
+      reason:
+        description: 'Deployment reason (e.g., new blog post)'
+        required: false
+        default: 'Manual deployment'
+  repository_dispatch:
+    types: [new-blog-post]
 
 jobs:
   build-and-deploy:
