@@ -3,13 +3,22 @@
  */
 
 import React from 'react';
-import { Container, Box, Typography, Chip, Avatar, Button } from '@mui/material';
-import { ArrowBack } from '@mui/icons-material';
+import { Container, Box, Typography, Chip, Avatar, Button, IconButton, Tooltip } from '@mui/material';
+import {
+  ArrowBack,
+  Facebook,
+  Twitter,
+  LinkedIn,
+  Pinterest,
+  ContentCopy,
+  WhatsApp,
+} from '@mui/icons-material';
 import Link from 'next/link';
 import { Metadata } from 'next';
 import { getBlogPostBySlug, getBlogPosts, getAuthorInfo } from '@/lib/blogService';
 import { notFound } from 'next/navigation';
 import ViewTracker from '@/components/ViewTracker';
+import ShareButtons from '@/components/ShareButtons';
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
@@ -196,6 +205,18 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
             ))}
           </Box>
         )}
+
+        {/* Share Buttons */}
+        <Box sx={{ display: 'flex', alignItems: 'center', gap: 2, mb: 4, pb: 2, borderBottom: 1, borderColor: 'divider' }}>
+          <Typography variant="body2" fontWeight={600}>
+            Share:
+          </Typography>
+          <ShareButtons
+            title={post.title}
+            excerpt={post.excerpt}
+            url={`https://bluemindfreediving.nl/blog/${post.slug}/`}
+          />
+        </Box>
 
         {/* Content - with semantic HTML styling */}
         <Box
