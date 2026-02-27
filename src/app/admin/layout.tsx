@@ -16,13 +16,18 @@ import { useState } from 'react';
 
 const drawerWidth = 260;
 
-const menuItems = [
-  { text: 'Dashboard', icon: <DashboardIcon />, href: '/admin' },
-  { text: 'Blog Posts', icon: <ArticleIcon />, href: '/admin/blog' },
-  { text: 'Partners', icon: <HandshakeIcon />, href: '/admin/partners' },
-  { text: 'Guest Instructors', icon: <SchoolIcon />, href: '/admin/instructors' },
-  { text: 'User Management', icon: <PeopleIcon />, href: '/admin/users' },
-];
+const getMenuItems = (role?: 'admin' | 'editor' | 'author') => {
+  const allItems = [
+    { text: 'Dashboard', icon: <DashboardIcon />, href: '/admin', roles: ['admin', 'editor', 'author'] },
+    { text: 'Blog Posts', icon: <ArticleIcon />, href: '/admin/blog', roles: ['admin', 'editor', 'author'] },
+    { text: 'Partners', icon: <HandshakeIcon />, href: '/admin/partners', roles: ['admin', 'editor'] },
+    { text: 'Guest Instructors', icon: <SchoolIcon />, href: '/admin/instructors', roles: ['admin', 'editor'] },
+    { text: 'User Management', icon: <PeopleIcon />, href: '/admin/users', roles: ['admin'] },
+  ];
+  
+  if (!role) return allItems;
+  return allItems.filter(item => item.roles.includes(role));
+};
 
 function AdminLayoutContent({ children }: { children: React.ReactNode }) {
   const { user, adminUser, loading, signOut, isAdmin } = useAuth();
@@ -91,7 +96,7 @@ function AdminLayoutContent({ children }: { children: React.ReactNode }) {
         </Typography>
       </Toolbar>
       <List>
-        {menuItems.map((item) => (
+        {getMenuItems(adminUser?.role).map((item) => (
           <ListItem key={item.text} disablePadding>
             <ListItemButton
               component={Link}

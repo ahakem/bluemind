@@ -31,8 +31,10 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ImageCropper from '@/components/admin/ImageCropper';
 import { partnersService, imageService } from '@/lib/adminService';
 import { Partner } from '@/types/admin';
+import { useAuth } from '@/lib/AuthContext';
 
 export default function PartnersManagement() {
+  const { adminUser } = useAuth();
   const [partners, setPartners] = useState<Partner[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -162,6 +164,20 @@ export default function PartnersManagement() {
     setSelectedPartner(partner);
     setDeleteDialogOpen(true);
   };
+
+  // Only admins and editors can access partners management
+  if (adminUser?.role === 'author') {
+    return (
+      <Box sx={{ textAlign: 'center', py: 8 }}>
+        <Typography variant="h5" color="error" gutterBottom>
+          Access Denied
+        </Typography>
+        <Typography color="text.secondary">
+          Authors cannot manage partners. Contact an admin if you need access.
+        </Typography>
+      </Box>
+    );
+  }
 
   if (loading) {
     return (

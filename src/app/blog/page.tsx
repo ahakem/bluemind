@@ -3,10 +3,10 @@
  */
 
 import React from 'react';
-import { Container, Box, Typography, Chip, Card, CardContent, CardMedia } from '@mui/material';
+import { Container, Box, Typography, Chip, Card, CardContent, CardMedia, Avatar } from '@mui/material';
 import Link from 'next/link';
 import type { Metadata } from 'next';
-import { getPublishedPosts } from '@/lib/blogService';
+import { getPublishedPosts, getAuthorInfo } from '@/lib/blogService';
 import type { BlogPost } from '@/types/admin';
 
 export const metadata: Metadata = {
@@ -29,6 +29,29 @@ export default async function BlogPage() {
 
   try {
     posts = await getPublishedPosts();
+    
+    // Fetch author info for all posts with error handling
+    const postsWithAuthors = await Promise.all(
+      posts.map(async (post) => {
+        try {
+          const authorInfo = post.author ? await getAuthorInfo(post.author) : null;
+          const authorDisplayName = authorInfo?.displayName || 'Admin';
+          return {
+            ...post,
+            authorDisplayName,
+            authorAvatar: authorInfo?.avatar || post.authorAvatar,
+          };
+        } catch (err) {
+          console.error(`Error fetching author info for ${post.author}:`, err);
+          return {
+            ...post,
+            authorDisplayName: 'Admin',
+            authorAvatar: post.authorAvatar,
+          };
+        }
+      })
+    );
+    posts = postsWithAuthors;
   } catch (err) {
     console.error('Error loading blog posts:', err);
     error = true;
@@ -98,12 +121,14 @@ export default async function BlogPage() {
                   },
                 }}
               >
-                <CardMedia
-                  component="img"
-                  height="200"
-                  image={post.image}
-                  alt={post.title}
-                />
+                {post.image && (
+                  <CardMedia
+                    component="img"
+                    height="200"
+                    image={post.image}
+                    alt={post.title}
+                  />
+                )}
                 <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                   <Typography
                     component="h2"
@@ -134,13 +159,28 @@ export default async function BlogPage() {
                       )}
                     </Box>
                   )}
-                  <Typography variant="caption" color="textSecondary">
-                    {new Date(post.createdAt).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'long',
-                      day: 'numeric',
-                    })}
-                  </Typography>
+                  
+                  {/* Author and Date */}
+                  <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mt: 'auto' }}>
+                    {(post as any).authorAvatar ? (
+                      <Avatar 
+                        src={(post as any).authorAvatar}
+                        alt={(post as any).authorDisplayName}
+                        sx={{ width: 24, height: 24 }}
+                      />
+                    ) : (
+                      <Avatar sx={{ width: 24, height: 24, bgcolor: '#0056b3', fontSize: '0.75rem' }}>
+                        {((post as any).authorDisplayName?.[0] || 'A').toUpperCase()}
+                      </Avatar>
+                    )}
+                    <Typography variant="caption" color="textSecondary">
+                      {(post as any).authorDisplayName} • {new Date(post.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric',
+                      })}
+                    </Typography>
+                  </Box>
                 </CardContent>
               </Card>
             </Link>

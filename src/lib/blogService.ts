@@ -33,13 +33,29 @@ const validateDb = (): Firestore => {
 };
 
 /**
- * Get author information by email or display name
+ * Get author information by UID, email, or display name
  */
 export const getAuthorInfo = async (authorIdentifier: string): Promise<{ displayName: string; avatar?: string } | null> => {
   try {
     const firestore = validateDb();
     
-    // Try to find by email first
+    // Try to get by UID first (direct document access)
+    try {
+      const docRef = doc(firestore, 'adminUsers', authorIdentifier);
+      const docSnap = await getDoc(docRef);
+      
+      if (docSnap.exists()) {
+        const userData = docSnap.data() as AdminUser;
+        return {
+          displayName: userData.displayName || userData.email?.split('@')[0] || 'Admin',
+          avatar: userData.avatar || undefined,
+        };
+      }
+    } catch (uidError) {
+      // Not a valid UID, continue to query by email/displayName
+    }
+    
+    // Try to find by email
     let q = query(
       collection(firestore, 'adminUsers'),
       where('email', '==', authorIdentifier)
@@ -61,13 +77,10 @@ export const getAuthorInfo = async (authorIdentifier: string): Promise<{ display
     }
     
     const userData = snapshot.docs[0].data() as AdminUser;
-    const result = {
+    return {
       displayName: userData.displayName || userData.email?.split('@')[0] || 'Admin',
       avatar: userData.avatar || undefined,
     };
-    
-    console.log('Author info fetched:', { identifier: authorIdentifier, result });
-    return result;
   } catch (error) {
     console.error('Error fetching author info:', error);
     return null;
@@ -90,19 +103,28 @@ export const generateSlug = (title: string): string => {
 /**
  * Get all blog posts with optional filters
  */
-export const getBlogPosts = async (statusFilter?: 'published' | 'review' | 'draft'): Promise<BlogPost[]> => {
+export const getBlogPosts = async (
+  statusFilter?: 'published' | 'review' | 'draft',
+  authorUid?: string
+): Promise<BlogPost[]> => {
   try {
     const firestore = validateDb();
-    const constraints: QueryConstraint[] = [orderBy('publishedAt', 'desc')];
+    const constraints: QueryConstraint[] = [];
 
-    if (statusFilter) {
-      constraints.unshift(where('status', '==', statusFilter));
+    if (authorUid) {
+      constraints.push(where('author', '==', authorUid));
     }
 
+    if (statusFilter) {
+      constraints.push(where('status', '==', statusFilter));
+    }
+
+    // Note: orderBy removed to avoid index requirement
+    // We'll sort client-side instead
     const q = query(collection(firestore, BLOG_COLLECTION), ...constraints);
     const snapshot = await getDocs(q);
 
-    return snapshot.docs.map((doc) => ({
+    const posts = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data(),
       createdAt: doc.data().createdAt?.toDate() || new Date(),
@@ -110,6 +132,9 @@ export const getBlogPosts = async (statusFilter?: 'published' | 'review' | 'draf
       publishedAt: doc.data().publishedAt?.toDate() || undefined,
       reviewedAt: doc.data().reviewedAt?.toDate() || undefined,
     } as BlogPost));
+
+    // Sort by updatedAt client-side
+    return posts.sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
   } catch (error) {
     console.error('Error fetching blog posts:', error);
     throw error;
@@ -185,14 +210,13 @@ export const createBlogPost = async (data: BlogDraft, userId: string): Promise<s
     const slug = data.slug || generateSlug(data.title);
     const now = Timestamp.now();
 
-    const postData = {
+    const postData: any = {
       title: data.title,
       slug,
       excerpt: data.excerpt,
       content: data.content,
       image: data.image,
       author: data.author || userId,
-      authorAvatar: data.authorAvatar || undefined,
       tags: data.tags || [],
       status: data.status || 'draft',
       views: 0,
@@ -202,6 +226,16 @@ export const createBlogPost = async (data: BlogDraft, userId: string): Promise<s
       reviewedAt: null,
       reviewedBy: null,
     };
+
+    // Only include authorAvatar if it exists
+    if (data.authorAvatar) {
+      postData.authorAvatar = data.authorAvatar;
+    }
+
+    // Only include authorDisplayName if it exists
+    if (data.authorDisplayName) {
+      postData.authorDisplayName = data.authorDisplayName;
+    }
 
     const docRef = await addDoc(collection(firestore, BLOG_COLLECTION), postData);
     return docRef.id;
@@ -218,10 +252,21 @@ export const updateBlogPost = async (id: string, data: Partial<BlogPost>): Promi
   try {
     const firestore = validateDb();
     const docRef = doc(firestore, BLOG_COLLECTION, id);
-    const updateData = {
+    
+    const updateData: any = {
       ...data,
       updatedAt: Timestamp.now(),
     };
+
+    // Remove undefined authorAvatar if present
+    if (updateData.authorAvatar === undefined) {
+      delete updateData.authorAvatar;
+    }
+
+    // Remove undefined authorDisplayName if present
+    if (updateData.authorDisplayName === undefined) {
+      delete updateData.authorDisplayName;
+    }
 
     await updateDoc(docRef, updateData);
   } catch (error) {

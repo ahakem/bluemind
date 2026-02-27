@@ -42,6 +42,7 @@ export interface BlogPost {
   content: string; // HTML from rich text editor
   image: string;
   author: string;
+  authorDisplayName?: string; // Display name stored for convenience
   authorAvatar?: string;
   tags: string[];
   status: 'draft' | 'review' | 'published';
@@ -60,6 +61,7 @@ export interface BlogDraft {
   content: string;
   image: string;
   author?: string;
+  authorDisplayName?: string; // Display name stored for convenience
   authorAvatar?: string;
   tags: string[];
   status: 'draft' | 'review' | 'published';

@@ -99,9 +99,10 @@ export default function UsersManagement() {
     setSaving(true);
     try {
       await createAdminUser(formData.email, formData.password, formData.displayName, formData.role);
-      showSnackbar('Admin user created successfully', 'success');
+      showSnackbar('User created successfully. Please log back in.', 'success');
       handleCloseDialog();
       fetchUsers();
+      // Note: User will be logged out and redirected to login page automatically
     } catch (error) {
       console.error('Error creating user:', error);
       const errorMessage = error instanceof Error ? error.message : 'Failed to create user';
@@ -180,7 +181,7 @@ export default function UsersManagement() {
       </Box>
 
       <Alert severity="info" sx={{ mb: 3 }}>
-        <strong>Admin</strong> users can manage all content and other users. <strong>Editor</strong> users can manage partners, instructors and blog. <strong>Author</strong> users can only create blog posts.
+        <strong>Admin</strong> users can manage all content and other users. <strong>Editor</strong> users can manage partners, instructors and all blog posts. <strong>Author</strong> users can only create and edit their own draft blog posts.
       </Alert>
 
       <Card sx={{ borderRadius: 3, boxShadow: 2 }}>
@@ -305,7 +306,7 @@ export default function UsersManagement() {
                 label="Role"
                 onChange={(e) => setFormData({ ...formData, role: e.target.value as 'admin' | 'editor' | 'author' })}
               >
-                <MenuItem value="author">Author - Can create blog posts only</MenuItem>
+                <MenuItem value="author">Author - Can create & edit own draft posts</MenuItem>
                 <MenuItem value="editor">Editor - Can manage partners, instructors & blog</MenuItem>
                 <MenuItem value="admin">Admin - Full access including user management</MenuItem>
               </Select>

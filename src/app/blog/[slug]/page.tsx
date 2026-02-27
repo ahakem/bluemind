@@ -42,6 +42,10 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
       };
     }
 
+    // Fetch author info for metadata
+    const authorInfo = post.author ? await getAuthorInfo(post.author) : null;
+    const authorDisplayName = authorInfo?.displayName || post.author?.split('@')[0] || post.author || 'Admin';
+
     const url = `https://bluemindfreediving.nl/blog/${post.slug}/`;
     
     return {
@@ -63,7 +67,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
         ],
         publishedTime: post.publishedAt?.toISOString(),
         modifiedTime: post.updatedAt?.toISOString(),
-        authors: [post.author],
+        authors: [authorDisplayName],
         tags: post.tags,
       },
       twitter: {
@@ -93,18 +97,24 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
       notFound();
     }
 
-    // Fetch author info (with fallback to stored avatar)
-    const authorInfo = post.author ? await getAuthorInfo(post.author) : null;
-    const authorDisplayName = authorInfo?.displayName || post.author?.split('@')[0] || post.author || 'Admin';
-    const authorAvatar = authorInfo?.avatar || post.authorAvatar || undefined;
-
-    console.log('Blog post author info:', {
-      author: post.author,
-      storedAvatar: post.authorAvatar,
-      authorInfo,
-      authorDisplayName,
-      authorAvatar,
-    });
+    // Fetch author info for metadata and display
+    // Prefer saved authorDisplayName, fall back to fetching, then to 'Admin'
+    let authorDisplayName = post.authorDisplayName || 'Admin';
+    let authorAvatar: string | undefined = post.authorAvatar;
+    
+    try {
+      // Only fetch if we don't already have the display name saved
+      if (post.author && !post.authorDisplayName) {
+        const authorInfo = await getAuthorInfo(post.author);
+        if (authorInfo) {
+          authorDisplayName = authorInfo.displayName;
+          authorAvatar = authorInfo.avatar || post.authorAvatar;
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching author info:', err);
+      // Keep existing authorAvatar or the saved one
+    }
 
     const publishDate = new Intl.DateTimeFormat('en-US', {
       year: 'numeric',
@@ -135,18 +145,20 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
         </Link>
 
         {/* Featured Image */}
-        <Box
-          component="img"
-          src={post.image}
-          alt={post.title}
-          sx={{
-            width: '100%',
-            height: 400,
-            objectFit: 'cover',
-            borderRadius: 2,
-            mb: 4,
-          }}
-        />
+        {post.image && (
+          <Box
+            component="img"
+            src={post.image}
+            alt={post.title}
+            sx={{
+              width: '100%',
+              height: 400,
+              objectFit: 'cover',
+              borderRadius: 2,
+              mb: 4,
+            }}
+          />
+        )}
 
         {/* Title - h1 for SEO */}
         <Typography component="h1" variant="h3" sx={{ fontWeight: 700, mb: 2 }}>

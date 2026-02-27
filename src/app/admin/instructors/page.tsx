@@ -35,10 +35,12 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import ImageCropper from '@/components/admin/ImageCropper';
 import { instructorsService, imageService } from '@/lib/adminService';
 import { GuestInstructor } from '@/types/admin';
+import { useAuth } from '@/lib/AuthContext';
 
 const socialPlatforms = ['Instagram', 'Facebook', 'LinkedIn', 'WhatsApp', 'Website', 'YouTube', 'TikTok'];
 
 export default function InstructorsManagement() {
+  const { adminUser } = useAuth();
   const [instructors, setInstructors] = useState<GuestInstructor[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -173,6 +175,20 @@ export default function InstructorsManagement() {
     setSelectedInstructor(instructor);
     setDeleteDialogOpen(true);
   };
+
+  // Only admins and editors can access instructors management
+  if (adminUser?.role === 'author') {
+    return (
+      <Box sx={{ textAlign: 'center', py: 8 }}>
+        <Typography variant="h5" color="error" gutterBottom>
+          Access Denied
+        </Typography>
+        <Typography color="text.secondary">
+          Authors cannot manage instructors. Contact an admin if you need access.
+        </Typography>
+      </Box>
+    );
+  }
 
   if (loading) {
     return (

@@ -114,16 +114,34 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     role: 'admin' | 'editor' | 'author'
   ) => {
     if (!auth || !db) throw new Error('Firebase not configured');
-    // Create Firebase Auth user
-    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    if (!user || !adminUser) throw new Error('Must be logged in as admin');
     
-    // Create admin user document
-    await setDoc(doc(db, 'adminUsers', userCredential.user.uid), {
-      email,
-      displayName,
-      role,
-      createdAt: new Date(),
-    });
+    // Save current admin credentials to re-login after
+    const currentUserEmail = user.email;
+    if (!currentUserEmail) throw new Error('Current user email not found');
+    
+    try {
+      // Create Firebase Auth user (this will automatically sign them in, logging you out)
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const newUserId = userCredential.user.uid;
+      
+      // Immediately create admin user document while we're still authenticated as the new user
+      await setDoc(doc(db, 'adminUsers', newUserId), {
+        email,
+        displayName,
+        role,
+        createdAt: new Date(),
+      });
+      
+      // Sign out the newly created user
+      await firebaseSignOut(auth);
+      
+      // Note: Admin will need to log back in manually
+      // We can't automatically re-login because we don't have the admin's password
+    } catch (error) {
+      console.error('Error creating admin user:', error);
+      throw error;
+    }
   };
 
   const getAdminUsers = async (): Promise<AdminUser[]> => {

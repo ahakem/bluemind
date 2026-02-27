@@ -109,25 +109,27 @@ export default function BlogEditor({
         />
       </Box>
 
-      {/* Author Selection */}
-      <Box>
-        <Typography variant="h6" sx={{ mb: 1 }}>
-          Author
-        </Typography>
-        <FormControl fullWidth>
-          <Select
-            value={author}
-            onChange={(e) => onAuthorChange(e.target.value)}
-            displayEmpty
-          >
-            {availableAuthors.map((authorOption) => (
-              <MenuItem key={authorOption.value} value={authorOption.value}>
-                {authorOption.label}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Box>
+      {/* Author Selection - Only show for admins/editors */}
+      {availableAuthors.length > 0 && (
+        <Box>
+          <Typography variant="h6" sx={{ mb: 1 }}>
+            Author
+          </Typography>
+          <FormControl fullWidth>
+            <Select
+              value={author}
+              onChange={(e) => onAuthorChange(e.target.value)}
+              displayEmpty
+            >
+              {availableAuthors.map((authorOption) => (
+                <MenuItem key={authorOption.value} value={authorOption.value}>
+                  {authorOption.label}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
+        </Box>
+      )}
 
       {/* Image URL */}
       <Box>

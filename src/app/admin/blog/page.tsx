@@ -91,17 +91,24 @@ export default function AdminBlogPage() {
     image: '',
     tags: [],
     status: 'draft',
-    author: adminUser?.displayName || adminUser?.email || '',
-    authorAvatar: adminUser?.avatar || undefined,
+    author: adminUser?.uid || '',
+    ...(adminUser?.avatar && { authorAvatar: adminUser.avatar }),
+    ...(adminUser?.displayName && { authorDisplayName: adminUser.displayName }),
   });
 
-  // Load authors
+  // Load authors (only for admins/editors, authors auto-select themselves)
   useEffect(() => {
     const fetchAuthors = async () => {
+      // Authors don't need to see the author list - they auto-select themselves
+      if (adminUser?.role === 'author') {
+        setAvailableAuthors([]);
+        return;
+      }
+
       try {
         const users = await getAdminUsers();
         const authors = users.map(u => ({
-          value: u.displayName || u.email,
+          value: u.uid,
           label: `${u.displayName || u.email.split('@')[0]} (${u.role})`,
         }));
         setAvailableAuthors(authors);
@@ -121,19 +128,35 @@ export default function AdminBlogPage() {
     setLoading(true);
     setError(null);
     try {
-      const statusFilter = tab === 0 ? 'draft' : tab === 1 ? 'review' : 'published';
-      const data = await getBlogPosts(statusFilter);
+      let data: BlogPost[];
+      
+      if (adminUser?.role === 'author') {
+        // Authors see all their posts (draft + review) in the drafts tab
+        // This way they can see posts they've submitted for review
+        const drafts = await getBlogPosts('draft', adminUser.uid);
+        const reviews = await getBlogPosts('review', adminUser.uid);
+        data = [...drafts, ...reviews].sort((a, b) => b.updatedAt.getTime() - a.updatedAt.getTime());
+      } else {
+        // Admin/editor see posts by tab
+        const statusFilter = tab === 0 ? 'draft' : tab === 1 ? 'review' : 'published';
+        data = await getBlogPosts(statusFilter);
+      }
+      
       setPosts(data);
     } catch (err) {
-      setError('Failed to load blog posts');
-      console.error(err);
+      console.error('Error loading posts:', err);
+      // Don't show error for authors with no posts, just show empty state
+      if (adminUser?.role !== 'author') {
+        setError('Failed to load blog posts');
+      }
+      setPosts([]);
     } finally {
       setLoading(false);
     }
   };
 
   const resetForm = () => {
-    setFormData({
+    const newFormData: BlogDraft = {
       title: '',
       slug: '',
       excerpt: '',
@@ -141,16 +164,28 @@ export default function AdminBlogPage() {
       image: '',
       tags: [],
       status: 'draft',
-      author: adminUser?.displayName || adminUser?.email || '',
-      authorAvatar: adminUser?.avatar || undefined,
-    });
+      author: adminUser?.uid || '',
+    };
+    if (adminUser?.avatar) {
+      newFormData.authorAvatar = adminUser.avatar;
+    }
+    if (adminUser?.displayName) {
+      newFormData.authorDisplayName = adminUser.displayName;
+    }
+    setFormData(newFormData);
     setEditingPost(null);
   };
 
   const handleOpenEditor = (post?: BlogPost) => {
     if (post) {
+      // Prevent authors from editing posts under review
+      if (adminUser?.role === 'author' && post.status !== 'draft') {
+        setError('You can only edit draft posts. Posts under review cannot be edited.');
+        return;
+      }
+      
       setEditingPost(post);
-      setFormData({
+      const newFormData: BlogDraft = {
         title: post.title,
         slug: post.slug,
         excerpt: post.excerpt,
@@ -158,9 +193,17 @@ export default function AdminBlogPage() {
         image: post.image,
         tags: post.tags,
         status: post.status,
-        author: post.author || adminUser?.displayName || adminUser?.email || '',
-        authorAvatar: post.authorAvatar || adminUser?.avatar || undefined,
-      });
+        author: post.author,
+      };
+      // Only include authorAvatar if it exists
+      if (post.authorAvatar || adminUser?.avatar) {
+        newFormData.authorAvatar = post.authorAvatar || adminUser?.avatar;
+      }
+      // Only include authorDisplayName if it exists
+      if (post.authorDisplayName || adminUser?.displayName) {
+        newFormData.authorDisplayName = post.authorDisplayName || adminUser?.displayName;
+      }
+      setFormData(newFormData);
     } else {
       resetForm();
     }
@@ -178,28 +221,48 @@ export default function AdminBlogPage() {
       return;
     }
 
+    // Prevent authors from publishing
+    if (adminUser?.role === 'author' && formData.status !== 'draft') {
+      setError('Authors can only save posts as drafts');
+      return;
+    }
+
     try {
       const slug = formData.slug || generateSlug(formData.title);
-      const author = formData.author || adminUser?.displayName || adminUser?.email || 'Admin';
+      const author = formData.author || adminUser?.uid || '';
       const authorAvatar = adminUser?.avatar;
+      const authorDisplayName = adminUser?.displayName;
 
       if (editingPost) {
-        await updateBlogPost(editingPost.id, {
+        const updateData: Partial<BlogPost> = {
           ...formData,
           slug,
           author,
-          authorAvatar,
-        } as Partial<BlogPost>);
+        };
+        // Only include authorAvatar if it's defined
+        if (authorAvatar) {
+          updateData.authorAvatar = authorAvatar;
+        }
+        // Only include authorDisplayName if it's defined
+        if (authorDisplayName) {
+          updateData.authorDisplayName = authorDisplayName;
+        }
+        await updateBlogPost(editingPost.id, updateData);
         setSuccess('Post updated successfully');
       } else {
-        await createBlogPost(
-          {
-            ...formData,
-            slug,
-            authorAvatar,
-          },
-          author
-        );
+        const createData: any = {
+          ...formData,
+          slug,
+        };
+        // Only include authorAvatar if it's defined
+        if (authorAvatar) {
+          createData.authorAvatar = authorAvatar;
+        }
+        // Only include authorDisplayName if it's defined
+        if (authorDisplayName) {
+          createData.authorDisplayName = authorDisplayName;
+        }
+        await createBlogPost(createData, author);
         setSuccess('Post created successfully');
       }
 
@@ -285,6 +348,12 @@ export default function AdminBlogPage() {
         </Button>
       </Box>
 
+      {adminUser?.role === 'author' && (
+        <Alert severity="info" sx={{ mb: 2 }}>
+          As an <strong>Author</strong>, you can create and edit your draft posts, and submit them for review. This tab shows all your posts (drafts and under review).
+        </Alert>
+      )}
+
       {error && (
         <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
           {error}
@@ -299,9 +368,9 @@ export default function AdminBlogPage() {
       {/* Tabs */}
       <Paper sx={{ mb: 3 }}>
         <Tabs value={tab} onChange={(e, val) => setTab(val)} aria-label="blog-tabs">
-          <Tab label="Drafts" id="blog-tab-0" />
-          <Tab label="Under Review" id="blog-tab-1" />
-          <Tab label="Published" id="blog-tab-2" />
+          <Tab label={adminUser?.role === 'author' ? 'My Posts' : 'Drafts'} id="blog-tab-0" />
+          {adminUser?.role !== 'author' && <Tab label="Under Review" id="blog-tab-1" />}
+          {adminUser?.role !== 'author' && <Tab label="Published" id="blog-tab-2" />}
         </Tabs>
       </Paper>
 
@@ -357,19 +426,25 @@ export default function AdminBlogPage() {
                     <IconButton size="small" onClick={() => handlePreview(post)} title="Preview">
                       <Visibility fontSize="small" />
                     </IconButton>
-                    <IconButton size="small" onClick={() => handleOpenEditor(post)} title="Edit">
-                      <Edit fontSize="small" />
-                    </IconButton>
-                    <IconButton
-                      size="small"
-                      onClick={() => {
-                        setDeletePostId(post.id);
-                        setOpenConfirmDelete(true);
-                      }}
-                      title="Delete"
-                    >
-                      <Delete fontSize="small" />
-                    </IconButton>
+                    {/* Authors can only edit drafts, not posts under review */}
+                    {(adminUser?.role !== 'author' || post.status === 'draft') && (
+                      <IconButton size="small" onClick={() => handleOpenEditor(post)} title="Edit">
+                        <Edit fontSize="small" />
+                      </IconButton>
+                    )}
+                    {/* Only admins can delete */}
+                    {adminUser?.role === 'admin' && (
+                      <IconButton
+                        size="small"
+                        onClick={() => {
+                          setDeletePostId(post.id);
+                          setOpenConfirmDelete(true);
+                        }}
+                        title="Delete"
+                      >
+                        <Delete fontSize="small" />
+                      </IconButton>
+                    )}
 
                     {/* Status-specific actions */}
                     {post.status === 'draft' && (
@@ -382,7 +457,8 @@ export default function AdminBlogPage() {
                         Submit Review
                       </Button>
                     )}
-                    {post.status === 'review' && (
+                    {/* Only admins/editors can approve/reject */}
+                    {post.status === 'review' && adminUser?.role !== 'author' && (
                       <>
                         <Button
                           size="small"
@@ -429,7 +505,7 @@ export default function AdminBlogPage() {
             onImageChange={(v) => setFormData({ ...formData, image: v })}
             author={formData.author || ''}
             onAuthorChange={(v) => setFormData({ ...formData, author: v })}
-            availableAuthors={availableAuthors}
+            availableAuthors={adminUser?.role === 'author' ? [] : availableAuthors}
           />
         </DialogContent>
         <DialogActions>
@@ -446,12 +522,14 @@ export default function AdminBlogPage() {
         <DialogContent dividers sx={{ maxHeight: '70vh', overflow: 'auto' }}>
           {previewPost && (
             <Box>
-              <Box
-                component="img"
-                src={previewPost.image}
-                alt={previewPost.title}
-                sx={{ width: '100%', mb: 3, borderRadius: 1 }}
-              />
+              {previewPost.image && (
+                <Box
+                  component="img"
+                  src={previewPost.image}
+                  alt={previewPost.title}
+                  sx={{ width: '100%', mb: 3, borderRadius: 1 }}
+                />
+              )}
               <Typography variant="h5" sx={{ mb: 2, fontWeight: 700 }}>
                 {previewPost.title}
               </Typography>
