@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Box, TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, Typography, Card } from '@mui/material';
+import Link from 'next/link';
 
 export default function JudgeCalculator() {
   const [poolLength, setPoolLength] = useState(25);
@@ -67,6 +68,21 @@ export default function JudgeCalculator() {
       }}
     >
       <Box sx={{ width: '100%', maxWidth: 380 }}>
+        {/* Page Heading (SEO) */}
+        <Typography
+          variant="h1"
+          component="h1"
+          sx={{
+            fontSize: '1.15rem',
+            fontWeight: 800,
+            color: '#0056b3',
+            textAlign: 'center',
+            mb: '15px',
+          }}
+        >
+          Pool Distance Tracker
+        </Typography>
+
         {/* Row 1: Pool + Laps */}
         <Box sx={{ display: 'flex', gap: '15px', mb: '15px' }}>
           {/* Pool */}
@@ -209,6 +225,38 @@ export default function JudgeCalculator() {
             </Typography>
           </Box>
         </Card>
+
+        {/* Nav to Scoring & Penalties */}
+        <Link href="/judging/scoring" style={{ textDecoration: 'none', display: 'block', marginBottom: '15px' }}>
+          <Button
+            variant="outlined"
+            sx={{
+              width: '100%', py: '10px', fontSize: '0.85rem', fontWeight: 700,
+              color: '#0056b3', borderColor: '#e0e7ef', borderWidth: 1.5, borderRadius: '12px',
+              backgroundColor: '#ffffff', boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              transition: 'all 0.2s ease',
+              '&:hover': { backgroundColor: '#f0f6fc', borderColor: '#0056b3' },
+            }}
+          >
+            Scoring
+          </Button>
+        </Link>
+
+        {/* Nav to Judge Suite Hub */}
+        <Link href="/judging" style={{ textDecoration: 'none', display: 'block', marginBottom: '15px' }}>
+          <Button
+            variant="outlined"
+            sx={{
+              width: '100%', py: '10px', fontSize: '0.85rem', fontWeight: 700,
+              color: '#0056b3', borderColor: '#e0e7ef', borderWidth: 1.5, borderRadius: '12px',
+              backgroundColor: '#ffffff', boxShadow: '0 2px 8px rgba(0,0,0,0.04)',
+              transition: 'all 0.2s ease',
+              '&:hover': { backgroundColor: '#f0f6fc', borderColor: '#0056b3' },
+            }}
+          >
+            ← Judge Suite
+          </Button>
+        </Link>
 
         {/* Row 6: Clear */}
         <Button
