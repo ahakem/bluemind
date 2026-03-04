@@ -56,12 +56,12 @@ const DQ_DEPTH_EXTRA: { code: DQCode; label: string; description: string }[] = [
   { code: 'DQPULL', label: 'DQ PULL', description: 'Pulling on the rope for propulsion' },
 ];
 
-type TechnicalOption = { code: TechnicalFoul; label: string; description: string };
+type TechnicalOption = { code: TechnicalFoul; label: string; description: string; multiple?: boolean };
 
 const POOL_TECHNICAL: TechnicalOption[] = [
-  { code: 'TURN', label: 'TURN', description: 'No wall contact during turn' },
+  { code: 'TURN', label: 'TURN', description: 'No wall contact during turn', multiple: true },
   { code: 'START', label: 'START', description: 'No wall contact during start' },
-  { code: 'PULL', label: 'PULL', description: 'Pulling on support point (wall/bottom)' },
+  { code: 'PULL', label: 'PULL', description: 'Pulling on support point (wall/bottom)', multiple: true },
 ];
 
 const DEPTH_TECHNICAL: TechnicalOption[] = [
@@ -480,7 +480,7 @@ export default function PoolPenalties() {
                         <Typography sx={{ fontSize: '0.85rem', fontWeight: 700, color: isActive ? '#0056b3' : '#212121', lineHeight: 1.2 }}>{t.label}</Typography>
                         <Typography sx={{ fontSize: '0.6rem', color: '#5a7da5', lineHeight: 1.2 }}>{t.description}</Typography>
                       </Box>
-                      {isActive && (
+                      {isActive && t.multiple && (
                         <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
                           <IconButton
                             size="small"
@@ -505,7 +505,7 @@ export default function PoolPenalties() {
                     </Box>
                     {isActive && (
                       <Typography sx={{ fontSize: '0.65rem', color: '#e65100', fontWeight: 600, ml: '36px' }}>
-                        −{(count * 5).toFixed(1)} pts ({count}×5)
+                        −{(count * 5).toFixed(1)} pts {t.multiple && count > 1 ? `(${count}×5)` : ''}
                       </Typography>
                     )}
                   </Box>
