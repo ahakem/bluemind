@@ -35,7 +35,7 @@ export default async function BlogPage() {
       posts.map(async (post) => {
         try {
           const authorInfo = post.author ? await getAuthorInfo(post.author) : null;
-          const authorDisplayName = authorInfo?.displayName || 'Admin';
+          const authorDisplayName = authorInfo?.displayName || post.authorDisplayName || 'BlueMind';
           return {
             ...post,
             authorDisplayName,
@@ -45,7 +45,7 @@ export default async function BlogPage() {
           console.error(`Error fetching author info for ${post.author}:`, err);
           return {
             ...post,
-            authorDisplayName: 'Admin',
+            authorDisplayName: post.authorDisplayName || 'BlueMind',
             authorAvatar: post.authorAvatar,
           };
         }

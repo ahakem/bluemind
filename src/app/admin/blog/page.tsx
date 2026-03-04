@@ -216,7 +216,30 @@ export default function AdminBlogPage() {
   };
 
   const handleSave = async () => {
-    if (!formData.title.trim() || !formData.excerpt.trim() || !formData.content.trim()) {
+    // Clean up React Quill content: remove empty lines it generates
+    const cleanContent = (html: string) => {
+      // Match empty paragraphs in all forms:
+      // <p><br></p>, <p><br/></p>, <p><br /></p>,
+      // <p class="..."><br></p>, <p>&nbsp;</p>, <p></p>, <p> </p>
+      const emptyP = /<p[^>]*>\s*(?:<br\s*\/?>|&nbsp;)?\s*<\/p>/gi;
+
+      let cleaned = html
+        // Remove ALL trailing empty paragraphs
+        .replace(new RegExp('(' + emptyP.source + '\\s*)+$', 'gi'), '')
+        // Collapse 2+ consecutive empty paragraphs into one <br>
+        .replace(new RegExp('(' + emptyP.source + '\\s*){2,}', 'gi'), '<p><br></p>')
+        .trim();
+
+      // If the entire content is just empty paragraphs, return empty
+      if (emptyP.test(cleaned) && cleaned.replace(emptyP, '').trim() === '') {
+        return '';
+      }
+      return cleaned;
+    };
+
+    const content = cleanContent(formData.content);
+
+    if (!formData.title.trim() || !formData.excerpt.trim() || !content) {
       setError('Please fill in title, excerpt, and content');
       return;
     }
@@ -236,6 +259,7 @@ export default function AdminBlogPage() {
       if (editingPost) {
         const updateData: Partial<BlogPost> = {
           ...formData,
+          content,
           slug,
           author,
         };
@@ -252,6 +276,7 @@ export default function AdminBlogPage() {
       } else {
         const createData: any = {
           ...formData,
+          content,
           slug,
         };
         // Only include authorAvatar if it's defined
@@ -540,6 +565,8 @@ export default function AdminBlogPage() {
                 sx={{
                   '& h1': { mt: 2, mb: 1, fontSize: '1.5rem' },
                   '& p': { mb: 1.5, lineHeight: 1.6 },
+                  '& p:empty': { display: 'none', mb: 0 },
+                  '& p:has(> br:only-child)': { display: 'none', mb: 0 },
                   '& img': { maxWidth: '100%', height: 'auto' },
                 }}
                 dangerouslySetInnerHTML={{ __html: previewPost.content }}
