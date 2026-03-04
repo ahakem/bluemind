@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: 'AIDA 2025 Penalty System - Pool Disciplines',
+  title: 'AIDA 2025 Scoring & Penalty System - Pool & Depth Disciplines',
   description:
-    'Complete penalty and disqualification calculator for AIDA 2025 pool freediving. Covers UNDER AP, Early/Late Start, technical fouls (TURN, START, PULL), and all DQ codes.',
+    'Complete scoring, penalty and disqualification calculator for AIDA 2025 freediving. Covers pool (STA, DYN, DNF) and depth (CWT, CWTB, FIM, CNF) disciplines including UNDER AP, Early/Late Start, technical fouls, and all DQ codes.',
   keywords: [
     'AIDA penalties',
     'freediving penalty calculator',
@@ -15,11 +15,14 @@ export const metadata: Metadata = {
     'early start penalty',
     'late start freediving',
     'surface protocol DQ',
+    'freediving depth scoring',
+    'CWT scoring',
+    'FIM CNF penalties',
   ],
   openGraph: {
-    title: 'AIDA 2025 Penalty System - Pool Disciplines',
+    title: 'AIDA 2025 Scoring & Penalty System - Pool & Depth',
     description:
-      'Complete penalty and disqualification calculator for AIDA 2025 pool freediving disciplines.',
+      'Complete scoring, penalty and disqualification calculator for AIDA 2025 pool and depth freediving disciplines.',
     url: 'https://bluemindfreediving.nl/judging/scoring',
     type: 'website',
   },

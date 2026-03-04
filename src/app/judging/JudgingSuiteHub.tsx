@@ -143,11 +143,11 @@ export default function JudgingSuiteHub() {
                   }}
                 >
                   Automated point calculation and penalty coding (UNDER AP, EARLY/LATE
-                  START, TURN, PULL) for all pool disciplines. Covers all DQ codes
+                  START, TURN, PULL, GRAB) for pool and depth disciplines. Covers all DQ codes
                   and score breakdowns.
                 </Typography>
                 <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.5, mt: 1.5 }}>
-                  {['STA', 'DYN', 'DYNB', 'DNF'].map((d) => (
+                  {['STA', 'DYN', 'DNF', 'CWT', 'CWTB', 'FIM', 'CNF'].map((d) => (
                     <Chip
                       key={d}
                       label={d}

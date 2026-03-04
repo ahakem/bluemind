@@ -11,15 +11,16 @@ import AddIcon from '@mui/icons-material/Add';
 import RemoveIcon from '@mui/icons-material/Remove';
 
 // ─── Types ───────────────────────────────────────────────────────────
-type DisciplineTab = 'STA' | 'DYN';
+type DisciplineTab = 'STA' | 'DYN' | 'DEPTH';
 
 type DQCode =
   | 'DQAIRWAY'
   | 'DQSP'
   | 'DQOTHER'
-  | 'DQLATESTART';
+  | 'DQLATESTART'
+  | 'DQPULL';
 
-type TechnicalFoul = 'TURN' | 'START' | 'PULL';
+type TechnicalFoul = 'TURN' | 'START' | 'PULL' | 'GRAB';
 
 interface PenaltyState {
   tab: DisciplineTab;
@@ -37,22 +38,34 @@ interface PenaltyState {
   lateStartSeconds: number;
   // Technical (Dynamic only) — counts
   technicalFouls: Record<TechnicalFoul, number>;
+  // Depth: No Tag penalty
+  noTag: boolean;
   // DQ
   activeDQ: DQCode | null;
 }
 
 // ─── Constants ───────────────────────────────────────────────────────
-const DQ_OPTIONS: { code: DQCode; label: string; description: string }[] = [
+const DQ_OPTIONS_COMMON: { code: DQCode; label: string; description: string }[] = [
   { code: 'DQAIRWAY', label: 'DQ AIRWAY', description: 'Airway below surface after surfacing' },
   { code: 'DQSP', label: 'DQ SP', description: 'Surface Protocol failure (Equip → OK → Verbal, 15s)' },
   { code: 'DQOTHER', label: 'DQ OTHER', description: 'Arm recovery, full-length surface swim, >1.5m submerge, etc.' },
   { code: 'DQLATESTART', label: 'DQ LATE START', description: 'Start >30s after OT' },
 ];
 
-const TECHNICAL_OPTIONS: { code: TechnicalFoul; label: string; description: string }[] = [
+const DQ_DEPTH_EXTRA: { code: DQCode; label: string; description: string }[] = [
+  { code: 'DQPULL', label: 'DQ PULL', description: 'Pulling on the rope for propulsion' },
+];
+
+type TechnicalOption = { code: TechnicalFoul; label: string; description: string };
+
+const POOL_TECHNICAL: TechnicalOption[] = [
   { code: 'TURN', label: 'TURN', description: 'No wall contact during turn' },
   { code: 'START', label: 'START', description: 'No wall contact during start' },
   { code: 'PULL', label: 'PULL', description: 'Pulling on support point (wall/bottom)' },
+];
+
+const DEPTH_TECHNICAL: TechnicalOption[] = [
+  { code: 'GRAB', label: 'GRAB', description: 'Grabbing the guide rope (non-FIM)' },
 ];
 
 // ─── Helpers ─────────────────────────────────────────────────────────
@@ -60,13 +73,20 @@ function calcBasePoints(tab: DisciplineTab, rpSeconds: number, rpMeters: number)
   if (tab === 'STA') {
     return Math.floor(rpSeconds * 0.2 * 5) / 5; // round down to nearest 0.2
   }
-  return Math.floor(rpMeters * 0.5 * 2) / 2; // round down to nearest 0.5
+  if (tab === 'DEPTH') {
+    return Math.floor(rpMeters * 1.0 * 10) / 10; // 1 pt/m, round down to nearest 0.1
+  }
+  return Math.floor(rpMeters * 0.5 * 2) / 2; // DYN: round down to nearest 0.5
 }
 
 function calcUnderAPPenalty(tab: DisciplineTab, apSeconds: number, apMeters: number, rpSeconds: number, rpMeters: number): number {
   if (tab === 'STA') {
     const diff = apSeconds - rpSeconds;
     return diff > 0 ? diff * 0.2 : 0;
+  }
+  if (tab === 'DEPTH') {
+    const diff = apMeters - rpMeters;
+    return diff > 0 ? diff * 1.0 : 0; // 1 pt/m under AP
   }
   const diff = apMeters - rpMeters;
   return diff > 0 ? diff * 0.5 : 0;
@@ -93,12 +113,20 @@ export default function PoolPenalties() {
     apMeters: 0, rpMeters: 0,
     earlyStartSeconds: 0,
     lateStartSeconds: 0,
-    technicalFouls: { TURN: 0, START: 0, PULL: 0 },
+    technicalFouls: { TURN: 0, START: 0, PULL: 0, GRAB: 0 },
+    noTag: false,
     activeDQ: null,
   });
   const [showClearDialog, setShowClearDialog] = useState(false);
 
   const isSTA = state.tab === 'STA';
+  const isDYN = state.tab === 'DYN';
+  const isDepth = state.tab === 'DEPTH';
+  const usesMeters = isDYN || isDepth;
+  const activeTechnical = isDepth ? DEPTH_TECHNICAL : POOL_TECHNICAL;
+  const activeDQOptions = isDepth
+    ? [...DQ_OPTIONS_COMMON, ...DQ_DEPTH_EXTRA]
+    : DQ_OPTIONS_COMMON;
 
   const set = useCallback(<K extends keyof PenaltyState>(key: K, value: PenaltyState[K]) => {
     setState(prev => ({ ...prev, [key]: value }));
@@ -137,25 +165,40 @@ export default function PoolPenalties() {
     const earlyPenalty = calcEarlyStartPenalty(state.earlyStartSeconds);
     const late = calcLateStartPenalty(state.lateStartSeconds);
 
-    const totalTechnicalCount = Object.values(state.technicalFouls).reduce((a, b) => a + b, 0);
-    const technicalPenalty = !isSTA ? totalTechnicalCount * 5 : 0;
+    // Depth: early start penalty applies, but no late start penalty — only DQ if >30s late
+    const effectiveEarlyPenalty = earlyPenalty;
+    const effectiveLatePenalty = isDepth ? 0 : late.penalty;
+    const effectiveLateIsDQ = isDepth ? state.lateStartSeconds > 30 : late.isDQ;
 
-    const isDQ = state.activeDQ !== null || late.isDQ;
-    const totalPenalties = underAP + earlyPenalty + late.penalty + technicalPenalty;
+    // Only count fouls relevant to the active discipline
+    const relevantFoulCodes = isSTA ? [] : (isDepth ? DEPTH_TECHNICAL : POOL_TECHNICAL).map(t => t.code);
+    const totalTechnicalCount = relevantFoulCodes.reduce((sum, code) => sum + (state.technicalFouls[code] || 0), 0);
+    const technicalPenalty = totalTechnicalCount * 5;
+
+    // Depth: No Tag penalty (1pt) — auto-applied when RP < AP
+    const noTagApplied = isDepth && (state.noTag || underAP > 0);
+    const noTagPenalty = noTagApplied ? 1 : 0;
+
+    const isDQ = state.activeDQ !== null || effectiveLateIsDQ;
+    const totalPenalties = underAP + effectiveEarlyPenalty + effectiveLatePenalty + technicalPenalty + noTagPenalty;
     const finalPoints = isDQ ? 0 : Math.max(0, basePoints - totalPenalties);
 
     const codes: { label: string; color: 'warning' | 'error' | 'info' }[] = [];
     if (underAP > 0) codes.push({ label: `UNDER AP −${underAP.toFixed(1)}`, color: 'warning' });
-    if (earlyPenalty > 0) codes.push({ label: `EARLY −${earlyPenalty.toFixed(1)}`, color: 'warning' });
-    if (late.penalty > 0) codes.push({ label: `LATE −${late.penalty.toFixed(1)}`, color: 'warning' });
-    if (late.isDQ) codes.push({ label: 'DQ LATE START', color: 'error' });
-    Object.entries(state.technicalFouls).forEach(([code, count]) => {
+    if (noTagApplied) codes.push({ label: 'NO TAG −1.0', color: 'warning' });
+    if (effectiveEarlyPenalty > 0) codes.push({ label: `EARLY −${effectiveEarlyPenalty.toFixed(1)}`, color: 'warning' });
+    if (effectiveLatePenalty > 0) codes.push({ label: `LATE −${effectiveLatePenalty.toFixed(1)}`, color: 'warning' });
+    if (effectiveLateIsDQ) codes.push({ label: 'DQ LATE START', color: 'error' });
+    // Only show chips for relevant technical fouls
+    relevantFoulCodes.forEach(code => {
+      const count = state.technicalFouls[code] || 0;
       if (count > 0) codes.push({ label: `${code} ×${count} −${(count * 5).toFixed(1)}`, color: 'info' });
     });
-    if (state.activeDQ) codes.push({ label: DQ_OPTIONS.find(d => d.code === state.activeDQ)?.label || '', color: 'error' });
+    const allDQOptions = [...DQ_OPTIONS_COMMON, ...DQ_DEPTH_EXTRA];
+    if (state.activeDQ) codes.push({ label: allDQOptions.find(d => d.code === state.activeDQ)?.label || '', color: 'error' });
 
-    return { basePoints, underAP, earlyPenalty, late, technicalPenalty, totalTechnicalCount, totalPenalties, finalPoints, isDQ, codes };
-  }, [state, isSTA]);
+    return { basePoints, underAP, earlyPenalty: effectiveEarlyPenalty, late: { penalty: effectiveLatePenalty, isDQ: effectiveLateIsDQ }, technicalPenalty, totalTechnicalCount, noTagApplied, noTagPenalty, totalPenalties, finalPoints, isDQ, codes };
+  }, [state, isSTA, isDepth]);
 
   const handleClear = () => {
     setState(prev => ({
@@ -164,7 +207,8 @@ export default function PoolPenalties() {
       rpMinutes: 0, rpSeconds: 0,
       apMeters: 0, rpMeters: 0,
       earlyStartSeconds: 0, lateStartSeconds: 0,
-      technicalFouls: { TURN: 0, START: 0, PULL: 0 },
+      technicalFouls: { TURN: 0, START: 0, PULL: 0, GRAB: 0 },
+      noTag: false,
       activeDQ: null,
     }));
     setShowClearDialog(false);
@@ -210,23 +254,24 @@ export default function PoolPenalties() {
           Penalty System — AIDA 2025
         </Typography>
 
-        {/* ── Tab: Static / Dynamic ── */}
+        {/* ── Tab: Static / Dynamic / Depth ── */}
         <Card sx={{ ...cardSx, p: '12px', mb: '15px', textAlign: 'center' }}>
           <ToggleButtonGroup
             value={state.tab}
             exclusive
             onChange={(_, v) => { if (v) set('tab', v); }}
-            sx={{ width: '100%', '& .MuiToggleButton-root': { flex: 1, py: '8px', fontSize: '0.9rem', fontWeight: 700, borderColor: '#e0e7ef', color: '#5a7da5', borderRadius: '10px !important', '&.Mui-selected': { background: 'linear-gradient(135deg, #0056b3, #1a75cf)', color: '#fff', borderColor: '#0056b3', '&:hover': { background: 'linear-gradient(135deg, #003d80, #0056b3)' } } } }}
+            sx={{ width: '100%', '& .MuiToggleButton-root': { flex: 1, py: '8px', fontSize: '0.85rem', fontWeight: 700, borderColor: '#e0e7ef', color: '#5a7da5', borderRadius: '10px !important', '&.Mui-selected': { background: 'linear-gradient(135deg, #0056b3, #1a75cf)', color: '#fff', borderColor: '#0056b3', '&:hover': { background: 'linear-gradient(135deg, #003d80, #0056b3)' } } } }}
           >
             <ToggleButton value="STA">Static</ToggleButton>
             <ToggleButton value="DYN">Dynamic</ToggleButton>
+            <ToggleButton value="DEPTH">Depth</ToggleButton>
           </ToggleButtonGroup>
         </Card>
 
         {/* ── AP & RP side by side ── */}
         <Box sx={{ display: 'flex', gap: '15px', mb: '15px' }}>
           <Card sx={{ ...cardSx, p: '12px', flex: 1 }}>
-            <Typography variant="caption" sx={labelSx}>AP</Typography>
+            <Typography variant="caption" sx={labelSx}>AP {isDepth ? '(depth)' : ''}</Typography>
             {isSTA ? (
               <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
                 <TextField
@@ -260,7 +305,7 @@ export default function PoolPenalties() {
             )}
           </Card>
           <Card sx={{ ...cardSx, p: '12px', flex: 1 }}>
-            <Typography variant="caption" sx={labelSx}>RP</Typography>
+            <Typography variant="caption" sx={labelSx}>RP {isDepth ? '(depth)' : ''}</Typography>
             {isSTA ? (
               <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
                 <TextField
@@ -295,7 +340,80 @@ export default function PoolPenalties() {
           </Card>
         </Box>
 
-        {/* ── Early Start & Late Start side by side ── */}
+        {/* ── No Tag (Depth only) ── */}
+        {isDepth && (
+          <Card sx={{ ...cardSx, p: '12px', mb: '15px' }}>
+            <FormControlLabel
+              control={
+                <Checkbox
+                  checked={state.noTag || calc.underAP > 0}
+                  disabled={calc.underAP > 0}
+                  onChange={() => set('noTag', !state.noTag)}
+                  sx={{ color: '#e65100', '&.Mui-checked': { color: '#e65100' }, p: '4px 8px' }}
+                  size="small"
+                />
+              }
+              label={
+                <Box>
+                  <Typography sx={{ fontSize: '0.85rem', fontWeight: 700, color: (state.noTag || calc.underAP > 0) ? '#e65100' : '#212121', lineHeight: 1.2 }}>
+                    NO TAG
+                    {calc.underAP > 0 && (
+                      <Typography component="span" sx={{ fontSize: '0.65rem', color: '#e65100', fontWeight: 600, ml: 0.5 }}>
+                        (auto: RP &lt; AP)
+                      </Typography>
+                    )}
+                  </Typography>
+                  <Typography sx={{ fontSize: '0.6rem', color: '#5a7da5', lineHeight: 1.2 }}>Failed to retrieve or present bottom tag (−1 pt)</Typography>
+                </Box>
+              }
+              sx={{ mx: 0, alignItems: 'flex-start' }}
+            />
+          </Card>
+        )}
+
+        {/* ── Early Start & Late Start ── */}
+        {isDepth ? (
+          /* Depth: early start has penalty, late start is just a DQ checkbox */
+          <Box sx={{ display: 'flex', gap: '15px', mb: '15px' }}>
+            <Card sx={{ ...cardSx, p: '12px', flex: 1 }}>
+              <Typography variant="caption" sx={labelSx}>Early Start</Typography>
+              <Box sx={{ display: 'flex', gap: 0.5, alignItems: 'center' }}>
+                <TextField
+                  type="number"
+                  value={state.earlyStartSeconds}
+                  onChange={setNum('earlyStartSeconds')}
+                  inputProps={{ min: 0, style: numInputStyle }}
+                  sx={{ flex: 1, ...inputSx, '& .MuiOutlinedInput-input': { py: '8px' } }}
+                />
+                <Typography sx={{ color: '#0056b3', fontWeight: 700, fontSize: '0.85rem' }}>sec</Typography>
+              </Box>
+              {state.earlyStartSeconds > 0 && (
+                <Typography sx={{ fontSize: '0.65rem', color: '#e65100', fontWeight: 600, mt: 0.5 }}>
+                  −{calcEarlyStartPenalty(state.earlyStartSeconds).toFixed(1)} pts (1pt/5s)
+                </Typography>
+              )}
+            </Card>
+            <Card sx={{ ...cardSx, p: '12px', flex: 1, display: 'flex', alignItems: 'center' }}>
+              <FormControlLabel
+                control={
+                  <Checkbox
+                    checked={state.lateStartSeconds > 30}
+                    onChange={(_, checked) => set('lateStartSeconds', checked ? 31 : 0)}
+                    sx={{ color: '#c62828', '&.Mui-checked': { color: '#c62828' }, p: '4px 8px' }}
+                    size="small"
+                  />
+                }
+                label={
+                  <Box>
+                    <Typography sx={{ fontSize: '0.85rem', fontWeight: 700, color: state.lateStartSeconds > 30 ? '#c62828' : '#212121', lineHeight: 1.2 }}>DQ LATE START</Typography>
+                    <Typography sx={{ fontSize: '0.6rem', color: '#5a7da5', lineHeight: 1.2 }}>Started &gt;30s after OT</Typography>
+                  </Box>
+                }
+                sx={{ mx: 0, alignItems: 'flex-start' }}
+              />
+            </Card>
+          </Box>
+        ) : (
         <Box sx={{ display: 'flex', gap: '15px', mb: '15px' }}>
           <Card sx={{ ...cardSx, p: '12px', flex: 1 }}>
             <Typography variant="caption" sx={labelSx}>Early Start</Typography>
@@ -339,13 +457,14 @@ export default function PoolPenalties() {
             )}
           </Card>
         </Box>
+        )}
 
-        {/* ── Technical Penalties (Dynamic only) ── */}
+        {/* ── Technical Penalties (Dynamic & Depth) ── */}
         {!isSTA && (
           <Card sx={{ ...cardSx, p: '12px', mb: '15px' }}>
             <Typography variant="caption" sx={labelSx}>Technical Penalties (−5 pts each)</Typography>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
-              {TECHNICAL_OPTIONS.map(t => {
+              {activeTechnical.map(t => {
                 const count = state.technicalFouls[t.code];
                 const isActive = count > 0;
                 return (
@@ -402,7 +521,7 @@ export default function PoolPenalties() {
             Disqualification (Red Card)
           </Typography>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-            {DQ_OPTIONS.map(dq => (
+            {activeDQOptions.map(dq => (
               <FormControlLabel
                 key={dq.code}
                 control={
@@ -458,6 +577,13 @@ export default function PoolPenalties() {
             </Box>
           )}
 
+          {calc.noTagApplied && (
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '4px' }}>
+              <Typography sx={{ fontSize: '0.85rem', color: '#e65100', fontWeight: 600 }}>No Tag</Typography>
+              <Typography sx={{ fontSize: '0.95rem', color: '#e65100', fontWeight: 800 }}>−1.0</Typography>
+            </Box>
+          )}
+
           {calc.earlyPenalty > 0 && (
             <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', py: '4px' }}>
               <Typography sx={{ fontSize: '0.85rem', color: '#e65100', fontWeight: 600 }}>Early Start</Typography>
@@ -495,7 +621,7 @@ export default function PoolPenalties() {
             <Box sx={{ backgroundColor: '#fef2f2', borderRadius: '8px', p: '6px 10px', mt: 1, textAlign: 'center' }}>
               <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#c62828' }}>
                 {state.activeDQ
-                  ? DQ_OPTIONS.find(d => d.code === state.activeDQ)?.description
+                  ? [...DQ_OPTIONS_COMMON, ...DQ_DEPTH_EXTRA].find(d => d.code === state.activeDQ)?.description
                   : 'Start more than 30 seconds after Official Top'}
               </Typography>
             </Box>
