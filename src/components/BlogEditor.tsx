@@ -4,9 +4,11 @@
 
 'use client';
 
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useRef } from 'react';
 import dynamic from 'next/dynamic';
-import { Box, Typography, TextField, Button, Chip, CircularProgress, MenuItem, Select, FormControl, InputLabel } from '@mui/material';
+import { Box, Typography, TextField, Button, Chip, CircularProgress, MenuItem, Select, FormControl, InputLabel, Alert } from '@mui/material';
+import CloudUploadIcon from '@mui/icons-material/CloudUpload';
+import { imageService } from '@/lib/adminService';
 import 'react-quill/dist/quill.snow.css';
 
 // Polyfill for React 19 compatibility with react-quill
@@ -77,6 +79,9 @@ export default function BlogEditor({
 }: BlogEditorProps) {
   const [tagInput, setTagInput] = useState('');
   const [mounted, setMounted] = useState(false);
+  const [uploading, setUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     setMounted(true);
@@ -91,6 +96,37 @@ export default function BlogEditor({
 
   const handleRemoveTag = (tagToRemove: string) => {
     onTagsChange(tags.filter((t) => t !== tagToRemove));
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setUploadError(null);
+
+    // Validate file type
+    if (!file.type.startsWith('image/')) {
+      setUploadError('Please select an image file.');
+      return;
+    }
+
+    // Validate file size (max 5MB)
+    if (file.size > 5 * 1024 * 1024) {
+      setUploadError('Image must be smaller than 5MB.');
+      return;
+    }
+
+    setUploading(true);
+    try {
+      const url = await imageService.uploadImage(file, 'blog');
+      onImageChange(url);
+    } catch (err) {
+      console.error('Image upload failed:', err);
+      setUploadError('Upload failed. Please try again or use a URL instead.');
+    } finally {
+      setUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
   };
 
   return (
@@ -131,25 +167,67 @@ export default function BlogEditor({
         </Box>
       )}
 
-      {/* Image URL */}
+      {/* Featured Image */}
       <Box>
         <Typography variant="h6" sx={{ mb: 1 }}>
-          Featured Image URL
+          Featured Image
         </Typography>
+
+        {/* Upload button */}
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="image/*"
+          onChange={handleImageUpload}
+          style={{ display: 'none' }}
+        />
+        <Box sx={{ display: 'flex', gap: 1, mb: 1.5, alignItems: 'center' }}>
+          <Button
+            variant="contained"
+            startIcon={uploading ? <CircularProgress size={18} color="inherit" /> : <CloudUploadIcon />}
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploading}
+            sx={{ textTransform: 'none' }}
+          >
+            {uploading ? 'Uploading...' : 'Upload Image'}
+          </Button>
+          <Typography variant="body2" color="text.secondary">
+            or enter URL below
+          </Typography>
+        </Box>
+
+        {uploadError && (
+          <Alert severity="error" onClose={() => setUploadError(null)} sx={{ mb: 1.5 }}>
+            {uploadError}
+          </Alert>
+        )}
+
+        {/* URL fallback */}
         <TextField
           fullWidth
+          size="small"
           value={image}
           onChange={(e) => onImageChange(e.target.value)}
           placeholder="https://bluemindfreediving.nl/images/..."
           variant="outlined"
         />
         {image && (
-          <Box
-            component="img"
-            src={image}
-            alt="preview"
-            sx={{ mt: 2, maxWidth: '100%', maxHeight: 300, objectFit: 'cover', borderRadius: 1 }}
-          />
+          <Box sx={{ mt: 2, position: 'relative' }}>
+            <Box
+              component="img"
+              src={image}
+              alt="preview"
+              sx={{ maxWidth: '100%', maxHeight: 300, objectFit: 'cover', borderRadius: 1 }}
+            />
+            <Button
+              size="small"
+              color="error"
+              onClick={() => onImageChange('')}
+              sx={{ position: 'absolute', top: 8, right: 8, minWidth: 'auto', bgcolor: 'rgba(255,255,255,0.85)', '&:hover': { bgcolor: 'rgba(255,255,255,0.95)' } }}
+            >
+              Remove
+            </Button>
+          </Box>
         )}
       </Box>
 

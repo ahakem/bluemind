@@ -130,11 +130,21 @@ export const instructorsService = {
 
 // Image upload service
 export const imageService = {
-  async uploadImage(file: Blob, folder: 'partners' | 'instructors'): Promise<string> {
+  async uploadImage(file: Blob, folder: 'partners' | 'instructors' | 'blog'): Promise<string> {
     const storageInstance = ensureStorage();
-    const fileName = `${folder}/${uuidv4()}.webp`;
+    // Determine extension from content type
+    const mimeToExt: Record<string, string> = {
+      'image/webp': '.webp',
+      'image/jpeg': '.jpg',
+      'image/png': '.png',
+      'image/gif': '.gif',
+      'image/svg+xml': '.svg',
+    };
+    const ext = mimeToExt[file.type] || '.webp';
+    const contentType = file.type || 'image/webp';
+    const fileName = `${folder}/${uuidv4()}${ext}`;
     const storageRef = ref(storageInstance, fileName);
-    await uploadBytes(storageRef, file, { contentType: 'image/webp' });
+    await uploadBytes(storageRef, file, { contentType });
     return getDownloadURL(storageRef);
   },
 
