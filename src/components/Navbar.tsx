@@ -27,15 +27,8 @@ const navItems = [
   { name: "Contact", href: "/contact" },
 ];
 
-const judgeSubItems = [
-  { name: "Judge Suite Hub", href: "/judging" },
-  { name: "Scoring", href: "/judging/scoring" },
-  { name: "Pool Distance Tracker", href: "/judging/pool-distance" },
-];
-
 const Navbar = () => {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
-  const [anchorElJudge, setAnchorElJudge] = useState<null | HTMLElement>(null);
   const [elevated, setElevated] = useState(false);
   const scrollPosition = useScrollPosition();
   const pathname = usePathname();
@@ -50,14 +43,6 @@ const Navbar = () => {
 
   const handleCloseNavMenu = () => {
     setAnchorElNav(null);
-  };
-
-  const handleOpenJudgeMenu = (event: React.MouseEvent<HTMLElement>) => {
-    setAnchorElJudge(event.currentTarget);
-  };
-
-  const handleCloseJudgeMenu = () => {
-    setAnchorElJudge(null);
   };
 
   const isActive = (href: string) => {
@@ -147,36 +132,6 @@ const Navbar = () => {
                   </Typography>
                 </MenuItem>
               ))}
-              {/* Judge Suite items in mobile menu */}
-              <MenuItem
-                sx={{ borderTop: '1px solid #e0e7ef', mt: 0.5, pt: 1 }}
-                disabled
-              >
-                <Typography sx={{ fontSize: '0.75rem', fontWeight: 700, color: '#90a4ae', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-                  Judge Suite
-                </Typography>
-              </MenuItem>
-              {judgeSubItems.map((item) => (
-                <MenuItem
-                  key={item.name}
-                  onClick={handleCloseNavMenu}
-                  component={Link}
-                  href={item.href}
-                  selected={isActive(item.href)}
-                >
-                  <Typography
-                    textAlign="center"
-                    sx={{
-                      color: isActive(item.href) ? "primary.main" : "text.primary",
-                      textDecoration: "none",
-                      fontWeight: isActive(item.href) ? 600 : 500,
-                      pl: 1,
-                    }}
-                  >
-                    {item.name}
-                  </Typography>
-                </MenuItem>
-              ))}
             </Menu>
           </Box>
           
@@ -218,56 +173,6 @@ const Navbar = () => {
               </Button>
             ))}
 
-            {/* Judge Suite dropdown */}
-            <Button
-              onClick={handleOpenJudgeMenu}
-              aria-controls="judge-menu"
-              aria-haspopup="true"
-              aria-expanded={Boolean(anchorElJudge)}
-              sx={{
-                my: 2, mx: 0.5, px: 1.5,
-                display: "block",
-                color: pathname.startsWith('/judging') ? "primary.main" : "text.primary",
-                textTransform: "none",
-                fontWeight: pathname.startsWith('/judging') ? 600 : 500,
-                fontSize: '0.9rem',
-                borderBottom: pathname.startsWith('/judging') ? '2px solid' : 'none',
-                borderColor: 'primary.main',
-                borderRadius: 0,
-                "&:hover": { color: "primary.main", background: "transparent" },
-              }}
-            >
-              Judge Suite
-            </Button>
-            <Menu
-              id="judge-menu"
-              anchorEl={anchorElJudge}
-              open={Boolean(anchorElJudge)}
-              onClose={handleCloseJudgeMenu}
-              anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-              transformOrigin={{ vertical: 'top', horizontal: 'left' }}
-              sx={{ '& .MuiPaper-root': { borderRadius: '12px', border: '1px solid #e0e7ef', mt: 0.5 } }}
-            >
-              {judgeSubItems.map((item) => (
-                <MenuItem
-                  key={item.name}
-                  onClick={handleCloseJudgeMenu}
-                  component={Link}
-                  href={item.href}
-                  selected={pathname === item.href || pathname.startsWith(item.href + '/')}
-                >
-                  <Typography
-                    sx={{
-                      fontSize: '0.9rem',
-                      color: (pathname === item.href || pathname.startsWith(item.href + '/')) ? 'primary.main' : 'text.primary',
-                      fontWeight: (pathname === item.href || pathname.startsWith(item.href + '/')) ? 600 : 500,
-                    }}
-                  >
-                    {item.name}
-                  </Typography>
-                </MenuItem>
-              ))}
-            </Menu>
           </Box>
 
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
