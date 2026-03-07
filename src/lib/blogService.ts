@@ -227,6 +227,14 @@ export const createBlogPost = async (data: BlogDraft, userId: string): Promise<s
       reviewedBy: null,
     };
 
+    // Only include CTA fields if they have content
+    if (data.ctaText?.trim()) {
+      postData.ctaText = data.ctaText.trim();
+    }
+    if (data.ctaLink?.trim()) {
+      postData.ctaLink = data.ctaLink.trim();
+    }
+
     // Only include authorAvatar if it exists
     if (data.authorAvatar) {
       postData.authorAvatar = data.authorAvatar;

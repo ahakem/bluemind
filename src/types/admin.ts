@@ -47,6 +47,8 @@ export interface BlogPost {
   tags: string[];
   status: 'draft' | 'review' | 'published';
   views: number;
+  ctaText?: string;
+  ctaLink?: string;
   createdAt: Date;
   updatedAt: Date;
   publishedAt?: Date;
@@ -65,4 +67,6 @@ export interface BlogDraft {
   authorAvatar?: string;
   tags: string[];
   status: 'draft' | 'review' | 'published';
+  ctaText?: string;
+  ctaLink?: string;
 }

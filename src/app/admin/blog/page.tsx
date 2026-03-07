@@ -92,6 +92,8 @@ export default function AdminBlogPage() {
     tags: [],
     status: 'draft',
     author: adminUser?.uid || '',
+    ctaText: '',
+    ctaLink: '',
     ...(adminUser?.avatar && { authorAvatar: adminUser.avatar }),
     ...(adminUser?.displayName && { authorDisplayName: adminUser.displayName }),
   });
@@ -164,8 +166,8 @@ export default function AdminBlogPage() {
       image: '',
       tags: [],
       status: 'draft',
-      author: adminUser?.uid || '',
-    };
+      author: adminUser?.uid || '',      ctaText: '',
+      ctaLink: '',    };
     if (adminUser?.avatar) {
       newFormData.authorAvatar = adminUser.avatar;
     }
@@ -194,6 +196,8 @@ export default function AdminBlogPage() {
         tags: post.tags,
         status: post.status,
         author: post.author,
+        ctaText: post.ctaText || '',
+        ctaLink: post.ctaLink || '',
       };
       // Only include authorAvatar if it exists
       if (post.authorAvatar || adminUser?.avatar) {
@@ -531,6 +535,10 @@ export default function AdminBlogPage() {
             author={formData.author || ''}
             onAuthorChange={(v) => setFormData({ ...formData, author: v })}
             availableAuthors={adminUser?.role === 'author' ? [] : availableAuthors}
+            ctaText={formData.ctaText || ''}
+            onCtaTextChange={(v) => setFormData({ ...formData, ctaText: v })}
+            ctaLink={formData.ctaLink || ''}
+            onCtaLinkChange={(v) => setFormData({ ...formData, ctaLink: v })}
           />
         </DialogContent>
         <DialogActions>

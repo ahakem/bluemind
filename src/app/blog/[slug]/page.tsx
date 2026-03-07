@@ -19,6 +19,7 @@ import { getBlogPostBySlug, getBlogPosts, getAuthorInfo } from '@/lib/blogServic
 import { notFound } from 'next/navigation';
 import ViewTracker from '@/components/ViewTracker';
 import ShareButtons from '@/components/ShareButtons';
+import FloatingCta from '@/components/FloatingCta';
 
 interface BlogPostPageProps {
   params: Promise<{ slug: string }>;
@@ -267,20 +268,103 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           </Box>
         )}
 
-        {/* Related Content CTA */}
-        <Box sx={{ mt: 8, p: 4, bgcolor: '#f5f5f5', borderRadius: 2, textAlign: 'center' }}>
-          <Typography variant="h5" sx={{ mb: 2 }}>
-            Ready to start freediving?
-          </Typography>
-          <Typography variant="body1" sx={{ mb: 3, color: '#666' }}>
-            Join Blue Mind Freediving for professional AIDA training at Sloterparkbad
-          </Typography>
-          <Link href="/training" style={{ textDecoration: 'none' }}>
-            <Button variant="contained" size="large">
-              Explore Our Training
-            </Button>
-          </Link>
-        </Box>
+        {/* Call to Action */}
+        {post.ctaText && post.ctaLink ? (
+          <Box
+            sx={{
+              mt: 8,
+              p: { xs: 3, md: 5 },
+              background: 'linear-gradient(135deg, #0056b3 0%, #0077ed 100%)',
+              borderRadius: 3,
+              textAlign: 'center',
+              color: '#fff',
+              position: 'relative',
+              overflow: 'hidden',
+              '&::before': {
+                content: '""',
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'radial-gradient(circle at 30% 50%, rgba(255,255,255,0.08) 0%, transparent 60%)',
+                pointerEvents: 'none',
+              },
+            }}
+          >
+            {post.ctaLink.startsWith('http') ? (
+              <a href={post.ctaLink} target="_blank" rel="noopener noreferrer" style={{ textDecoration: 'none' }}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  sx={{
+                    bgcolor: '#fff',
+                    color: '#0056b3',
+                    fontWeight: 700,
+                    fontSize: '1.05rem',
+                    px: 5,
+                    py: 1.5,
+                    borderRadius: '50px',
+                    textTransform: 'none',
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
+                    '&:hover': {
+                      bgcolor: '#f0f4ff',
+                      boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
+                      transform: 'translateY(-1px)',
+                    },
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  {post.ctaText}
+                </Button>
+              </a>
+            ) : (
+              <Link href={post.ctaLink} style={{ textDecoration: 'none' }}>
+                <Button
+                  variant="contained"
+                  size="large"
+                  sx={{
+                    bgcolor: '#fff',
+                    color: '#0056b3',
+                    fontWeight: 700,
+                    fontSize: '1.05rem',
+                    px: 5,
+                    py: 1.5,
+                    borderRadius: '50px',
+                    textTransform: 'none',
+                    boxShadow: '0 4px 14px rgba(0,0,0,0.15)',
+                    '&:hover': {
+                      bgcolor: '#f0f4ff',
+                      boxShadow: '0 6px 20px rgba(0,0,0,0.2)',
+                      transform: 'translateY(-1px)',
+                    },
+                    transition: 'all 0.2s ease',
+                  }}
+                >
+                  {post.ctaText}
+                </Button>
+              </Link>
+            )}
+          </Box>
+        ) : (
+          <Box sx={{ mt: 8, p: 4, bgcolor: '#f5f5f5', borderRadius: 2, textAlign: 'center' }}>
+            <Typography variant="h5" sx={{ mb: 2 }}>
+              Ready to start freediving?
+            </Typography>
+            <Typography variant="body1" sx={{ mb: 3, color: '#666' }}>
+              Join Blue Mind Freediving for professional AIDA training at Sloterparkbad
+            </Typography>
+            <Link href="/training" style={{ textDecoration: 'none' }}>
+              <Button variant="contained" size="large">
+                Explore Our Training
+              </Button>
+            </Link>
+          </Box>
+        )}
+        {/* Floating CTA */}
+        {post.ctaText && post.ctaLink && (
+          <FloatingCta text={post.ctaText} link={post.ctaLink} />
+        )}
       </Container>
     );
   } catch (error) {

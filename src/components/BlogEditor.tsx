@@ -45,6 +45,10 @@ interface BlogEditorProps {
   author: string;
   onAuthorChange: (author: string) => void;
   availableAuthors: Array<{ value: string; label: string }>;
+  ctaText: string;
+  onCtaTextChange: (text: string) => void;
+  ctaLink: string;
+  onCtaLinkChange: (link: string) => void;
 }
 
 const modules = {
@@ -76,6 +80,10 @@ export default function BlogEditor({
   author,
   onAuthorChange,
   availableAuthors,
+  ctaText,
+  onCtaTextChange,
+  ctaLink,
+  onCtaLinkChange,
 }: BlogEditorProps) {
   const [tagInput, setTagInput] = useState('');
   const [mounted, setMounted] = useState(false);
@@ -273,6 +281,36 @@ export default function BlogEditor({
           {tags.map((tag) => (
             <Chip key={tag} label={tag} onDelete={() => handleRemoveTag(tag)} variant="outlined" />
           ))}
+        </Box>
+      </Box>
+
+      {/* Call to Action */}
+      <Box>
+        <Typography variant="h6" sx={{ mb: 1 }}>
+          Call to Action (optional)
+        </Typography>
+        <Typography variant="body2" color="text.secondary" sx={{ mb: 1.5 }}>
+          Add a button at the bottom of the post to drive readers to take action.
+        </Typography>
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <TextField
+            fullWidth
+            size="small"
+            value={ctaText}
+            onChange={(e) => onCtaTextChange(e.target.value)}
+            placeholder="e.g. Join Our Next Training"
+            label="Button Text"
+            variant="outlined"
+          />
+          <TextField
+            fullWidth
+            size="small"
+            value={ctaLink}
+            onChange={(e) => onCtaLinkChange(e.target.value)}
+            placeholder="e.g. /training or https://..."
+            label="Button Link"
+            variant="outlined"
+          />
         </Box>
       </Box>
 
