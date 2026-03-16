@@ -1,8 +1,7 @@
 'use client';
 
-import { Box, Container, Typography, Link as MuiLink, IconButton } from "@mui/material";
+import { Box, Container, Typography, Link as MuiLink } from "@mui/material";
 import InstagramIcon from "@mui/icons-material/Instagram";
-import CalculateIcon from "@mui/icons-material/Calculate";
 import Link from "next/link";
 import Image from "next/image";
 
@@ -65,6 +64,10 @@ const Footer = () => {
             >
               KVK number: 96935685
             </Typography>
+            |
+            <Link href="/documents/privacy-policy" style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.875rem", textDecoration: "none" }}>
+              Privacy Policy
+            </Link>
             |
             <Typography 
               variant="body2" 
