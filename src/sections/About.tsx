@@ -122,6 +122,24 @@ const About = ({ showFullContent = false, showCTA = true }: AboutProps) => {
               Amsterdam&apos;s Premier Freediving Community
             </Typography>
 
+            {/* Non-profit Mission Statement */}
+            <Box
+              sx={{
+                bgcolor: "rgba(255,255,255,0.15)",
+                borderLeft: "4px solid white",
+                borderRadius: 1,
+                p: 2.5,
+                mb: 3
+              }}
+            >
+              <Typography variant="subtitle1" color="white" fontWeight={600} mb={1}>
+                Our Mission
+              </Typography>
+              <Typography variant="body1" color="white" sx={{ opacity: 0.95 }}>
+                Blue Mind Freediving is a registered Dutch non-profit association (vereniging, KVK: 96935685). Our mission is to promote freediving as an accessible sport, improve water safety awareness, and build an inclusive, supportive community for freedivers of all levels in Amsterdam and the Netherlands.
+              </Typography>
+            </Box>
+
             <Typography variant="body1" color="white" paragraph sx={{ opacity: 0.9 }}>
               Founded by Hakim and Dewi in 2024, Blue Mind Freediving emerged from our shared passion for freediving and the challenges we faced training in Amsterdam&apos;s busy swimming pools. After meeting in 2024 and training regularly together, we recognized the need for dedicated freediving lanes where athletes could practice safely without distractions.
             </Typography>

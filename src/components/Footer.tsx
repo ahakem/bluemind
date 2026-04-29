@@ -17,6 +17,16 @@ const Footer = () => {
       }}
     >
       <Container maxWidth="lg">
+        {/* Non-profit identity */}
+        <Box sx={{ textAlign: "center", mb: 2 }}>
+          <Typography 
+            variant="body2" 
+            color="rgba(255,255,255,0.85)"
+            sx={{ fontSize: { xs: "0.75rem", sm: "0.8rem" } }}
+          >
+            Blue Mind Freediving is a registered Dutch non-profit association (vereniging) | KVK: 96935685
+          </Typography>
+        </Box>
         <Box 
           sx={{ 
             display: "flex", 
@@ -54,19 +64,17 @@ const Footer = () => {
             sx={{ 
               display: "flex",
               alignItems: "center",
-              gap: 1
+              gap: 1,
+              flexWrap: "wrap",
+              justifyContent: "center"
             }}
           >
-            <Typography 
-              variant="body2" 
-              color="rgba(255,255,255,0.7)"
-              sx={{ fontSize: { xs: "0.75rem", sm: "0.875rem" } }}
-            >
-              KVK number: 96935685
-            </Typography>
-            |
             <Link href="/documents/privacy-policy" style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.875rem", textDecoration: "none" }}>
               Privacy Policy
+            </Link>
+            |
+            <Link href="/documents/terms-of-service" style={{ color: "rgba(255,255,255,0.7)", fontSize: "0.875rem", textDecoration: "none" }}>
+              Terms of Service
             </Link>
             |
             <Typography 

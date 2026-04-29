@@ -22,6 +22,7 @@ export const generateLocalBusinessSchema = (config: SchemaConfig = { baseUrl: 'h
         description:
           'Amsterdam\'s premier freediving club specializing in AIDA courses, breath-hold training, and freediving education at Sloterparkbad. Professional instructors offering freediving Amsterdam lessons for all levels.',
         url: config.baseUrl,
+        nonprofitStatus: 'RegisteredNonprofit',
         logo: {
           '@type': 'ImageObject',
           url: `${config.baseUrl}/images/bluemind-logo.webp`,
@@ -75,6 +76,7 @@ export const generateLocalBusinessSchema = (config: SchemaConfig = { baseUrl: 'h
         description:
           'Professional freediving training club in Amsterdam offering AIDA courses, breath-hold training, and freediving lessons at Sloterparkbad. Expert instruction in freediving Amsterdam from certified AIDA instructors and international judges.',
         url: config.baseUrl,
+        nonprofitStatus: 'RegisteredNonprofit',
         email: 'info@bluemindfreediving.nl',
         telephone: '+31686414389',
         image: `${config.baseUrl}/images/gallery/4.webp`,
@@ -124,8 +126,6 @@ export const generateLocalBusinessSchema = (config: SchemaConfig = { baseUrl: 'h
             closes: '21:00',
           },
         ],
-        priceRange: '€€',
-
         // Sports Activities & Focus Areas
         knowsAbout: [
           'Freediving Amsterdam',

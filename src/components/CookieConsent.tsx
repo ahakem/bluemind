@@ -78,7 +78,7 @@ export default function CookieConsent() {
               Click "Decline" to browse without tracking. 
               Learn more in our{' '}
               <Link 
-                href="https://app.bluemindfreediving.nl/documents/privacy-policy" 
+                href="/documents/privacy-policy" 
                 target="_blank"
                 rel="noopener noreferrer"
                 sx={{ 

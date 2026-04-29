@@ -105,7 +105,7 @@ const Hero = () => {
                 maxWidth: "600px",
               }}
             >
-              Amsterdam&apos;s #1 freediving club. Join our professional pool training sessions at Sloterparkbad with AIDA certified instructors. All levels welcome!
+              Amsterdam&apos;s non-profit freediving community. Join our pool training sessions at Sloterparkbad with AIDA &amp; Molchanovs certified experts. All levels welcome!
             </Typography>
 
             <Stack
@@ -117,7 +117,7 @@ const Hero = () => {
                 variant="contained"
                 size="large"
                 component="a"
-                href="https://app.bluemindfreediving.nl/#/register"
+                href="https://app.bluemindfreediving.nl/register"
                 target="_blank"
                 rel="noopener noreferrer"
                 sx={{
@@ -131,7 +131,7 @@ const Hero = () => {
                   "&:hover": { bgcolor: "rgba(255,255,255,0.9)" }
                 }}
               >
-                Register Now
+                Join Our Community
               </Button>
               <Button
                 variant="outlined"

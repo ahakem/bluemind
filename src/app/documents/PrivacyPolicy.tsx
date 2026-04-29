@@ -107,7 +107,7 @@ const PrivacyPolicyContent: React.FC = () => {
           </Box>
 
           <Typography paragraph sx={{ textAlign: 'left', lineHeight: 1.8 }}>
-            Blue Mind Freediving (BMF) is an informal freediving club based in the Netherlands. We collect and 
+            Blue Mind Freediving (BMF) is a registered Dutch association (vereniging) based in the Netherlands (KVK: 96935685). We collect and 
             process personal data of our members for the purposes of association operations (membership administration, 
             communication, safety, and event coordination).
           </Typography>

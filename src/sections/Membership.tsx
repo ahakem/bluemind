@@ -55,10 +55,22 @@ const Membership = () => {
             sx={{ 
               maxWidth: "700px", 
               mx: "auto",
-              mb: 4
+              mb: 2
             }}
           >
             Joining Blue Mind Freediving is easy! Register online and start your freediving journey with our Amsterdam community.
+          </Typography>
+          <Typography 
+            variant="body2" 
+            color="text.secondary" 
+            sx={{ 
+              maxWidth: "700px", 
+              mx: "auto",
+              mb: 4,
+              fontStyle: "italic"
+            }}
+          >
+            Blue Mind Freediving is a non-profit association. 100% of membership contributions go towards pool lane rental, safety equipment, insurance, and community events.
           </Typography>
         </Box>
 
