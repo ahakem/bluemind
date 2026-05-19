@@ -21,6 +21,7 @@ const navItems = [
   { name: "About Us", href: "/about" },
   { name: "Membership", href: "/membership" },
   { name: "Gallery", href: "/gallery" },
+  { name: "Dive Sites", href: "/dive-sites" },
   { name: "Blog", href: "/blog" },
   { name: "Community", href: "/community" },
   { name: "Schedule", href: "/schedule" },

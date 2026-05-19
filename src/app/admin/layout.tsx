@@ -9,6 +9,7 @@ import HandshakeIcon from '@mui/icons-material/Handshake';
 import SchoolIcon from '@mui/icons-material/School';
 import PeopleIcon from '@mui/icons-material/People';
 import ArticleIcon from '@mui/icons-material/Article';
+import WaterIcon from '@mui/icons-material/Water';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
 import Link from 'next/link';
@@ -20,6 +21,7 @@ const getMenuItems = (role?: 'admin' | 'editor' | 'author') => {
   const allItems = [
     { text: 'Dashboard', icon: <DashboardIcon />, href: '/admin', roles: ['admin', 'editor', 'author'] },
     { text: 'Blog Posts', icon: <ArticleIcon />, href: '/admin/blog', roles: ['admin', 'editor', 'author'] },
+    { text: 'Dive Sites', icon: <WaterIcon />, href: '/admin/dive-sites', roles: ['admin', 'editor'] },
     { text: 'Partners', icon: <HandshakeIcon />, href: '/admin/partners', roles: ['admin', 'editor'] },
     { text: 'Guest Instructors', icon: <SchoolIcon />, href: '/admin/instructors', roles: ['admin', 'editor'] },
     { text: 'User Management', icon: <PeopleIcon />, href: '/admin/users', roles: ['admin'] },

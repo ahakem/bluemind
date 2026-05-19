@@ -56,6 +56,62 @@ export interface BlogPost {
   reviewedAt?: Date;
 }
 
+export interface WaterTempByMonth {
+  jan?: number; feb?: number; mar?: number; apr?: number;
+  may?: number; jun?: number; jul?: number; aug?: number;
+  sep?: number; oct?: number; nov?: number; dec?: number;
+}
+
+export interface Thermocline {
+  depth: number;       // approx depth in meters where thermocline starts
+  tempDrop: number;    // degrees C drop below the thermocline
+  seasons?: string[];  // e.g. ['Summer', 'Autumn']
+  notes?: string;
+}
+
+export interface DiveSite {
+  id: string;
+  slug: string;
+  name: string;
+  location: string;
+  country: string;
+  coordinates: { lat: number; lng: number };
+  waterType: 'lake' | 'sea' | 'quarry' | 'river' | 'pool';
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  maxDepth: number;
+  description: string;
+  highlights: string[];
+  facilities: string[];
+  waterTemp: WaterTempByMonth;
+  visibility: { min: number; max: number };
+  bestSeasons: string[];
+  photos: string[];
+  thermocline?: Thermocline;
+  status: 'active' | 'pending' | 'archived';
+  createdAt: Date;
+  updatedAt: Date;
+}
+
+export interface DiveSiteDraft {
+  slug?: string;
+  name: string;
+  location: string;
+  country: string;
+  coordinates: { lat: number; lng: number };
+  waterType: 'lake' | 'sea' | 'quarry' | 'river' | 'pool';
+  difficulty: 'beginner' | 'intermediate' | 'advanced';
+  maxDepth: number;
+  description: string;
+  highlights: string[];
+  facilities: string[];
+  waterTemp: WaterTempByMonth;
+  visibility: { min: number; max: number };
+  bestSeasons: string[];
+  photos: string[];
+  thermocline?: Thermocline;
+  status: 'active' | 'pending' | 'archived';
+}
+
 export interface BlogDraft {
   title: string;
   slug?: string;
