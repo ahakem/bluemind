@@ -23,7 +23,7 @@ export async function fetchReviews(): Promise<ReviewsResponse> {
 
   const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=reviews,rating,user_ratings_total&key=${apiKey}`;
 
-  const res = await fetch(url, { cache: 'no-store' });
+  const res = await fetch(url);
 
   if (!res.ok) {
     throw new Error(`Places API HTTP error: ${res.status}`);
