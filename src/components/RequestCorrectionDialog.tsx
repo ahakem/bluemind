@@ -5,25 +5,27 @@ import dynamic from 'next/dynamic';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
   Button, TextField, Stack, Typography, Alert,
-  CircularProgress, Checkbox, FormControlLabel,
-  Divider, Box, Chip,
+  CircularProgress, Checkbox, Divider, Box, Chip,
+  useMediaQuery, useTheme, LinearProgress,
 } from '@mui/material';
 import FlagIcon from '@mui/icons-material/Flag';
 import PlaceIcon from '@mui/icons-material/Place';
+import CheckIcon from '@mui/icons-material/Check';
+import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { DiveSite } from '@/types/admin';
 import { SiteCorrectionDraft } from '@/types/admin';
 import { submitCorrection } from '@/lib/communityService';
 
 const LocationPickerStep = dynamic(() => import('@/components/LocationPickerStep'), { ssr: false });
 
-const CORRECTABLE_FIELDS: { key: keyof DiveSite | 'coordinates'; label: string }[] = [
+const CORRECTABLE_FIELDS: { key: keyof DiveSite | 'coordinates'; label: string; hint?: string }[] = [
   { key: 'name',        label: 'Site Name' },
   { key: 'location',    label: 'City / Region' },
   { key: 'country',     label: 'Country' },
-  { key: 'maxDepth',    label: 'Max Depth' },
-  { key: 'waterType',   label: 'Water Type' },
+  { key: 'maxDepth',    label: 'Max Depth',    hint: 'Enter depth in metres, e.g. 40' },
+  { key: 'waterType',   label: 'Water Type',   hint: 'sea or lake' },
   { key: 'description', label: 'Description' },
-  { key: 'coordinates', label: 'Map Location (coordinates)' },
+  { key: 'coordinates', label: 'Map Location', hint: 'Pin the correct location on the map' },
 ];
 
 function formatValue(key: string, site: DiveSite): string {
@@ -36,6 +38,10 @@ function formatValue(key: string, site: DiveSite): string {
   return String(v);
 }
 
+function truncate(s: string, n = 60) {
+  return s.length > n ? s.slice(0, n) + '…' : s;
+}
+
 export default function RequestCorrectionDialog({
   open, onClose, site,
 }: {
@@ -43,6 +49,10 @@ export default function RequestCorrectionDialog({
   onClose: () => void;
   site: DiveSite;
 }) {
+  const theme = useTheme();
+  const fullScreen = useMediaQuery(theme.breakpoints.down('sm'));
+
+  const [step, setStep] = useState<1 | 2>(1);
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const [suggested, setSuggested] = useState<Partial<Record<string, string>>>({});
   const [newCoords, setNewCoords] = useState<{ lat: number; lng: number }>(
@@ -55,28 +65,24 @@ export default function RequestCorrectionDialog({
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
 
+  const selectedFields = CORRECTABLE_FIELDS.filter((f) => checked.has(f.key));
   const coordinatesChecked = checked.has('coordinates');
 
-  const toggle = (key: string) => {
+  const toggle = (key: string) =>
     setChecked((prev) => {
       const next = new Set(prev);
-      if (next.has(key)) next.delete(key); else next.add(key);
+      next.has(key) ? next.delete(key) : next.add(key);
       return next;
     });
-  };
 
   const handleSubmit = async () => {
     setError('');
-    if (checked.size === 0) { setError('Please select at least one field to correct.'); return; }
     if (!email.trim()) { setError('Your email is required.'); return; }
 
     const fields: SiteCorrectionDraft['fields'] = {};
     checked.forEach((key) => {
       if (key === 'coordinates') {
-        fields.coordinates = {
-          current: site.coordinates,
-          suggested: newCoords,
-        };
+        fields.coordinates = { current: site.coordinates, suggested: newCoords };
       } else {
         fields[key] = {
           current: site[key as keyof DiveSite],
@@ -107,6 +113,7 @@ export default function RequestCorrectionDialog({
   };
 
   const handleClose = () => {
+    setStep(1);
     setChecked(new Set());
     setSuggested({});
     setNewCoords(site.coordinates ?? { lat: 0, lng: 0 });
@@ -122,121 +129,194 @@ export default function RequestCorrectionDialog({
     <Dialog
       open={open}
       onClose={handleClose}
-      maxWidth={coordinatesChecked ? 'md' : 'sm'}
+      maxWidth={coordinatesChecked && step === 2 ? 'md' : 'sm'}
       fullWidth
-      PaperProps={{ sx: { borderRadius: 2 } }}
+      fullScreen={fullScreen}
+      PaperProps={{ sx: { borderRadius: fullScreen ? 0 : 3, overflow: 'hidden' } }}
     >
-      <DialogTitle sx={{ pb: 1 }}>
-        <Stack direction="row" alignItems="center" spacing={1.5}>
-          <FlagIcon sx={{ color: '#e53935' }} />
-          <Box>
-            <Typography variant="h6" fontWeight={700}>Report Incorrect Data</Typography>
-            <Typography variant="body2" color="text.secondary">
-              {site.name} · {site.country}
-            </Typography>
-          </Box>
-        </Stack>
+      {/* Header */}
+      <DialogTitle sx={{ p: 0 }}>
+        <Box sx={{ px: 3, pt: 2.5, pb: 1.5 }}>
+          <Stack direction="row" alignItems="center" spacing={1.5}>
+            <Box
+              sx={{
+                width: 36, height: 36, borderRadius: '50%',
+                bgcolor: '#fdecea', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <FlagIcon sx={{ fontSize: 18, color: '#e53935' }} />
+            </Box>
+            <Box sx={{ flex: 1, minWidth: 0 }}>
+              <Typography variant="h6" fontWeight={700} sx={{ lineHeight: 1.2 }}>
+                Report Incorrect Data
+              </Typography>
+              <Typography variant="caption" color="text.secondary" noWrap>
+                {site.name} · {site.country}
+              </Typography>
+            </Box>
+            {!done && (
+              <Chip
+                label={`Step ${step} / 2`}
+                size="small"
+                sx={{ bgcolor: '#f5f5f5', fontWeight: 600, fontSize: '0.72rem' }}
+              />
+            )}
+          </Stack>
+        </Box>
+        {/* Progress bar */}
+        {!done && (
+          <LinearProgress
+            variant="determinate"
+            value={step === 1 ? 50 : 100}
+            sx={{
+              height: 3,
+              bgcolor: '#f0f0f0',
+              '& .MuiLinearProgress-bar': { bgcolor: '#e53935' },
+            }}
+          />
+        )}
       </DialogTitle>
 
-      <Divider />
-
-      <DialogContent sx={{ pt: 2 }}>
+      <DialogContent sx={{ px: 3, py: 2.5 }}>
+        {/* ── Done state ─────────────────────────────────────────────────── */}
         {done ? (
-          <Alert severity="success">
-            <Typography fontWeight={600}>Thank you! Your correction has been submitted.</Typography>
-            <Typography variant="body2" mt={0.5}>
-              Our team will review it and update the site if the information is accurate.
-            </Typography>
-          </Alert>
-        ) : (
-          <Stack spacing={2}>
-            {error && <Alert severity="error">{error}</Alert>}
-
-            <Alert severity="info" icon={false} sx={{ py: 0.5 }}>
-              <Typography variant="body2">
-                Select the fields that contain incorrect information and provide the correct values.
-                Your report helps keep this site accurate for the community.
+          <Stack alignItems="center" spacing={2} py={3}>
+            <Box
+              sx={{
+                width: 56, height: 56, borderRadius: '50%',
+                bgcolor: '#e8f5e9', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+            >
+              <CheckIcon sx={{ fontSize: 28, color: '#2e7d32' }} />
+            </Box>
+            <Box sx={{ textAlign: 'center' }}>
+              <Typography variant="h6" fontWeight={700} mb={0.5}>Correction Submitted</Typography>
+              <Typography variant="body2" color="text.secondary">
+                Thank you! Our team will review your report and update the site if the information is accurate.
               </Typography>
-            </Alert>
+            </Box>
+          </Stack>
+        ) : step === 1 ? (
+          /* ── Step 1: Select fields ─────────────────────────────────── */
+          <Stack spacing={0.5}>
+            <Typography variant="body2" color="text.secondary" mb={1.5}>
+              Which fields contain incorrect information?
+            </Typography>
 
-            {CORRECTABLE_FIELDS.map(({ key, label }) => (
-              <Box
-                key={key}
-                sx={{
-                  border: '1px solid',
-                  borderColor: checked.has(key) ? '#e53935' : 'divider',
-                  borderRadius: 1.5,
-                  p: 1.5,
-                  transition: 'border-color 0.15s',
-                }}
-              >
-                <FormControlLabel
-                  label={
-                    <Stack direction="row" alignItems="center" spacing={1}>
-                      {key === 'coordinates' && <PlaceIcon sx={{ fontSize: 16, color: 'text.secondary' }} />}
-                      <Typography variant="body2" fontWeight={600}>{label}</Typography>
-                    </Stack>
-                  }
-                  control={
-                    <Checkbox
-                      checked={checked.has(key)}
-                      onChange={() => toggle(key)}
-                      size="small"
-                      color="error"
-                    />
-                  }
-                />
-                <Box sx={{ ml: 4 }}>
-                  <Stack direction="row" alignItems="center" spacing={1} mb={checked.has(key) ? 1 : 0}>
-                    <Typography variant="caption" color="text.secondary">Current:</Typography>
-                    <Chip label={formatValue(key, site)} size="small" sx={{ fontSize: '0.72rem' }} />
-                  </Stack>
+            {CORRECTABLE_FIELDS.map(({ key, label }) => {
+              const isChecked = checked.has(key);
+              const currentVal = formatValue(key, site);
 
-                  {checked.has(key) && key !== 'coordinates' && (
-                    <TextField
-                      label={`Correct ${label}`}
-                      size="small"
-                      fullWidth
-                      value={suggested[key] ?? ''}
-                      onChange={(e) => setSuggested((p) => ({ ...p, [key]: e.target.value }))}
-                      placeholder={`Enter correct ${label.toLowerCase()}…`}
-                      multiline={key === 'description'}
-                      rows={key === 'description' ? 3 : 1}
-                    />
+              return (
+                <Box
+                  key={key}
+                  onClick={() => toggle(key)}
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: 1.5,
+                    px: 2,
+                    py: 1.5,
+                    borderRadius: 2,
+                    border: '1.5px solid',
+                    borderColor: isChecked ? '#e53935' : 'divider',
+                    bgcolor: isChecked ? '#fff5f5' : 'background.paper',
+                    cursor: 'pointer',
+                    transition: 'all 0.15s',
+                    '&:hover': {
+                      borderColor: isChecked ? '#c62828' : '#bdbdbd',
+                      bgcolor: isChecked ? '#fff5f5' : '#fafafa',
+                    },
+                  }}
+                >
+                  {/* Custom checkbox */}
+                  <Box
+                    sx={{
+                      width: 20, height: 20, borderRadius: 0.75, flexShrink: 0,
+                      border: '2px solid',
+                      borderColor: isChecked ? '#e53935' : '#bdbdbd',
+                      bgcolor: isChecked ? '#e53935' : 'transparent',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      transition: 'all 0.15s',
+                    }}
+                  >
+                    {isChecked && <CheckIcon sx={{ fontSize: 13, color: 'white' }} />}
+                  </Box>
+
+                  {key === 'coordinates' && (
+                    <PlaceIcon sx={{ fontSize: 16, color: isChecked ? '#e53935' : 'text.disabled', flexShrink: 0 }} />
                   )}
 
-                  {checked.has(key) && key === 'coordinates' && (
-                    <Box>
-                      <Typography variant="caption" color="text.secondary" display="block" mb={1}>
-                        Search for the correct location or click the map to place a pin.
-                        {newCoords.lat !== 0 && (
-                          <Box component="span" sx={{ ml: 1, color: 'success.main', fontWeight: 600 }}>
-                            📍 {newCoords.lat.toFixed(5)}, {newCoords.lng.toFixed(5)}
-                          </Box>
-                        )}
-                      </Typography>
-                      <Box sx={{ height: 360, borderRadius: 1, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}>
-                        <LocationPickerStep
-                          position={newCoords}
-                          onChange={(pos) => setNewCoords(pos)}
-                        />
-                      </Box>
-                    </Box>
-                  )}
+                  <Box sx={{ flex: 1, minWidth: 0 }}>
+                    <Typography variant="body2" fontWeight={600} sx={{ color: isChecked ? '#c62828' : 'text.primary' }}>
+                      {label}
+                    </Typography>
+                    <Typography variant="caption" color="text.secondary" noWrap display="block">
+                      {truncate(currentVal, 55)}
+                    </Typography>
+                  </Box>
                 </Box>
+              );
+            })}
+          </Stack>
+        ) : (
+          /* ── Step 2: Fill in corrections ───────────────────────────── */
+          <Stack spacing={2.5}>
+            {error && <Alert severity="error" sx={{ py: 0.5 }}>{error}</Alert>}
+
+            {selectedFields.map(({ key, label, hint }) => (
+              <Box key={key}>
+                <Typography variant="body2" fontWeight={700} mb={0.5}>
+                  {label}
+                </Typography>
+                <Typography variant="caption" color="text.secondary" display="block" mb={1}>
+                  Current: <Box component="span" sx={{ fontStyle: 'italic' }}>{truncate(formatValue(key, site), 80)}</Box>
+                </Typography>
+
+                {key === 'coordinates' ? (
+                  <Box>
+                    {newCoords.lat !== 0 && (
+                      <Typography variant="caption" sx={{ color: 'success.main', fontWeight: 600, display: 'block', mb: 0.75 }}>
+                        📍 New pin: {newCoords.lat.toFixed(5)}, {newCoords.lng.toFixed(5)}
+                      </Typography>
+                    )}
+                    <Box sx={{ height: 300, borderRadius: 1.5, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}>
+                      <LocationPickerStep position={newCoords} onChange={(pos) => setNewCoords(pos)} />
+                    </Box>
+                  </Box>
+                ) : (
+                  <TextField
+                    size="small"
+                    fullWidth
+                    value={suggested[key] ?? ''}
+                    onChange={(e) => setSuggested((p) => ({ ...p, [key]: e.target.value }))}
+                    placeholder={hint ?? `Enter correct ${label.toLowerCase()}…`}
+                    multiline={key === 'description'}
+                    rows={key === 'description' ? 3 : 1}
+                  />
+                )}
               </Box>
             ))}
 
             <Divider />
 
             <TextField
-              label="Your Email *" type="email" value={email} fullWidth size="small"
+              label="Your Email *"
+              type="email"
+              value={email}
+              fullWidth
+              size="small"
               onChange={(e) => setEmail(e.target.value)}
-              helperText="Not shown publicly. Used only if we need to follow up."
+              helperText="Not shown publicly — only used if we need to follow up."
             />
             <TextField
               label="Additional context (optional)"
-              value={note} fullWidth multiline rows={2} size="small"
+              value={note}
+              fullWidth
+              multiline
+              rows={2}
+              size="small"
               onChange={(e) => setNote(e.target.value)}
               inputProps={{ maxLength: 1000 }}
             />
@@ -253,18 +333,37 @@ export default function RequestCorrectionDialog({
       </DialogContent>
 
       <Divider />
-      <DialogActions sx={{ px: 3, py: 2 }}>
+      <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
         {done ? (
-          <Button onClick={handleClose} variant="contained">Close</Button>
+          <Button onClick={handleClose} variant="contained" fullWidth>Close</Button>
+        ) : step === 1 ? (
+          <>
+            <Button onClick={handleClose} color="inherit" sx={{ mr: 'auto' }}>Cancel</Button>
+            <Button
+              variant="contained"
+              disabled={checked.size === 0}
+              onClick={() => setStep(2)}
+              sx={{ bgcolor: '#e53935', '&:hover': { bgcolor: '#c62828' }, minWidth: 120 }}
+            >
+              Next →
+            </Button>
+          </>
         ) : (
           <>
-            <Button onClick={handleClose} color="inherit">Cancel</Button>
+            <Button
+              onClick={() => { setStep(1); setError(''); }}
+              startIcon={<ArrowBackIcon />}
+              color="inherit"
+              sx={{ mr: 'auto' }}
+            >
+              Back
+            </Button>
             <Button
               onClick={handleSubmit}
               variant="contained"
-              color="error"
               disabled={submitting}
               startIcon={submitting ? <CircularProgress size={16} /> : <FlagIcon />}
+              sx={{ bgcolor: '#e53935', '&:hover': { bgcolor: '#c62828' }, minWidth: 160 }}
             >
               {submitting ? 'Submitting…' : 'Submit Correction'}
             </Button>
