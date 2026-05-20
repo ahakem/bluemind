@@ -10,17 +10,23 @@ export default function SubmitSiteButton() {
   return (
     <>
       <Button
-        variant="outlined"
+        variant="contained"
         startIcon={<AddLocationAltIcon />}
         onClick={() => setOpen(true)}
+        size="large"
         sx={{
-          borderColor: 'rgba(255,255,255,0.5)',
+          bgcolor: '#2e7d32',
           color: 'white',
-          fontWeight: 600,
-          '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.08)' },
+          fontWeight: 700,
+          fontSize: '0.95rem',
+          px: 3,
+          py: 1.2,
+          borderRadius: 2,
+          boxShadow: '0 4px 14px rgba(46,125,50,0.45)',
+          '&:hover': { bgcolor: '#1b5e20', boxShadow: '0 6px 18px rgba(46,125,50,0.55)' },
         }}
       >
-        Submit a Site
+        Submit a Dive Site
       </Button>
       <SubmitSiteDialog open={open} onClose={() => setOpen(false)} />
     </>
