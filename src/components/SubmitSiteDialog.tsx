@@ -160,26 +160,35 @@ export default function SubmitSiteDialog({ open, onClose }: { open: boolean; onC
                     </Select>
                   </FormControl>
                 </Stack>
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                  <TextField
-                    label="Max Depth (m) *" type="number" value={draft.maxDepth} fullWidth
-                    onChange={(e) => set('maxDepth', Number(e.target.value))}
-                    inputProps={{ min: 0, max: 400 }}
-                  />
-                  <Box sx={{ flex: 1 }}>
-                    <Typography variant="caption" color="text.secondary">
-                      Visibility range: {draft.visibility.min}–{draft.visibility.max} m
+                <TextField
+                  label="Max Depth (m) *" type="number" value={draft.maxDepth}
+                  onChange={(e) => set('maxDepth', Number(e.target.value))}
+                  inputProps={{ min: 0, max: 400 }}
+                  sx={{ maxWidth: 200 }}
+                  helperText="Typical max depth in metres"
+                />
+                <Box>
+                  <Stack direction="row" justifyContent="space-between" alignItems="center" mb={0.5}>
+                    <Typography variant="body2" fontWeight={600}>Visibility</Typography>
+                    <Typography variant="body2" color="text.secondary">
+                      {draft.visibility.min}–{draft.visibility.max} m
                     </Typography>
-                    <Slider
-                      value={[draft.visibility.min, draft.visibility.max]}
-                      min={0} max={60} step={1}
-                      onChange={(_, v) => {
-                        const [min, max] = v as number[];
-                        set('visibility', { min, max });
-                      }}
-                    />
-                  </Box>
-                </Stack>
+                  </Stack>
+                  <Slider
+                    value={[draft.visibility.min, draft.visibility.max]}
+                    min={0} max={60} step={1}
+                    valueLabelDisplay="auto"
+                    valueLabelFormat={(v) => `${v}m`}
+                    onChange={(_, v) => {
+                      const [min, max] = v as number[];
+                      set('visibility', { min, max });
+                    }}
+                  />
+                  <Stack direction="row" justifyContent="space-between">
+                    <Typography variant="caption" color="text.secondary">0 m (murky)</Typography>
+                    <Typography variant="caption" color="text.secondary">60 m (crystal clear)</Typography>
+                  </Stack>
+                </Box>
                 <TextField
                   label="Description" value={draft.description} fullWidth multiline rows={3}
                   onChange={(e) => set('description', e.target.value)}
@@ -191,7 +200,7 @@ export default function SubmitSiteDialog({ open, onClose }: { open: boolean; onC
 
             {/* ── Step 1: Location ── */}
             {step === 1 && (
-              <Box sx={{ height: 420 }}>
+              <Box sx={{ height: 480 }}>
                 <LocationPickerStep position={draft.coordinates} onChange={handleCoords} />
               </Box>
             )}
