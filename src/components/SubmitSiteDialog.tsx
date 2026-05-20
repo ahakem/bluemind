@@ -7,7 +7,7 @@ import {
   Button, Stepper, Step, StepLabel, TextField, MenuItem,
   FormControl, InputLabel, Select, Stack, Typography,
   Checkbox, FormControlLabel, FormGroup, Alert, CircularProgress,
-  Slider, Box, Divider,
+  Slider, Box, Divider, Chip,
 } from '@mui/material';
 import AddLocationAltIcon from '@mui/icons-material/AddLocationAlt';
 import { SiteSubmissionDraft } from '@/types/admin';
@@ -20,10 +20,22 @@ const LocationPickerStep = dynamic(() => import('@/components/LocationPickerStep
 const STEPS = ['Basic Info', 'Location on Map', 'Details & Submit'];
 const SEASONS = ['Spring', 'Summer', 'Autumn', 'Winter'];
 
+export const DIVE_TAGS = [
+  // Activity
+  'Freediving', 'Scuba', 'Snorkeling', 'Night Diving', 'Drift Diving', 'Cave Diving', 'Technical Diving',
+  // Site type
+  'Reef', 'Wreck', 'Wall', 'Cave', 'Pinnacle', 'Drop-off', 'Blue Hole', 'Arch', 'Kelp Forest',
+  // Marine life
+  'Sharks', 'Mantas', 'Turtles', 'Dolphins', 'Macro Life',
+  // Conditions / access
+  'Shore Entry', 'Boat Needed', 'Beginner Friendly', 'Strong Currents', 'Training',
+];
+
 const EMPTY: SiteSubmissionDraft = {
   name: '', location: '', country: '',
   coordinates: { lat: 0, lng: 0 },
-  waterType: 'sea', difficulty: 'intermediate',
+  waterType: 'sea',
+  tags: [],
   maxDepth: 20, description: '',
   highlights: [], facilities: [],
   visibility: { min: 5, max: 20 },
@@ -49,6 +61,13 @@ export default function SubmitSiteDialog({ open, onClose }: { open: boolean; onC
   const handleCoords = useCallback((pos: { lat: number; lng: number }) => {
     setDraft((d) => ({ ...d, coordinates: pos }));
   }, []);
+
+  const toggleTag = (tag: string) => {
+    setDraft((d) => ({
+      ...d,
+      tags: d.tags.includes(tag) ? d.tags.filter((t) => t !== tag) : [...d.tags, tag],
+    }));
+  };
 
   const handleNext = () => {
     setError('');
@@ -140,26 +159,15 @@ export default function SubmitSiteDialog({ open, onClose }: { open: boolean; onC
                   value={draft.country ? { code: '', label: draft.country, phone: '' } as CountryType : null}
                   onChange={handleCountry}
                 />
-                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
-                  <FormControl fullWidth>
-                    <InputLabel>Water Type *</InputLabel>
-                    <Select value={draft.waterType} label="Water Type *"
-                      onChange={(e) => set('waterType', e.target.value)}>
-                      {['lake', 'sea', 'quarry', 'river', 'pool'].map((t) => (
-                        <MenuItem key={t} value={t} sx={{ textTransform: 'capitalize' }}>{t}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                  <FormControl fullWidth>
-                    <InputLabel>Difficulty *</InputLabel>
-                    <Select value={draft.difficulty} label="Difficulty *"
-                      onChange={(e) => set('difficulty', e.target.value)}>
-                      {['beginner', 'intermediate', 'advanced'].map((d) => (
-                        <MenuItem key={d} value={d} sx={{ textTransform: 'capitalize' }}>{d}</MenuItem>
-                      ))}
-                    </Select>
-                  </FormControl>
-                </Stack>
+                <FormControl fullWidth>
+                  <InputLabel>Water Type *</InputLabel>
+                  <Select value={draft.waterType} label="Water Type *"
+                    onChange={(e) => set('waterType', e.target.value)}>
+                    {['lake', 'sea', 'quarry', 'river', 'pool'].map((t) => (
+                      <MenuItem key={t} value={t} sx={{ textTransform: 'capitalize' }}>{t}</MenuItem>
+                    ))}
+                  </Select>
+                </FormControl>
                 <TextField
                   label="Max Depth (m) *" type="number" value={draft.maxDepth}
                   onChange={(e) => set('maxDepth', Number(e.target.value))}
@@ -208,6 +216,29 @@ export default function SubmitSiteDialog({ open, onClose }: { open: boolean; onC
             {/* ── Step 2: Details & Submit ── */}
             {step === 2 && (
               <Stack spacing={2.5}>
+                {/* Tags */}
+                <Box>
+                  <Typography variant="body2" fontWeight={600} mb={1}>Site Tags</Typography>
+                  <Typography variant="caption" color="text.secondary" display="block" mb={1.5}>
+                    Select all that apply
+                  </Typography>
+                  <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
+                    {DIVE_TAGS.map((tag) => (
+                      <Chip
+                        key={tag}
+                        label={tag}
+                        size="small"
+                        onClick={() => toggleTag(tag)}
+                        variant={draft.tags.includes(tag) ? 'filled' : 'outlined'}
+                        color={draft.tags.includes(tag) ? 'primary' : 'default'}
+                        sx={{ cursor: 'pointer' }}
+                      />
+                    ))}
+                  </Box>
+                </Box>
+
+                <Divider />
+
                 <TextField
                   label="Highlights (one per line)"
                   value={highlightsText} fullWidth multiline rows={3}

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import dynamic from 'next/dynamic';
 import {
   Dialog, DialogTitle, DialogContent, DialogActions,
   Button, TextField, Stack, Typography, Alert,
@@ -8,22 +9,29 @@ import {
   Divider, Box, Chip,
 } from '@mui/material';
 import FlagIcon from '@mui/icons-material/Flag';
+import PlaceIcon from '@mui/icons-material/Place';
 import { DiveSite } from '@/types/admin';
 import { SiteCorrectionDraft } from '@/types/admin';
 import { submitCorrection } from '@/lib/communityService';
 
-const CORRECTABLE_FIELDS: { key: keyof DiveSite; label: string }[] = [
-  { key: 'name', label: 'Site Name' },
-  { key: 'location', label: 'City / Region' },
-  { key: 'country', label: 'Country' },
-  { key: 'maxDepth', label: 'Max Depth' },
-  { key: 'waterType', label: 'Water Type' },
-  { key: 'difficulty', label: 'Difficulty' },
+const LocationPickerStep = dynamic(() => import('@/components/LocationPickerStep'), { ssr: false });
+
+const CORRECTABLE_FIELDS: { key: keyof DiveSite | 'coordinates'; label: string }[] = [
+  { key: 'name',        label: 'Site Name' },
+  { key: 'location',    label: 'City / Region' },
+  { key: 'country',     label: 'Country' },
+  { key: 'maxDepth',    label: 'Max Depth' },
+  { key: 'waterType',   label: 'Water Type' },
   { key: 'description', label: 'Description' },
+  { key: 'coordinates', label: 'Map Location (coordinates)' },
 ];
 
-function formatValue(key: keyof DiveSite, site: DiveSite): string {
-  const v = site[key];
+function formatValue(key: string, site: DiveSite): string {
+  if (key === 'coordinates') {
+    const c = site.coordinates;
+    return c ? `${c.lat.toFixed(5)}, ${c.lng.toFixed(5)}` : '—';
+  }
+  const v = site[key as keyof DiveSite];
   if (v === null || v === undefined) return '—';
   return String(v);
 }
@@ -35,8 +43,11 @@ export default function RequestCorrectionDialog({
   onClose: () => void;
   site: DiveSite;
 }) {
-  const [checked, setChecked] = useState<Set<keyof DiveSite>>(new Set());
-  const [suggested, setSuggested] = useState<Partial<Record<keyof DiveSite, string>>>({});
+  const [checked, setChecked] = useState<Set<string>>(new Set());
+  const [suggested, setSuggested] = useState<Partial<Record<string, string>>>({});
+  const [newCoords, setNewCoords] = useState<{ lat: number; lng: number }>(
+    site.coordinates ?? { lat: 0, lng: 0 }
+  );
   const [email, setEmail] = useState('');
   const [note, setNote] = useState('');
   const [hp, setHp] = useState('');
@@ -44,7 +55,9 @@ export default function RequestCorrectionDialog({
   const [error, setError] = useState('');
   const [done, setDone] = useState(false);
 
-  const toggle = (key: keyof DiveSite) => {
+  const coordinatesChecked = checked.has('coordinates');
+
+  const toggle = (key: string) => {
     setChecked((prev) => {
       const next = new Set(prev);
       if (next.has(key)) next.delete(key); else next.add(key);
@@ -59,10 +72,17 @@ export default function RequestCorrectionDialog({
 
     const fields: SiteCorrectionDraft['fields'] = {};
     checked.forEach((key) => {
-      fields[key as string] = {
-        current: site[key],
-        suggested: suggested[key] ?? formatValue(key, site),
-      };
+      if (key === 'coordinates') {
+        fields.coordinates = {
+          current: site.coordinates,
+          suggested: newCoords,
+        };
+      } else {
+        fields[key] = {
+          current: site[key as keyof DiveSite],
+          suggested: suggested[key] ?? formatValue(key, site),
+        };
+      }
     });
 
     const draft: SiteCorrectionDraft = {
@@ -89,6 +109,7 @@ export default function RequestCorrectionDialog({
   const handleClose = () => {
     setChecked(new Set());
     setSuggested({});
+    setNewCoords(site.coordinates ?? { lat: 0, lng: 0 });
     setEmail('');
     setNote('');
     setHp('');
@@ -98,16 +119,23 @@ export default function RequestCorrectionDialog({
   };
 
   return (
-    <Dialog open={open} onClose={handleClose} maxWidth="sm" fullWidth
-      PaperProps={{ sx: { borderRadius: 2 } }}>
+    <Dialog
+      open={open}
+      onClose={handleClose}
+      maxWidth={coordinatesChecked ? 'md' : 'sm'}
+      fullWidth
+      PaperProps={{ sx: { borderRadius: 2 } }}
+    >
       <DialogTitle sx={{ pb: 1 }}>
         <Stack direction="row" alignItems="center" spacing={1.5}>
           <FlagIcon sx={{ color: '#e53935' }} />
-          <Typography variant="h6" fontWeight={700}>Report Incorrect Data</Typography>
+          <Box>
+            <Typography variant="h6" fontWeight={700}>Report Incorrect Data</Typography>
+            <Typography variant="body2" color="text.secondary">
+              {site.name} · {site.country}
+            </Typography>
+          </Box>
         </Stack>
-        <Typography variant="body2" color="text.secondary" mt={0.5}>
-          {site.name} · {site.country}
-        </Typography>
       </DialogTitle>
 
       <Divider />
@@ -124,19 +152,37 @@ export default function RequestCorrectionDialog({
           <Stack spacing={2}>
             {error && <Alert severity="error">{error}</Alert>}
 
-            <Typography variant="body2" color="text.secondary">
-              Select the fields that contain incorrect information and provide the correct values.
-            </Typography>
+            <Alert severity="info" icon={false} sx={{ py: 0.5 }}>
+              <Typography variant="body2">
+                Select the fields that contain incorrect information and provide the correct values.
+                Your report helps keep this site accurate for the community.
+              </Typography>
+            </Alert>
 
             {CORRECTABLE_FIELDS.map(({ key, label }) => (
-              <Box key={key} sx={{ border: '1px solid', borderColor: checked.has(key) ? '#0077be' : 'divider', borderRadius: 1.5, p: 1.5, transition: 'border-color 0.15s' }}>
+              <Box
+                key={key}
+                sx={{
+                  border: '1px solid',
+                  borderColor: checked.has(key) ? '#e53935' : 'divider',
+                  borderRadius: 1.5,
+                  p: 1.5,
+                  transition: 'border-color 0.15s',
+                }}
+              >
                 <FormControlLabel
-                  label={<Typography variant="body2" fontWeight={600}>{label}</Typography>}
+                  label={
+                    <Stack direction="row" alignItems="center" spacing={1}>
+                      {key === 'coordinates' && <PlaceIcon sx={{ fontSize: 16, color: 'text.secondary' }} />}
+                      <Typography variant="body2" fontWeight={600}>{label}</Typography>
+                    </Stack>
+                  }
                   control={
                     <Checkbox
                       checked={checked.has(key)}
                       onChange={() => toggle(key)}
                       size="small"
+                      color="error"
                     />
                   }
                 />
@@ -145,7 +191,8 @@ export default function RequestCorrectionDialog({
                     <Typography variant="caption" color="text.secondary">Current:</Typography>
                     <Chip label={formatValue(key, site)} size="small" sx={{ fontSize: '0.72rem' }} />
                   </Stack>
-                  {checked.has(key) && (
+
+                  {checked.has(key) && key !== 'coordinates' && (
                     <TextField
                       label={`Correct ${label}`}
                       size="small"
@@ -156,6 +203,25 @@ export default function RequestCorrectionDialog({
                       multiline={key === 'description'}
                       rows={key === 'description' ? 3 : 1}
                     />
+                  )}
+
+                  {checked.has(key) && key === 'coordinates' && (
+                    <Box>
+                      <Typography variant="caption" color="text.secondary" display="block" mb={1}>
+                        Search for the correct location or click the map to place a pin.
+                        {newCoords.lat !== 0 && (
+                          <Box component="span" sx={{ ml: 1, color: 'success.main', fontWeight: 600 }}>
+                            📍 {newCoords.lat.toFixed(5)}, {newCoords.lng.toFixed(5)}
+                          </Box>
+                        )}
+                      </Typography>
+                      <Box sx={{ height: 360, borderRadius: 1, overflow: 'hidden', border: '1px solid', borderColor: 'divider' }}>
+                        <LocationPickerStep
+                          position={newCoords}
+                          onChange={(pos) => setNewCoords(pos)}
+                        />
+                      </Box>
+                    </Box>
                   )}
                 </Box>
               </Box>

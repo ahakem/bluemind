@@ -77,11 +77,11 @@ export interface DiveSite {
   country: string;
   coordinates: { lat: number; lng: number };
   waterType: 'lake' | 'sea' | 'quarry' | 'river' | 'pool';
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
   maxDepth: number;
   description: string;
   highlights: string[];
   facilities: string[];
+  tags: string[];
   waterTemp: WaterTempByMonth;
   visibility: { min: number; max: number };
   bestSeasons: string[];
@@ -109,11 +109,11 @@ export interface DiveSiteDraft {
   country: string;
   coordinates: { lat: number; lng: number };
   waterType: 'lake' | 'sea' | 'quarry' | 'river' | 'pool';
-  difficulty: 'beginner' | 'intermediate' | 'advanced';
   maxDepth: number;
   description: string;
   highlights: string[];
   facilities: string[];
+  tags: string[];
   waterTemp: WaterTempByMonth;
   visibility: { min: number; max: number };
   bestSeasons: string[];
@@ -129,7 +129,7 @@ export interface SiteSubmission {
   country: string;
   coordinates: { lat: number; lng: number };
   waterType: DiveSite['waterType'];
-  difficulty: DiveSite['difficulty'];
+  tags: string[];
   maxDepth: number;
   description: string;
   highlights: string[];

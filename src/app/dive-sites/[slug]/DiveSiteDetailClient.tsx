@@ -22,10 +22,12 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import DirectionsIcon from '@mui/icons-material/Directions';
 import ThermostatIcon from '@mui/icons-material/Thermostat';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
+import FlagIcon from '@mui/icons-material/Flag';
+import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import Link from 'next/link';
 import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { DiveSite, Thermocline } from '@/types/admin';
-import RequestCorrectionButton from '@/components/RequestCorrectionButton';
+import RequestCorrectionDialog from '@/components/RequestCorrectionDialog';
 
 const WATER_TYPE_LABELS: Record<DiveSite['waterType'], string> = {
   lake: 'Lake',
@@ -496,12 +498,58 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
   const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
   const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
   const embedUrl = `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${lat},${lng}&zoom=14&maptype=satellite`;
-  const streetViewUrl = `https://www.google.com/maps/embed/v1/streetview?key=${apiKey}&location=${lat},${lng}&fov=80&pitch=0`;
   const currentMonthKey = MONTH_KEYS[new Date().getMonth()];
   const currentTemp = site.waterTemp[currentMonthKey];
 
+  // Correction dialog + sticky bar
+  const [correctionOpen, setCorrectionOpen] = useState(false);
+  const [showStickyBar, setShowStickyBar] = useState(false);
+  const correctionAnchorRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const el = correctionAnchorRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowStickyBar(!entry.isIntersecting),
+      { threshold: 0, rootMargin: '-80px 0px 0px 0px' }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+
+      {/* Sticky correction bar — appears after scrolling past the CTA */}
+      {showStickyBar && (
+        <Box sx={{
+          position: 'fixed', top: 64, left: 0, right: 0, zIndex: 1100,
+          bgcolor: '#fff3e0', borderBottom: '1px solid #ffcc80',
+          px: { xs: 2, md: 4 }, py: 1,
+          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2,
+          boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
+        }}>
+          <Stack direction="row" alignItems="center" spacing={1}>
+            <FlagIcon sx={{ fontSize: 18, color: 'warning.dark' }} />
+            <Typography variant="body2" fontWeight={600} color="warning.dark" sx={{ display: { xs: 'none', sm: 'block' } }}>
+              Found incorrect data for {site.name}?
+            </Typography>
+            <Typography variant="body2" fontWeight={600} color="warning.dark" sx={{ display: { xs: 'block', sm: 'none' } }}>
+              Incorrect data?
+            </Typography>
+          </Stack>
+          <Button
+            variant="contained"
+            size="small"
+            startIcon={<FlagIcon />}
+            onClick={() => setCorrectionOpen(true)}
+            sx={{ bgcolor: 'warning.dark', '&:hover': { bgcolor: 'warning.main' }, whiteSpace: 'nowrap' }}
+          >
+            Report It
+          </Button>
+        </Box>
+      )}
+
       {/* Hero */}
       <Box sx={{ background: 'linear-gradient(135deg, #001f3f 0%, #0077be 100%)', color: 'white', py: { xs: 6, md: 8 }, px: 2 }}>
         <Container maxWidth="lg">
@@ -530,12 +578,30 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
           <Typography variant="h2" fontWeight={800} gutterBottom sx={{ fontSize: { xs: '1.8rem', md: '2.8rem' } }}>
             {site.name}
           </Typography>
-          <Stack direction="row" alignItems="center" spacing={0.5}>
+          <Stack direction="row" alignItems="center" spacing={0.5} mb={site.tags?.length ? 2 : 0}>
             <PlaceIcon sx={{ fontSize: 18, color: 'rgba(255,255,255,0.7)' }} />
             <Typography sx={{ color: 'rgba(255,255,255,0.7)' }}>
               {site.location}, {site.country}
             </Typography>
           </Stack>
+          {site.tags?.length > 0 && (
+            <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
+              {site.tags.map((tag) => (
+                <Chip
+                  key={tag}
+                  label={tag}
+                  size="small"
+                  sx={{
+                    bgcolor: 'rgba(255,255,255,0.12)',
+                    color: 'rgba(255,255,255,0.9)',
+                    border: '1px solid rgba(255,255,255,0.2)',
+                    fontWeight: 500,
+                    fontSize: '0.72rem',
+                  }}
+                />
+              ))}
+            </Stack>
+          )}
         </Container>
       </Box>
 
@@ -745,12 +811,46 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                 >
                   Become a Member
                 </Button>
-                <RequestCorrectionButton site={site} />
+              </Stack>
+            </Paper>
+
+            {/* Report incorrect data — prominent card with sticky anchor */}
+            <div ref={correctionAnchorRef} />
+            <Paper
+              variant="outlined"
+              sx={{ p: 2.5, borderRadius: 2, borderColor: '#ffcc80', bgcolor: '#fff8f0' }}
+            >
+              <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                <FlagIcon sx={{ color: 'warning.dark', mt: 0.25, flexShrink: 0 }} />
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="subtitle2" fontWeight={700} color="warning.dark" mb={0.5}>
+                    Is something wrong on this page?
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" mb={1.5} sx={{ lineHeight: 1.6 }}>
+                    Help the community by reporting incorrect depth, location, water type, or other data. Your reports are reviewed by our team.
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    startIcon={<FlagIcon />}
+                    onClick={() => setCorrectionOpen(true)}
+                    size="small"
+                    fullWidth
+                    sx={{ bgcolor: 'warning.dark', '&:hover': { bgcolor: 'warning.main' } }}
+                  >
+                    Report Incorrect Data
+                  </Button>
+                </Box>
               </Stack>
             </Paper>
           </Grid>
         </Grid>
       </Container>
+
+      <RequestCorrectionDialog
+        open={correctionOpen}
+        onClose={() => setCorrectionOpen(false)}
+        site={site}
+      />
     </Box>
   );
 }

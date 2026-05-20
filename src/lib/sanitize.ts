@@ -46,7 +46,6 @@ export function buildFingerprint(): string {
 }
 
 const WATER_TYPES = ['lake', 'sea', 'quarry', 'river', 'pool'] as const;
-const DIFFICULTIES = ['beginner', 'intermediate', 'advanced'] as const;
 const SEASONS = ['Spring', 'Summer', 'Autumn', 'Winter'];
 
 export function validateSubmission(raw: Partial<Record<string, unknown>>): ValidationError[] {
@@ -66,10 +65,6 @@ export function validateSubmission(raw: Partial<Record<string, unknown>>): Valid
 
   if (!WATER_TYPES.includes(raw.waterType as typeof WATER_TYPES[number])) {
     errors.push({ field: 'waterType', message: 'Invalid water type' });
-  }
-
-  if (!DIFFICULTIES.includes(raw.difficulty as typeof DIFFICULTIES[number])) {
-    errors.push({ field: 'difficulty', message: 'Invalid difficulty' });
   }
 
   const depth = typeof raw.maxDepth === 'number' ? raw.maxDepth : Number(raw.maxDepth);

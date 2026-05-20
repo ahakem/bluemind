@@ -9,7 +9,7 @@ export const SEED_DIVE_SITES: DiveSite[] = [
     country: 'Netherlands',
     coordinates: { lat: 51.7333, lng: 3.8667 },
     waterType: 'lake',
-    difficulty: 'intermediate',
+    tags: ['Freediving', 'Reef'],
     maxDepth: 48,
     description:
       'The Grevelingenmeer is one of the best freediving destinations in the Netherlands. This former sea arm in Zeeland offers excellent visibility and a fascinating underwater world with sea anemones, crabs, and diverse fish species. The brackish water and unique underwater landscape make it a favourite for both beginners advancing their skills and experienced freedivers.',
@@ -42,7 +42,7 @@ export const SEED_DIVE_SITES: DiveSite[] = [
     country: 'Netherlands',
     coordinates: { lat: 51.6167, lng: 3.9333 },
     waterType: 'sea',
-    difficulty: 'advanced',
+    tags: ['Freediving', 'Strong Currents', 'Shore Entry'],
     maxDepth: 40,
     description:
       'The Oosterschelde National Park is the largest national park in the Netherlands and offers spectacular sea diving with strong tidal currents, seals, and rich marine biodiversity. This is a serious site requiring solid buoyancy skills and awareness of currents. Plan dives around slack water for safest conditions.',
@@ -75,7 +75,7 @@ export const SEED_DIVE_SITES: DiveSite[] = [
     country: 'Netherlands',
     coordinates: { lat: 52.3674, lng: 4.8244 },
     waterType: 'lake',
-    difficulty: 'beginner',
+    tags: ['Freediving', 'Training', 'Beginner Friendly'],
     maxDepth: 12,
     description:
       'Sloterplas is an urban lake in western Amsterdam, used by Blue Mind Freediving for open water training sessions. With a maximum depth of around 12m and calm conditions, it is ideal for first open water dives, practising static apnea, and building confidence in open water. Shallow swim zone is busy in summer — dive to the designated areas.',
@@ -102,7 +102,7 @@ export const SEED_DIVE_SITES: DiveSite[] = [
     country: 'Netherlands',
     coordinates: { lat: 52.0764, lng: 4.2453 },
     waterType: 'lake',
-    difficulty: 'beginner',
+    tags: ['Freediving', 'Training', 'Beginner Friendly'],
     maxDepth: 18,
     description:
       'De Diepput is a popular recreational lake near The Hague, used regularly by local freediving and scuba diving clubs. At up to 18m deep, it offers enough depth for meaningful training dives while staying approachable for beginners. The sandy bottom and freshwater conditions make it a reliable year-round training spot.',
@@ -135,7 +135,7 @@ export const SEED_DIVE_SITES: DiveSite[] = [
     country: 'Netherlands',
     coordinates: { lat: 51.4981, lng: 4.2878 },
     waterType: 'lake',
-    difficulty: 'intermediate',
+    tags: ['Freediving', 'Reef'],
     maxDepth: 25,
     description:
       'The Binnenschelde near Bergen op Zoom is a former tidal inlet now separated from the Oosterschelde. With depths reaching 25m and moderate visibility, it offers a more challenging training environment than typical Dutch lakes. The site is less crowded than Grevelingenmeer and has interesting underwater topography from its tidal history.',

@@ -69,22 +69,16 @@ const EMPTY_DRAFT: DiveSiteDraft = {
   country: 'Netherlands',
   coordinates: { lat: 52.37, lng: 4.9 },
   waterType: 'lake',
-  difficulty: 'beginner',
   maxDepth: 20,
   description: '',
   highlights: [],
   facilities: [],
+  tags: [],
   waterTemp: {},
   visibility: { min: 2, max: 6 },
   bestSeasons: [],
   photos: [],
   status: 'active',
-};
-
-const DIFFICULTY_COLORS: Record<DiveSite['difficulty'], 'success' | 'warning' | 'error'> = {
-  beginner: 'success',
-  intermediate: 'warning',
-  advanced: 'error',
 };
 
 export default function AdminDiveSitesPage() {
@@ -101,7 +95,6 @@ export default function AdminDiveSitesPage() {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [countryFilterAdmin, setCountryFilterAdmin] = useState<CountryType | null>(null);
-  const [difficultyFilterAdmin, setDifficultyFilterAdmin] = useState<string>('all');
   const [waterTypeFilterAdmin, setWaterTypeFilterAdmin] = useState<string>('all');
   const [relevanceFilter, setRelevanceFilter] = useState<string>('all');
 
@@ -109,7 +102,6 @@ export default function AdminDiveSitesPage() {
     if (search && !s.name.toLowerCase().includes(search.toLowerCase()) && !s.location.toLowerCase().includes(search.toLowerCase())) return false;
     if (statusFilter !== 'all' && s.status !== statusFilter) return false;
     if (countryFilterAdmin && s.country !== countryFilterAdmin.label) return false;
-    if (difficultyFilterAdmin !== 'all' && s.difficulty !== difficultyFilterAdmin) return false;
     if (waterTypeFilterAdmin !== 'all' && s.waterType !== waterTypeFilterAdmin) return false;
     if (relevanceFilter === 'needs-review' && !s.needsReview) return false;
     if (relevanceFilter === 'scuba-only' && !s.scubaOnly) return false;
@@ -121,13 +113,12 @@ export default function AdminDiveSitesPage() {
 
   const presentCountries = [...new Set(sites.map((s) => s.country).filter(Boolean))].sort();
 
-  const hasFilters = search || statusFilter !== 'all' || countryFilterAdmin || difficultyFilterAdmin !== 'all' || waterTypeFilterAdmin !== 'all' || relevanceFilter !== 'all';
+  const hasFilters = search || statusFilter !== 'all' || countryFilterAdmin || waterTypeFilterAdmin !== 'all' || relevanceFilter !== 'all';
 
   const clearFilters = () => {
     setSearch('');
     setStatusFilter('all');
     setCountryFilterAdmin(null);
-    setDifficultyFilterAdmin('all');
     setWaterTypeFilterAdmin('all');
     setRelevanceFilter('all');
     setPage(0);
@@ -138,7 +129,7 @@ export default function AdminDiveSitesPage() {
   const [rowsPerPage, setRowsPerPage] = useState(50);
 
   // Reset to page 0 whenever filters change
-  useEffect(() => { setPage(0); }, [search, statusFilter, countryFilterAdmin, difficultyFilterAdmin, waterTypeFilterAdmin, relevanceFilter]);
+  useEffect(() => { setPage(0); }, [search, statusFilter, countryFilterAdmin, waterTypeFilterAdmin, relevanceFilter]);
 
   const paginated = filtered.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
@@ -247,11 +238,11 @@ export default function AdminDiveSitesPage() {
       country: site.country,
       coordinates: site.coordinates ?? { lat: 0, lng: 0 },
       waterType: site.waterType,
-      difficulty: site.difficulty,
       maxDepth: site.maxDepth,
       description: site.description,
       highlights: site.highlights,
       facilities: site.facilities,
+      tags: site.tags ?? [],
       waterTemp: site.waterTemp,
       visibility: site.visibility,
       bestSeasons: site.bestSeasons,
@@ -335,15 +326,6 @@ export default function AdminDiveSitesPage() {
               <MenuItem value="active">Active</MenuItem>
               <MenuItem value="pending">Pending</MenuItem>
               <MenuItem value="archived">Archived</MenuItem>
-            </Select>
-          </FormControl>
-          <FormControl size="small" sx={{ minWidth: 130 }}>
-            <InputLabel>Difficulty</InputLabel>
-            <Select label="Difficulty" value={difficultyFilterAdmin} onChange={(e) => setDifficultyFilterAdmin(e.target.value)}>
-              <MenuItem value="all">All levels</MenuItem>
-              <MenuItem value="beginner">Beginner</MenuItem>
-              <MenuItem value="intermediate">Intermediate</MenuItem>
-              <MenuItem value="advanced">Advanced</MenuItem>
             </Select>
           </FormControl>
           <FormControl size="small" sx={{ minWidth: 130 }}>
@@ -521,9 +503,6 @@ export default function AdminDiveSitesPage() {
                     <TableCell>{site.country || <Typography variant="caption" color="error">Missing</Typography>}</TableCell>
                     <TableCell sx={{ textTransform: 'capitalize' }}>{site.waterType}</TableCell>
                     <TableCell>
-                      <Chip label={site.difficulty} color={DIFFICULTY_COLORS[site.difficulty]} size="small" sx={{ textTransform: 'capitalize' }} />
-                    </TableCell>
-                    <TableCell>
                       {site.coordinatesOnShore
                         ? <Tooltip title="Coordinates land on shore — use map picker to fix"><Typography variant="caption" color="error">On shore ⚠</Typography></Tooltip>
                         : site.depthUnknown
@@ -632,18 +611,6 @@ export default function AdminDiveSitesPage() {
                 >
                   {(['lake', 'sea', 'quarry', 'river', 'pool'] as const).map((t) => (
                     <MenuItem key={t} value={t} sx={{ textTransform: 'capitalize' }}>{t}</MenuItem>
-                  ))}
-                </Select>
-              </FormControl>
-              <FormControl fullWidth>
-                <InputLabel>Difficulty</InputLabel>
-                <Select
-                  label="Difficulty"
-                  value={draft.difficulty}
-                  onChange={(e) => setDraft((d) => ({ ...d, difficulty: e.target.value as DiveSite['difficulty'] }))}
-                >
-                  {(['beginner', 'intermediate', 'advanced'] as const).map((d) => (
-                    <MenuItem key={d} value={d} sx={{ textTransform: 'capitalize' }}>{d}</MenuItem>
                   ))}
                 </Select>
               </FormControl>

@@ -136,7 +136,6 @@ function SubmissionRow({
                   <Typography variant="subtitle2" fontWeight={700} mb={1}>Details</Typography>
                   <Stack spacing={0.5}>
                     {[
-                      ['Difficulty', sub.difficulty],
                       ['Visibility', `${sub.visibility.min}–${sub.visibility.max} m`],
                       ['Best Seasons', sub.bestSeasons.join(', ') || '—'],
                     ].map(([k, v]) => (
