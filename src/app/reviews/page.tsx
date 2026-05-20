@@ -3,6 +3,8 @@ import Script from 'next/script';
 import { fetchReviews, type Review } from '@/lib/googleReviews';
 import ReviewsSection from '@/sections/Reviews';
 
+export const dynamic = 'force-dynamic';
+
 const BASE_URL = 'https://bluemindfreediving.nl';
 
 export const metadata: Metadata = {
