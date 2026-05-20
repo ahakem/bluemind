@@ -82,8 +82,9 @@ function WaterTempChart({ waterTemp }: { waterTemp: DiveSite['waterTemp'] }) {
         </Stack>
       </Stack>
 
-      {/* Bars */}
-      <Box sx={{ display: 'flex', gap: '3px', alignItems: 'flex-end' }}>
+      {/* Bars — horizontally scrollable on narrow screens */}
+      <Box sx={{ overflowX: 'auto', mx: { xs: -0.5, sm: 0 } }}>
+      <Box sx={{ display: 'flex', gap: '3px', alignItems: 'flex-end', minWidth: 300 }}>
         {values.map((temp, i) => {
           const isCurrent = i === currentMonth;
           const color = temp !== null ? tempColor(temp) : '#bdbdbd';
@@ -154,6 +155,7 @@ function WaterTempChart({ waterTemp }: { waterTemp: DiveSite['waterTemp'] }) {
             </Box>
           );
         })}
+      </Box>
       </Box>
 
       {/* Legend */}
@@ -805,7 +807,7 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
             )}
 
             {/* Water temp chart */}
-            <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, mb: 3 }}>
+            <Paper variant="outlined" sx={{ p: { xs: 1.5, sm: 3 }, borderRadius: 2, mb: 3 }}>
               <WaterTempChart waterTemp={site.waterTemp} />
             </Paper>
 
