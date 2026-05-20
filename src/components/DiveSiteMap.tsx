@@ -15,17 +15,11 @@ const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? '';
 const WATER_TYPE_COLORS: Record<DiveSite['waterType'], string> = {
   sea: '#0077be',
   lake: '#26a69a',
-  quarry: '#546e7a',
-  river: '#1565c0',
-  pool: '#7b1fa2',
 };
 
 const WATER_TYPE_LABELS: Record<DiveSite['waterType'], string> = {
   lake: 'Lake',
   sea: 'Sea',
-  quarry: 'Quarry',
-  river: 'River',
-  pool: 'Pool',
 };
 
 const MONTH_KEYS = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'] as const;

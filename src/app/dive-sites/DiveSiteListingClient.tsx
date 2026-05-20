@@ -48,9 +48,6 @@ const DiveSiteMap = dynamic(() => import('@/components/DiveSiteMap'), {
 const WATER_TYPE_LABELS: Record<DiveSite['waterType'], string> = {
   lake: 'Lake',
   sea: 'Sea',
-  quarry: 'Quarry',
-  river: 'River',
-  pool: 'Pool',
 };
 
 const MONTH_KEYS = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'] as const;
@@ -301,7 +298,7 @@ function DiveSitesPageInner() {
                   WATER TYPE
                 </Typography>
                 <ToggleButtonGroup value={waterTypeFilter} onChange={handleWaterType} size="small" sx={{ flexWrap: 'wrap' }}>
-                  {(['lake', 'sea', 'quarry', 'river'] as const).map((t) => (
+                  {(['lake', 'sea'] as const).map((t) => (
                     <ToggleButton key={t} value={t} sx={{ textTransform: 'capitalize', px: 2 }}>
                       {WATER_TYPE_LABELS[t]}
                     </ToggleButton>
@@ -344,11 +341,7 @@ function DiveSitesPageInner() {
                         background:
                           site.waterType === 'sea'
                             ? 'linear-gradient(90deg, #0077be, #4fc3f7)'
-                            : site.waterType === 'lake'
-                            ? 'linear-gradient(90deg, #26a69a, #80cbc4)'
-                            : site.waterType === 'quarry'
-                            ? 'linear-gradient(90deg, #546e7a, #90a4ae)'
-                            : 'linear-gradient(90deg, #1565c0, #64b5f6)',
+                            : 'linear-gradient(90deg, #26a69a, #80cbc4)',
                       }}
                     />
                     <CardContent sx={{ p: 2.5 }}>

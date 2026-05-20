@@ -45,7 +45,7 @@ export function buildFingerprint(): string {
   return fnv32(`${navigator.userAgent}|${window_min}`);
 }
 
-const WATER_TYPES = ['lake', 'sea', 'quarry', 'river', 'pool'] as const;
+const WATER_TYPES = ['lake', 'sea'] as const;
 const SEASONS = ['Spring', 'Summer', 'Autumn', 'Winter'];
 
 export function validateSubmission(raw: Partial<Record<string, unknown>>): ValidationError[] {

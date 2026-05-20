@@ -334,9 +334,6 @@ export default function AdminDiveSitesPage() {
               <MenuItem value="all">All types</MenuItem>
               <MenuItem value="lake">Lake</MenuItem>
               <MenuItem value="sea">Sea</MenuItem>
-              <MenuItem value="quarry">Quarry</MenuItem>
-              <MenuItem value="river">River</MenuItem>
-              <MenuItem value="pool">Pool</MenuItem>
             </Select>
           </FormControl>
           <Box sx={{ minWidth: 200 }}>
@@ -609,7 +606,7 @@ export default function AdminDiveSitesPage() {
                   value={draft.waterType}
                   onChange={(e) => setDraft((d) => ({ ...d, waterType: e.target.value as DiveSite['waterType'] }))}
                 >
-                  {(['lake', 'sea', 'quarry', 'river', 'pool'] as const).map((t) => (
+                  {(['lake', 'sea'] as const).map((t) => (
                     <MenuItem key={t} value={t} sx={{ textTransform: 'capitalize' }}>{t}</MenuItem>
                   ))}
                 </Select>

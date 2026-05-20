@@ -32,9 +32,6 @@ import RequestCorrectionDialog from '@/components/RequestCorrectionDialog';
 const WATER_TYPE_LABELS: Record<DiveSite['waterType'], string> = {
   lake: 'Lake',
   sea: 'Sea',
-  quarry: 'Quarry',
-  river: 'River',
-  pool: 'Pool',
 };
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -523,7 +520,7 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
       {/* Sticky correction bar — appears after scrolling past the CTA */}
       {showStickyBar && (
         <Box sx={{
-          position: 'fixed', top: 64, left: 0, right: 0, zIndex: 1100,
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1100,
           bgcolor: '#fff3e0', borderBottom: '1px solid #ffcc80',
           px: { xs: 2, md: 4 }, py: 1,
           display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2,
@@ -818,7 +815,7 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
             <div ref={correctionAnchorRef} />
             <Paper
               variant="outlined"
-              sx={{ p: 2.5, borderRadius: 2, borderColor: '#ffcc80', bgcolor: '#fff8f0' }}
+              sx={{ p: 2.5, borderRadius: 2, borderColor: '#ffcc80', bgcolor: '#fff8f0', mt: 2 }}
             >
               <Stack direction="row" spacing={1.5} alignItems="flex-start">
                 <FlagIcon sx={{ color: 'warning.dark', mt: 0.25, flexShrink: 0 }} />
