@@ -551,7 +551,6 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
 
   const [correctionOpen, setCorrectionOpen] = useState(false);
   const [showBar, setShowBar] = useState(false);
-  const [navHeight, setNavHeight] = useState(64);
   const heroRef = useRef<HTMLDivElement>(null);
 
   const localKey = `bm_verified_${site.id}`;
@@ -663,17 +662,6 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
     }
   };
 
-  // Measure actual navbar height on mount + resize
-  useEffect(() => {
-    const measure = () => {
-      const nav = document.getElementById('navigation');
-      if (nav) setNavHeight(nav.getBoundingClientRect().height);
-    };
-    measure();
-    window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
-  }, []);
-
   // Show bar after hero scrolls out of view
   useEffect(() => {
     const hero = heroRef.current;
@@ -692,7 +680,7 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
       {/* Sticky bar — fixed below navbar, shown after hero scrolls off */}
       {showBar && (
         <Box sx={{
-          position: 'fixed', top: navHeight, left: 0, right: 0, zIndex: 1099,
+          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1099,
           bgcolor: '#fffbf5',
           borderTop: '1px solid #ffe0b2',
           borderBottom: '1px solid #ffe0b2',
