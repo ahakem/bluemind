@@ -1,4 +1,0 @@
-User-agent: *
-Allow: /
-
-Sitemap: https://bluemindfreediving.nl/sitemap.xml
