@@ -80,6 +80,25 @@ service cloud.firestore {
       allow read, update, delete: if isAdminOrEditor();
     }
 
+    // Community dive logs — public create only; admins can manage
+    match /diveLogs/{docId} {
+      allow create: if
+        request.resource.data.siteId is string &&
+        request.resource.data.siteName is string;
+      allow read, update, delete: if isAdminOrEditor();
+    }
+
+    // Community site ratings — public create only; public read for aggregation
+    match /siteRatings/{docId} {
+      allow read: if true;
+      allow create: if
+        request.resource.data.siteId is string &&
+        request.resource.data.rating is number &&
+        request.resource.data.rating >= 1 &&
+        request.resource.data.rating <= 5;
+      allow update, delete: if isAdminOrEditor();
+    }
+
     // Site settings — public read, admin-only write
     match /siteSettings/{docId} {
       allow read: if true;

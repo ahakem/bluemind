@@ -42,7 +42,9 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import CountryAutocomplete from '@/components/CountryAutocomplete';
 import { CountryType, lookupCountry } from '@/data/countries';
 import { Continent, CONTINENTS, getContinent } from '@/data/continents';
-import { getActiveDiveSites } from '@/lib/diveSiteService';
+import StarIcon from '@mui/icons-material/Star';
+import ScubaDivingIcon from '@mui/icons-material/ScubaDiving';
+import { getActiveDiveSites, getDiveLogCounts, getAverageRatings } from '@/lib/diveSiteService';
 import { DiveSite } from '@/types/admin';
 import SubmitSiteButton from '@/components/SubmitSiteButton';
 
@@ -92,6 +94,13 @@ function DiveSitesPageInner() {
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(24);
   const [disclaimerVisible, setDisclaimerVisible] = useState(false);
+
+  // Community stats
+  const [diveCounts, setDiveCounts] = useState<Map<string, number>>(new Map());
+  const [communityRatings, setCommunityRatings] = useState<Map<string, { avg: number; count: number }>>(new Map());
+
+  // Recently viewed
+  const [recentlyViewed, setRecentlyViewed] = useState<DiveSite[]>([]);
 
   // ── Basic filters ─────────────────────────────────────────────────────────
   const [search, setSearch] = useState(searchParams.get('q') ?? '');
@@ -162,6 +171,15 @@ function DiveSitesPageInner() {
         if (found) { const c = lookupCountry(found.country); if (c) setCountryFilter(c); }
       }
       setLoading(false);
+      // Recently viewed — cross-reference after sites loaded
+      try {
+        const stored = localStorage.getItem('bm_recently_viewed');
+        if (stored) {
+          const ids: string[] = JSON.parse(stored);
+          const found = ids.map((id) => data.find((s) => s.id === id)).filter(Boolean) as DiveSite[];
+          setRecentlyViewed(found);
+        }
+      } catch {}
     });
     const dismissed = localStorage.getItem('diveSiteDisclaimerDismissed');
     if (!dismissed) setDisclaimerVisible(true);
@@ -169,6 +187,10 @@ function DiveSitesPageInner() {
       const stored = localStorage.getItem(BOOKMARKS_KEY);
       if (stored) setBookmarks(new Set(JSON.parse(stored)));
     } catch {}
+    // Community stats — fetch in background, non-blocking
+    Promise.all([getDiveLogCounts(), getAverageRatings()])
+      .then(([counts, ratings]) => { setDiveCounts(counts); setCommunityRatings(ratings); })
+      .catch(() => {});
   }, []);
 
   const presentCountryLabels = useMemo(
@@ -465,6 +487,39 @@ function DiveSitesPageInner() {
           </Box>
         )}
 
+        {/* Recently viewed strip */}
+        {recentlyViewed.length > 0 && !savedOnly && !search && (
+          <Box mb={3}>
+            <Typography variant="caption" fontWeight={700} color="text.secondary" display="block" mb={1}>
+              RECENTLY VIEWED
+            </Typography>
+            <Box sx={{ display: 'flex', gap: 1.5, overflowX: 'auto', pb: 0.5, scrollbarWidth: 'none', '&::-webkit-scrollbar': { display: 'none' } }}>
+              {recentlyViewed.map((site) => (
+                <Box
+                  key={site.id}
+                  component={Link}
+                  href={`/dive-sites/${site.slug}`}
+                  sx={{
+                    flexShrink: 0, textDecoration: 'none',
+                    bgcolor: 'white', border: '1px solid', borderColor: 'divider',
+                    borderRadius: 2, px: 1.5, py: 1, minWidth: 160, maxWidth: 200,
+                    transition: 'box-shadow 0.15s',
+                    '&:hover': { boxShadow: 3, borderColor: '#0077be' },
+                  }}
+                >
+                  <Box sx={{ height: 3, borderRadius: 1, mb: 0.75, bgcolor: site.waterType === 'sea' ? '#0077be' : '#26a69a' }} />
+                  <Typography variant="body2" fontWeight={700} noWrap sx={{ fontSize: '0.82rem', color: 'text.primary' }}>
+                    {site.name}
+                  </Typography>
+                  <Typography variant="caption" color="text.secondary" noWrap display="block">
+                    {site.country}
+                  </Typography>
+                </Box>
+              ))}
+            </Box>
+          </Box>
+        )}
+
         {/* Results count */}
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
           <Typography variant="body2" color="text.secondary">
@@ -486,6 +541,8 @@ function DiveSitesPageInner() {
             const dist = userPos && site.coordinates?.lat && site.coordinates?.lng
               ? haversineKm(userPos.lat, userPos.lng, site.coordinates.lat, site.coordinates.lng)
               : null;
+            const rating = communityRatings.get(site.id);
+            const dives = diveCounts.get(site.id);
 
             return (
               <Grid key={site.id} id={`site-card-${site.id}`} size={{ xs: 12, sm: 6, md: 4 }}>
@@ -523,11 +580,29 @@ function DiveSitesPageInner() {
                         <Typography variant="h6" fontWeight={700} sx={{ fontSize: '1.05rem', lineHeight: 1.3 }}>
                           {site.name}
                         </Typography>
-                        {site.googleRating && (
-                          <Typography variant="body2" fontWeight={700} sx={{ color: '#f59e0b', whiteSpace: 'nowrap', ml: 1 }}>
-                            ★ {site.googleRating.toFixed(1)}
-                          </Typography>
-                        )}
+                        <Stack direction="row" spacing={0.75} alignItems="center" sx={{ ml: 1, flexShrink: 0 }}>
+                          {rating && (
+                            <Stack direction="row" alignItems="center" spacing={0.25}>
+                              <StarIcon sx={{ fontSize: 13, color: '#f59e0b' }} />
+                              <Typography variant="caption" fontWeight={700} sx={{ color: '#f59e0b', fontSize: '0.72rem' }}>
+                                {rating.avg.toFixed(1)}
+                              </Typography>
+                            </Stack>
+                          )}
+                          {!rating && site.googleRating && (
+                            <Typography variant="caption" fontWeight={700} sx={{ color: '#f59e0b', fontSize: '0.72rem' }}>
+                              ★ {site.googleRating.toFixed(1)}
+                            </Typography>
+                          )}
+                          {dives && dives > 0 && (
+                            <Stack direction="row" alignItems="center" spacing={0.25}>
+                              <ScubaDivingIcon sx={{ fontSize: 13, color: '#0077be' }} />
+                              <Typography variant="caption" sx={{ color: '#0077be', fontSize: '0.72rem', fontWeight: 600 }}>
+                                {dives}
+                              </Typography>
+                            </Stack>
+                          )}
+                        </Stack>
                       </Stack>
 
                       <Stack direction="row" alignItems="center" spacing={0.75} mb={2} flexWrap="wrap" useFlexGap>

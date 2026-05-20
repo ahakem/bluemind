@@ -17,6 +17,11 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
+import ShareIcon from '@mui/icons-material/Share';
+import ScubaDivingIcon from '@mui/icons-material/ScubaDiving';
+import StarIcon from '@mui/icons-material/Star';
+import StarBorderIcon from '@mui/icons-material/StarBorder';
+import StarHalfIcon from '@mui/icons-material/StarHalf';
 import PlaceIcon from '@mui/icons-material/Place';
 import WaterIcon from '@mui/icons-material/Water';
 import DepthIcon from '@mui/icons-material/VerticalAlignBottom';
@@ -34,7 +39,7 @@ import Link from 'next/link';
 import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { DiveSite, Thermocline } from '@/types/admin';
 import RequestCorrectionDialog from '@/components/RequestCorrectionDialog';
-import { submitVerification } from '@/lib/diveSiteService';
+import { submitVerification, submitDiveLog, submitRating, getSiteRatingsSummary } from '@/lib/diveSiteService';
 
 const WATER_TYPE_LABELS: Record<DiveSite['waterType'], string> = {
   lake: 'Lake',
@@ -291,6 +296,36 @@ function ThermoclineCard({ thermocline, maxDepth }: { thermocline: Thermocline; 
   );
 }
 
+// ─── Star Rating ─────────────────────────────────────────────────────────────
+function StarRating({
+  value, max = 5, interactive = false,
+  onRate, onHover,
+}: {
+  value: number; max?: number; interactive?: boolean;
+  onRate?: (n: number) => void; onHover?: (n: number | null) => void;
+}) {
+  return (
+    <Stack direction="row" spacing={0.25}>
+      {Array.from({ length: max }, (_, i) => {
+        const full = value >= i + 1;
+        const half = !full && value >= i + 0.5;
+        const Icon = full ? StarIcon : half ? StarHalfIcon : StarBorderIcon;
+        return (
+          <Box
+            key={i}
+            onMouseEnter={() => interactive && onHover?.(i + 1)}
+            onMouseLeave={() => interactive && onHover?.(null)}
+            onClick={() => interactive && onRate?.(i + 1)}
+            sx={{ cursor: interactive ? 'pointer' : 'default', color: '#f59e0b', display: 'flex' }}
+          >
+            <Icon sx={{ fontSize: interactive ? 26 : 16 }} />
+          </Box>
+        );
+      })}
+    </Stack>
+  );
+}
+
 // ─── Stat Card ────────────────────────────────────────────────────────────────
 function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
   return (
@@ -525,12 +560,39 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
 
   const [bookmarked, setBookmarked] = useState(false);
 
+  // Dive log
+  const [hasDived, setHasDived] = useState(false);
+  const [diving, setDiving] = useState(false);
+  const [diveCount, setDiveCount] = useState<number | null>(null);
+
+  // Community rating
+  const [userRating, setUserRating] = useState<number | null>(null);
+  const [hoverRating, setHoverRating] = useState<number | null>(null);
+  const [ratingSubmitting, setRatingSubmitting] = useState(false);
+  const [ratingSummary, setRatingSummary] = useState<{ avg: number; count: number } | null>(null);
+
+  // Share
+  const [copySuccess, setCopySuccess] = useState(false);
+
   useEffect(() => {
     setHasVerified(!!localStorage.getItem(localKey));
+    setHasDived(!!localStorage.getItem(`bm_dived_${site.id}`));
     try {
       const stored = localStorage.getItem('bm_saved_sites');
       if (stored) setBookmarked((JSON.parse(stored) as string[]).includes(site.id));
     } catch {}
+    try {
+      const r = localStorage.getItem(`bm_rating_${site.id}`);
+      if (r) setUserRating(parseInt(r));
+    } catch {}
+    // Save to recently viewed
+    try {
+      const stored = localStorage.getItem('bm_recently_viewed');
+      const ids: string[] = stored ? JSON.parse(stored) : [];
+      localStorage.setItem('bm_recently_viewed', JSON.stringify([site.id, ...ids.filter((x) => x !== site.id)].slice(0, 12)));
+    } catch {}
+    // Fetch rating summary
+    getSiteRatingsSummary(site.id).then(setRatingSummary).catch(() => {});
   }, [localKey, site.id]);
 
   const toggleBookmark = () => {
@@ -544,6 +606,49 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
       } catch {}
       return next;
     });
+  };
+
+  const handleDiveLog = async () => {
+    if (hasDived || diving) return;
+    setDiving(true);
+    try {
+      await submitDiveLog(site.id, site.slug, site.name);
+      localStorage.setItem(`bm_dived_${site.id}`, '1');
+      setHasDived(true);
+      setDiveCount((c) => (c ?? 0) + 1);
+    } finally {
+      setDiving(false);
+    }
+  };
+
+  const handleRating = async (stars: number) => {
+    if (userRating !== null || ratingSubmitting) return;
+    setRatingSubmitting(true);
+    try {
+      await submitRating(site.id, site.slug, site.name, stars);
+      localStorage.setItem(`bm_rating_${site.id}`, String(stars));
+      setUserRating(stars);
+      setRatingSummary((prev) => {
+        if (!prev) return { avg: stars, count: 1 };
+        const nc = prev.count + 1;
+        return { avg: Math.round(((prev.avg * prev.count + stars) / nc) * 10) / 10, count: nc };
+      });
+    } finally {
+      setRatingSubmitting(false);
+    }
+  };
+
+  const handleShare = async () => {
+    const url = window.location.href;
+    if (navigator.share) {
+      try { await navigator.share({ title: `${site.name} – Freediving Site`, url }); } catch {}
+    } else {
+      try {
+        await navigator.clipboard.writeText(url);
+        setCopySuccess(true);
+        setTimeout(() => setCopySuccess(false), 2000);
+      } catch {}
+    }
   };
 
   const handleVerify = async () => {
@@ -669,21 +774,34 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                 >
                   {site.name}
                 </Typography>
-                <Tooltip title={bookmarked ? 'Remove from saved' : 'Save this site'} placement="top">
-                  <IconButton
-                    onClick={toggleBookmark}
-                    size="small"
-                    sx={{
-                      color: bookmarked ? '#ffcc02' : 'rgba(255,255,255,0.55)',
-                      mt: 0.25,
-                      flexShrink: 0,
-                      '&:hover': { color: bookmarked ? '#ffe066' : 'rgba(255,255,255,0.9)', bgcolor: 'rgba(255,255,255,0.1)' },
-                    }}
-                    aria-label={bookmarked ? 'Remove bookmark' : 'Bookmark this site'}
-                  >
-                    {bookmarked ? <BookmarkIcon fontSize="medium" /> : <BookmarkBorderIcon fontSize="medium" />}
-                  </IconButton>
-                </Tooltip>
+                <Stack direction="row" spacing={0.5} sx={{ flexShrink: 0, mt: 0.25 }}>
+                  <Tooltip title={bookmarked ? 'Remove from saved' : 'Save this site'} placement="top">
+                    <IconButton
+                      onClick={toggleBookmark}
+                      size="small"
+                      sx={{
+                        color: bookmarked ? '#ffcc02' : 'rgba(255,255,255,0.55)',
+                        '&:hover': { color: bookmarked ? '#ffe066' : 'rgba(255,255,255,0.9)', bgcolor: 'rgba(255,255,255,0.1)' },
+                      }}
+                      aria-label={bookmarked ? 'Remove bookmark' : 'Bookmark this site'}
+                    >
+                      {bookmarked ? <BookmarkIcon fontSize="medium" /> : <BookmarkBorderIcon fontSize="medium" />}
+                    </IconButton>
+                  </Tooltip>
+                  <Tooltip title={copySuccess ? 'Link copied!' : 'Share this site'} placement="top">
+                    <IconButton
+                      onClick={handleShare}
+                      size="small"
+                      sx={{
+                        color: copySuccess ? '#69f0ae' : 'rgba(255,255,255,0.55)',
+                        '&:hover': { color: 'rgba(255,255,255,0.9)', bgcolor: 'rgba(255,255,255,0.1)' },
+                      }}
+                      aria-label="Share"
+                    >
+                      <ShareIcon fontSize="small" />
+                    </IconButton>
+                  </Tooltip>
+                </Stack>
               </Stack>
               {site.verified && (
                 <Stack direction="row" alignItems="center" spacing={0.5} mt={0.75}>
@@ -724,7 +842,7 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                 ))}
               </Stack>
 
-              {/* Tags */}
+              {/* Tags — link to tag pages */}
               {site.tags?.length > 0 && (
                 <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
                   {site.tags.map((tag) => (
@@ -732,6 +850,9 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                       key={tag}
                       label={tag}
                       size="small"
+                      component={Link}
+                      href={`/dive-sites/tag/${tag.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '')}`}
+                      clickable
                       sx={{
                         bgcolor: 'rgba(255,255,255,0.1)',
                         color: 'rgba(255,255,255,0.85)',
@@ -739,6 +860,7 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                         fontWeight: 500,
                         fontSize: '0.68rem',
                         height: 20,
+                        '&:hover': { bgcolor: 'rgba(255,255,255,0.2)' },
                       }}
                     />
                   ))}
@@ -747,8 +869,29 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
             </Box>
           </Stack>
 
-          {/* Data accuracy actions */}
-          <Stack direction="row" spacing={1} mt={2.5} flexWrap="wrap" useFlexGap>
+          {/* Hero action row */}
+          <Stack direction="row" spacing={1} mt={2.5} flexWrap="wrap" useFlexGap alignItems="center">
+            {/* Dive log */}
+            <Button
+              variant={hasDived ? 'outlined' : 'contained'}
+              size="small"
+              startIcon={<ScubaDivingIcon sx={{ fontSize: '15px !important' }} />}
+              onClick={handleDiveLog}
+              disabled={hasDived || diving}
+              sx={hasDived ? {
+                borderColor: 'rgba(255,255,255,0.5)', color: 'rgba(255,255,255,0.85)',
+                fontWeight: 600, fontSize: '0.78rem',
+                '&.Mui-disabled': { borderColor: 'rgba(255,255,255,0.3)', color: 'rgba(255,255,255,0.5)' },
+              } : {
+                bgcolor: 'rgba(0,119,190,0.75)', color: 'white', fontWeight: 600,
+                fontSize: '0.78rem', boxShadow: 'none',
+                '&:hover': { bgcolor: 'rgba(0,119,190,0.95)', boxShadow: 'none' },
+              }}
+            >
+              {hasDived ? "You've dived here" : diving ? 'Logging…' : "I've dived here"}
+            </Button>
+
+            {/* Data accuracy */}
             {!site.verified && (
               <>
                 <Button
@@ -763,10 +906,7 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                   disabled={hasVerified || verifying}
                   sx={{
                     bgcolor: hasVerified ? 'rgba(56,142,60,0.85)' : 'rgba(56,142,60,0.75)',
-                    color: 'white',
-                    fontWeight: 600,
-                    fontSize: '0.78rem',
-                    boxShadow: 'none',
+                    color: 'white', fontWeight: 600, fontSize: '0.78rem', boxShadow: 'none',
                     '&:hover': { bgcolor: 'rgba(56,142,60,0.95)', boxShadow: 'none' },
                     '&.Mui-disabled': { bgcolor: 'rgba(56,142,60,0.5)', color: 'rgba(255,255,255,0.8)' },
                   }}
@@ -779,14 +919,12 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                   startIcon={<FlagIcon sx={{ fontSize: '14px !important' }} />}
                   onClick={() => setCorrectionOpen(true)}
                   sx={{
-                    borderColor: 'rgba(255,255,255,0.4)',
-                    color: 'rgba(255,255,255,0.75)',
-                    fontWeight: 600,
-                    fontSize: '0.78rem',
+                    borderColor: 'rgba(255,255,255,0.4)', color: 'rgba(255,255,255,0.75)',
+                    fontWeight: 600, fontSize: '0.78rem',
                     '&:hover': { borderColor: 'white', color: 'white', bgcolor: 'rgba(255,255,255,0.08)' },
                   }}
                 >
-                  Report incorrect data
+                  Report incorrect
                 </Button>
               </>
             )}
@@ -970,6 +1108,70 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                     </Stack>
                   </Stack>
                 )}
+              </Stack>
+            </Paper>
+
+            {/* Community rating */}
+            <Paper variant="outlined" sx={{ p: 2.5, borderRadius: 2, mb: 2 }}>
+              <Typography variant="subtitle2" fontWeight={700} color="text.secondary" mb={1.5}>
+                COMMUNITY RATING
+              </Typography>
+              {ratingSummary ? (
+                <Stack direction="row" alignItems="center" spacing={1} mb={1.5}>
+                  <Typography variant="h5" fontWeight={800} sx={{ color: '#f59e0b', lineHeight: 1 }}>
+                    {ratingSummary.avg.toFixed(1)}
+                  </Typography>
+                  <StarRating value={ratingSummary.avg} />
+                  <Typography variant="caption" color="text.secondary">({ratingSummary.count})</Typography>
+                </Stack>
+              ) : (
+                <Typography variant="body2" color="text.secondary" mb={1.5} sx={{ fontSize: '0.82rem' }}>
+                  No ratings yet — be the first!
+                </Typography>
+              )}
+              {userRating !== null ? (
+                <Typography variant="body2" sx={{ color: 'success.main', fontWeight: 600, fontSize: '0.82rem' }}>
+                  ✓ You rated this {userRating} star{userRating !== 1 ? 's' : ''}
+                </Typography>
+              ) : (
+                <Box>
+                  <Typography variant="caption" color="text.secondary" display="block" mb={0.75}>Rate this site:</Typography>
+                  <StarRating
+                    value={hoverRating ?? 0}
+                    interactive
+                    onRate={handleRating}
+                    onHover={setHoverRating}
+                  />
+                  {ratingSubmitting && (
+                    <Typography variant="caption" color="text.secondary" display="block" mt={0.5}>Saving…</Typography>
+                  )}
+                </Box>
+              )}
+            </Paper>
+
+            {/* Dive count */}
+            <Paper variant="outlined" sx={{ p: 2, borderRadius: 2, mb: 2 }}>
+              <Stack direction="row" alignItems="center" justifyContent="space-between" spacing={1}>
+                <Box>
+                  <Typography variant="subtitle2" fontWeight={700}>Dived Here</Typography>
+                  {diveCount !== null && diveCount > 0 && (
+                    <Typography variant="caption" color="text.secondary">
+                      🤿 {diveCount} {diveCount === 1 ? 'diver' : 'divers'} logged this
+                    </Typography>
+                  )}
+                </Box>
+                <Button
+                  variant={hasDived ? 'text' : 'outlined'}
+                  size="small"
+                  disabled={hasDived || diving}
+                  onClick={handleDiveLog}
+                  sx={hasDived
+                    ? { color: 'success.main', fontWeight: 600, fontSize: '0.78rem' }
+                    : { borderColor: '#0077be', color: '#0077be', fontWeight: 600, fontSize: '0.78rem', '&:hover': { bgcolor: '#f0f7ff' } }
+                  }
+                >
+                  {hasDived ? '✓ Logged' : diving ? 'Logging…' : "I've dived here"}
+                </Button>
               </Stack>
             </Paper>
 

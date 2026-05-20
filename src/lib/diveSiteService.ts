@@ -19,6 +19,8 @@ import { SEED_DIVE_SITES } from '@/data/diveSites';
 
 const COLLECTION = 'diveSites';
 const VERIFICATIONS_COLLECTION = 'siteVerifications';
+const DIVE_LOGS_COLLECTION = 'diveLogs';
+const RATINGS_COLLECTION = 'siteRatings';
 
 const validateDb = (): Firestore => {
   if (!db) throw new Error('Firebase not initialized');
@@ -200,4 +202,62 @@ export const markSiteVerified = async (id: string, verified: boolean): Promise<v
     verified,
     updatedAt: Timestamp.now(),
   });
+};
+
+// ── Dive logs ─────────────────────────────────────────────────────────────────
+
+export const submitDiveLog = async (siteId: string, siteSlug: string, siteName: string): Promise<void> => {
+  const firestore = validateDb();
+  await addDoc(collection(firestore, DIVE_LOGS_COLLECTION), {
+    siteId, siteSlug, siteName,
+    submittedAt: Timestamp.now(),
+  });
+};
+
+export const getDiveLogCounts = async (): Promise<Map<string, number>> => {
+  const firestore = validateDb();
+  const snap = await getDocs(collection(firestore, DIVE_LOGS_COLLECTION));
+  const counts = new Map<string, number>();
+  snap.docs.forEach((d) => {
+    const id = d.data().siteId as string;
+    counts.set(id, (counts.get(id) ?? 0) + 1);
+  });
+  return counts;
+};
+
+// ── Community ratings ─────────────────────────────────────────────────────────
+
+export const submitRating = async (
+  siteId: string, siteSlug: string, siteName: string, rating: number
+): Promise<void> => {
+  const firestore = validateDb();
+  await addDoc(collection(firestore, RATINGS_COLLECTION), {
+    siteId, siteSlug, siteName, rating,
+    submittedAt: Timestamp.now(),
+  });
+};
+
+export const getAverageRatings = async (): Promise<Map<string, { avg: number; count: number }>> => {
+  const firestore = validateDb();
+  const snap = await getDocs(collection(firestore, RATINGS_COLLECTION));
+  const acc = new Map<string, { sum: number; count: number }>();
+  snap.docs.forEach((d) => {
+    const { siteId, rating } = d.data() as { siteId: string; rating: number };
+    const prev = acc.get(siteId) ?? { sum: 0, count: 0 };
+    acc.set(siteId, { sum: prev.sum + rating, count: prev.count + 1 });
+  });
+  const result = new Map<string, { avg: number; count: number }>();
+  acc.forEach(({ sum, count }, id) =>
+    result.set(id, { avg: Math.round((sum / count) * 10) / 10, count })
+  );
+  return result;
+};
+
+export const getSiteRatingsSummary = async (siteId: string): Promise<{ avg: number; count: number } | null> => {
+  const firestore = validateDb();
+  const q = query(collection(firestore, RATINGS_COLLECTION), where('siteId', '==', siteId));
+  const snap = await getDocs(q);
+  if (snap.empty) return null;
+  const sum = snap.docs.reduce((a, d) => a + (d.data().rating as number), 0);
+  return { avg: Math.round((sum / snap.docs.length) * 10) / 10, count: snap.docs.length };
 };
