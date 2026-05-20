@@ -11,7 +11,10 @@ export function SiteSettingsProvider({ children }: { children: ReactNode }) {
   const [features, setFeatures] = useState<SiteFeatures>(defaultFeatures);
 
   useEffect(() => {
-    getSiteFeatures().then(setFeatures);
+    getSiteFeatures().then((f) => {
+      console.log('[SiteSettings] features fetched:', f);
+      setFeatures(f);
+    });
   }, []);
 
   return (
