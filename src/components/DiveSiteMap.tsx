@@ -5,45 +5,64 @@ import {
   APIProvider,
   Map,
   AdvancedMarker,
-  InfoWindow,
   useMap,
 } from '@vis.gl/react-google-maps';
 import { DiveSite } from '@/types/admin';
 
 const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? '';
 
-const WATER_TYPE_COLORS: Record<DiveSite['waterType'], string> = {
-  sea: '#0077be',
-  lake: '#26a69a',
-};
+const SEA_COLOR  = '#0062b1';
+const LAKE_COLOR = '#1a7f72';
 
-const WATER_TYPE_LABELS: Record<DiveSite['waterType'], string> = {
-  lake: 'Lake',
-  sea: 'Sea',
-};
+function siteColor(site: DiveSite) {
+  return site.waterType === 'sea' ? SEA_COLOR : LAKE_COLOR;
+}
 
 const MONTH_KEYS = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'] as const;
 
 function currentMonthTemp(site: DiveSite): number | null {
-  const key = MONTH_KEYS[new Date().getMonth()];
-  return site.waterTemp?.[key] ?? null;
+  return site.waterTemp?.[MONTH_KEYS[new Date().getMonth()]] ?? null;
 }
 
-function PinSvg({ color, size = 28 }: { color: string; size?: number }) {
-  return (
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 28 36" width={size} height={size * 1.3}
-      style={{ display: 'block', filter: 'drop-shadow(0 2px 3px rgba(0,0,0,0.35))', cursor: 'pointer' }}>
-      <path d="M14 0C8.477 0 4 4.477 4 10c0 7 10 18 10 18s10-11 10-18c0-5.523-4.477-10-10-10z"
-        fill={color} stroke="white" strokeWidth="1.5" />
-      <circle cx="14" cy="10" r="4" fill="white" opacity="0.9" />
-    </svg>
-  );
+// Ocean-themed map tiles — applied via StyledMapType (works alongside mapId)
+const MAP_STYLE: google.maps.MapTypeStyle[] = [
+  { elementType: 'geometry',                   stylers: [{ color: '#f0ece4' }] },
+  { elementType: 'labels.text.stroke',          stylers: [{ color: '#f0ece4' }] },
+  { elementType: 'labels.text.fill',            stylers: [{ color: '#8a7c6e' }] },
+  { featureType: 'water', elementType: 'geometry',           stylers: [{ color: '#aacde0' }] },
+  { featureType: 'water', elementType: 'labels.text.fill',   stylers: [{ color: '#4a8caa' }] },
+  { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#aacde0' }] },
+  { featureType: 'landscape.natural',  elementType: 'geometry', stylers: [{ color: '#e4ddd0' }] },
+  { featureType: 'landscape.man_made', elementType: 'geometry', stylers: [{ color: '#f0ece4' }] },
+  { featureType: 'poi.park', elementType: 'geometry.fill',    stylers: [{ color: '#c8d8aa' }] },
+  { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#5a7840' }] },
+  { featureType: 'poi',        elementType: 'labels',  stylers: [{ visibility: 'off' }] },
+  { featureType: 'poi.business',                       stylers: [{ visibility: 'off' }] },
+  { featureType: 'road',         elementType: 'geometry',        stylers: [{ color: '#ffffff' }] },
+  { featureType: 'road',         elementType: 'geometry.stroke', stylers: [{ color: '#e4ddd0' }] },
+  { featureType: 'road.highway', elementType: 'geometry',        stylers: [{ color: '#f5e8b0' }] },
+  { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#e8d888' }] },
+  { featureType: 'road',         elementType: 'labels.text.fill',stylers: [{ color: '#9a8c7a' }] },
+  { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+  { featureType: 'administrative.country',    elementType: 'geometry.stroke', stylers: [{ color: '#c4b8a4' }] },
+  { featureType: 'administrative.province',   elementType: 'geometry.stroke', stylers: [{ color: '#d0c8b8' }] },
+  { featureType: 'administrative.land_parcel',elementType: 'labels',          stylers: [{ visibility: 'off' }] },
+  { featureType: 'administrative.locality',   elementType: 'labels.text.fill',stylers: [{ color: '#786a58' }] },
+];
+
+function ApplyOceanStyle() {
+  const map = useMap();
+  useEffect(() => {
+    if (!map) return;
+    const styledType = new google.maps.StyledMapType(MAP_STYLE, { name: 'BlueMind' });
+    map.mapTypes.set('bluemind', styledType);
+    map.setMapTypeId('bluemind');
+  }, [map]);
+  return null;
 }
 
-// Fits the map to the visible sites whenever they change
 function FitBounds({ sites }: { sites: DiveSite[] }) {
   const map = useMap();
-
   useEffect(() => {
     if (!map || !sites.length) return;
     if (sites.length === 1) {
@@ -56,8 +75,161 @@ function FitBounds({ sites }: { sites: DiveSite[] }) {
     map.fitBounds(bounds, 60);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sites]);
-
   return null;
+}
+
+// Popup card rendered inside the AdvancedMarker — no Google InfoWindow chrome
+function PopupCard({ site, onClose }: { site: DiveSite; onClose: () => void }) {
+  const color = siteColor(site);
+  const temp = currentMonthTemp(site);
+  const tempColor = temp === null ? null : temp <= 8 ? '#1976d2' : temp <= 14 ? '#1a7f72' : '#e65100';
+
+  return (
+    <div
+      onClick={(e) => e.stopPropagation()}
+      style={{
+        position: 'absolute',
+        bottom: 'calc(100% + 12px)',
+        left: '50%',
+        transform: 'translateX(-50%)',
+        width: 224,
+        background: '#ffffff',
+        borderRadius: 14,
+        boxShadow: '0 4px 24px rgba(0,0,0,0.14), 0 1px 6px rgba(0,0,0,0.08)',
+        overflow: 'hidden',
+        fontFamily: 'system-ui, -apple-system, sans-serif',
+        zIndex: 50,
+      }}
+    >
+      {/* Accent bar */}
+      <div style={{ height: 4, background: `linear-gradient(90deg, ${color}, ${color}bb)` }} />
+
+      {/* Body */}
+      <div style={{ padding: '12px 14px 14px' }}>
+
+        {/* Close */}
+        <button
+          onClick={onClose}
+          style={{
+            position: 'absolute', top: 10, right: 10,
+            width: 22, height: 22, border: 'none', cursor: 'pointer',
+            background: '#f0f0f0', borderRadius: '50%',
+            display: 'flex', alignItems: 'center', justifyContent: 'center',
+            fontSize: 13, color: '#666', lineHeight: 1, padding: 0,
+          }}
+        >
+          ×
+        </button>
+
+        {/* Name */}
+        <div style={{ fontWeight: 700, fontSize: 14, color: '#0d1b2a', lineHeight: 1.3, paddingRight: 24, marginBottom: 3 }}>
+          {site.name}
+        </div>
+
+        {/* Location */}
+        {site.location && (
+          <div style={{ fontSize: 11.5, color: '#999', marginBottom: 11, lineHeight: 1.3 }}>
+            {site.location}{site.country ? `, ${site.country}` : ''}
+          </div>
+        )}
+
+        {/* Stats chips */}
+        <div style={{ display: 'flex', gap: 5, flexWrap: 'wrap', marginBottom: 13 }}>
+          {site.maxDepth > 0 && (
+            <Chip bg={`${color}14`} color={color}>↓ {site.maxDepth}m</Chip>
+          )}
+          <Chip bg={`${color}14`} color={color}>
+            {site.waterType === 'sea' ? 'Sea' : 'Lake'}
+          </Chip>
+          {temp !== null && tempColor && (
+            <Chip bg={`${tempColor}18`} color={tempColor}>{temp}°C</Chip>
+          )}
+        </div>
+
+        {/* CTA */}
+        <a
+          href={`/dive-sites/${site.slug}`}
+          style={{
+            display: 'block', textAlign: 'center',
+            background: color, color: 'white',
+            padding: '8px', borderRadius: 8,
+            fontSize: 12.5, fontWeight: 600, textDecoration: 'none',
+            letterSpacing: '0.01em',
+          }}
+        >
+          View site →
+        </a>
+      </div>
+
+      {/* Tail arrow */}
+      <div style={{
+        position: 'absolute', bottom: -7, left: '50%', transform: 'translateX(-50%)',
+        width: 14, height: 7,
+        background: 'white',
+        clipPath: 'polygon(0 0, 100% 0, 50% 100%)',
+        filter: 'drop-shadow(0 2px 2px rgba(0,0,0,0.08))',
+      }} />
+    </div>
+  );
+}
+
+function Chip({ bg, color, children }: { bg: string; color: string; children: React.ReactNode }) {
+  return (
+    <span style={{
+      background: bg, color,
+      borderRadius: 6, padding: '3px 8px',
+      fontSize: 11, fontWeight: 600,
+      fontFamily: 'system-ui, sans-serif',
+      whiteSpace: 'nowrap',
+    }}>
+      {children}
+    </span>
+  );
+}
+
+// Depth-pill pin — shows max depth, colored by water type
+function DepthPin({ site, isSelected }: { site: DiveSite; isSelected: boolean }) {
+  const color = siteColor(site);
+  const label = site.maxDepth > 0 ? `${site.maxDepth}m` : '·';
+
+  return (
+    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+      {/* Popup floats above the pin */}
+      <div style={{
+        display: 'flex', flexDirection: 'column', alignItems: 'center',
+        cursor: 'pointer',
+        transform: `scale(${isSelected ? 1.25 : 1})`,
+        transformOrigin: 'bottom center',
+        transition: 'transform 0.15s ease',
+        filter: `drop-shadow(0 ${isSelected ? 4 : 2}px ${isSelected ? 10 : 4}px rgba(0,0,0,${isSelected ? 0.36 : 0.2}))`,
+      }}>
+        <div style={{
+          background: color,
+          color: 'white',
+          border: `2px solid ${isSelected ? 'white' : 'rgba(255,255,255,0.5)'}`,
+          borderRadius: 999,
+          padding: '3px 9px',
+          fontSize: 11,
+          fontWeight: 700,
+          fontFamily: 'system-ui, -apple-system, sans-serif',
+          whiteSpace: 'nowrap',
+          letterSpacing: '-0.01em',
+          lineHeight: 1.4,
+          minWidth: 28,
+          textAlign: 'center',
+        }}>
+          {label}
+        </div>
+        <div style={{
+          width: 0, height: 0,
+          borderLeft: '4px solid transparent',
+          borderRight: '4px solid transparent',
+          borderTop: `5px solid ${color}`,
+          marginTop: -1,
+        }} />
+      </div>
+    </div>
+  );
 }
 
 interface Props {
@@ -70,7 +242,7 @@ export default function DiveSiteMap({ sites, onSelect }: Props) {
   const [selected, setSelected] = useState<DiveSite | null>(null);
 
   const handleMarkerClick = useCallback((site: DiveSite) => {
-    setSelected(site);
+    setSelected((prev) => prev?.slug === site.slug ? null : site);
     onSelect?.(site);
   }, [onSelect]);
 
@@ -86,71 +258,27 @@ export default function DiveSiteMap({ sites, onSelect }: Props) {
           style={{ width: '100%', height: '100%' }}
           onClick={() => setSelected(null)}
         >
+          <ApplyOceanStyle />
           <FitBounds sites={mappable} />
 
           {mappable.map((site) => {
-            const color = WATER_TYPE_COLORS[site.waterType] ?? '#0077be';
             const isSelected = selected?.slug === site.slug;
             return (
               <AdvancedMarker
                 key={site.slug}
                 position={{ lat: site.coordinates.lat, lng: site.coordinates.lng }}
                 onClick={() => handleMarkerClick(site)}
-                zIndex={isSelected ? 10 : 1}
+                zIndex={isSelected ? 100 : 1}
               >
-                <PinSvg color={color} size={isSelected ? 36 : 28} />
+                <div style={{ position: 'relative' }}>
+                  {isSelected && (
+                    <PopupCard site={site} onClose={() => setSelected(null)} />
+                  )}
+                  <DepthPin site={site} isSelected={isSelected} />
+                </div>
               </AdvancedMarker>
             );
           })}
-
-          {selected && (
-            <InfoWindow
-              position={{ lat: selected.coordinates.lat, lng: selected.coordinates.lng }}
-              onCloseClick={() => setSelected(null)}
-              pixelOffset={[0, -36]}
-            >
-              <div style={{ minWidth: 200, maxWidth: 260, fontFamily: 'system-ui, sans-serif', padding: '10px 12px 10px' }}>
-                <div style={{ marginBottom: 6, paddingRight: 24 }}>
-                  <strong style={{ fontSize: 14, color: '#001f3f', lineHeight: 1.3 }}>{selected.name}</strong>
-                </div>
-                <div style={{ color: '#666', fontSize: 12, marginBottom: 8 }}>
-                  📍 {selected.location}, {selected.country}
-                </div>
-                <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap', marginBottom: 10 }}>
-                  <span style={{ background: '#f0f4f8', color: '#334', padding: '2px 8px', borderRadius: 4, fontSize: 11 }}>
-                    {WATER_TYPE_LABELS[selected.waterType]}
-                  </span>
-                  <span style={{ background: '#f0f4f8', color: '#334', padding: '2px 8px', borderRadius: 4, fontSize: 11 }}>
-                    ↓ {selected.maxDepth}m
-                  </span>
-                  {selected.visibility && (
-                    <span style={{ background: '#f0f4f8', color: '#334', padding: '2px 8px', borderRadius: 4, fontSize: 11 }}>
-                      👁 {selected.visibility.min}–{selected.visibility.max}m
-                    </span>
-                  )}
-                  {currentMonthTemp(selected) !== null && (() => {
-                    const temp = currentMonthTemp(selected)!;
-                    const bg = temp <= 8 ? '#1e88e5' : temp <= 14 ? '#26a69a' : '#ef6c00';
-                    return (
-                      <span style={{ background: bg, color: 'white', padding: '2px 8px', borderRadius: 4, fontSize: 11, fontWeight: 700 }}>
-                        {temp}°C
-                      </span>
-                    );
-                  })()}
-                </div>
-                <a
-                  href={`/dive-sites/${selected.slug}`}
-                  style={{
-                    display: 'block', textAlign: 'center', background: '#0077be',
-                    color: 'white', padding: '7px', borderRadius: 6,
-                    fontSize: 12, fontWeight: 600, textDecoration: 'none',
-                  }}
-                >
-                  View Details →
-                </a>
-              </div>
-            </InfoWindow>
-          )}
         </Map>
       </div>
     </APIProvider>

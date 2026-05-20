@@ -15,6 +15,7 @@ import {
   Tooltip,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import NavigateNextIcon from '@mui/icons-material/NavigateNext';
 import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import ShareIcon from '@mui/icons-material/Share';
@@ -740,15 +741,33 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
       {/* Hero */}
       <Box ref={heroRef} sx={{ background: 'linear-gradient(135deg, #001f3f 0%, #0077be 100%)', color: 'white', py: { xs: 3, md: 4 }, px: 2 }}>
         <Container maxWidth="lg">
-          <Button
-            component={Link}
-            href="/dive-sites"
-            startIcon={<ArrowBackIcon />}
-            sx={{ color: 'rgba(255,255,255,0.6)', mb: 1.5, fontSize: '0.8rem', '&:hover': { color: 'white' } }}
-            size="small"
-          >
-            All Dive Sites
-          </Button>
+          {/* Breadcrumb */}
+          <Stack direction="row" alignItems="center" spacing={0.5} mb={2}>
+            <Typography
+              component={Link} href="/dive-sites"
+              sx={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.75rem', textDecoration: 'none', '&:hover': { color: 'rgba(255,255,255,0.8)' }, transition: 'color 0.15s' }}
+            >
+              Dive Sites
+            </Typography>
+            {site.country && (() => {
+              const countrySlug = site.country.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+              return (
+                <>
+                  <NavigateNextIcon sx={{ fontSize: 14, color: 'rgba(255,255,255,0.25)' }} />
+                  <Typography
+                    component={Link} href={`/dive-sites/country/${countrySlug}`}
+                    sx={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.75rem', textDecoration: 'none', '&:hover': { color: 'rgba(255,255,255,0.8)' }, transition: 'color 0.15s' }}
+                  >
+                    {site.country}
+                  </Typography>
+                </>
+              );
+            })()}
+            <NavigateNextIcon sx={{ fontSize: 14, color: 'rgba(255,255,255,0.25)' }} />
+            <Typography sx={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.75rem', fontWeight: 500 }}>
+              {site.name}
+            </Typography>
+          </Stack>
 
           {/* Two-column on desktop: title left, meta right */}
           <Stack direction={{ xs: 'column', md: 'row' }} alignItems={{ md: 'flex-start' }} justifyContent="space-between" spacing={{ xs: 1.5, md: 3 }}>

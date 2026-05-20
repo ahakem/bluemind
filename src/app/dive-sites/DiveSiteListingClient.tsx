@@ -41,12 +41,13 @@ import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import CountryAutocomplete from '@/components/CountryAutocomplete';
 import { CountryType, lookupCountry } from '@/data/countries';
-import { Continent, CONTINENTS, getContinent } from '@/data/continents';
+import { Continent, CONTINENTS, getContinent, getContinents } from '@/data/continents';
 import StarIcon from '@mui/icons-material/Star';
 import ScubaDivingIcon from '@mui/icons-material/ScubaDiving';
 import { getActiveDiveSites, getDiveLogCounts, getAverageRatings } from '@/lib/diveSiteService';
 import { DiveSite } from '@/types/admin';
 import SubmitSiteButton from '@/components/SubmitSiteButton';
+import ExploreByCountry from '@/components/ExploreByCountry';
 
 const DiveSiteMap = dynamic(() => import('@/components/DiveSiteMap'), {
   ssr: false,
@@ -208,7 +209,7 @@ function DiveSitesPageInner() {
       if (countryFilter && site.country !== countryFilter.label) return false;
       if (continentFilter) {
         const c = lookupCountry(site.country);
-        if (!c || getContinent(c.code) !== continentFilter) return false;
+        if (!c || !getContinents(c.code).includes(continentFilter)) return false;
       }
       if (minDepth > 0 && site.maxDepth < minDepth) return false;
       if (minVisibility > 0 && (site.visibility?.max ?? 0) < minVisibility) return false;
@@ -280,22 +281,27 @@ function DiveSitesPageInner() {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-      {/* Hero */}
-      <Box sx={{ background: 'linear-gradient(135deg, #001f3f 0%, #003d7a 60%, #0077be 100%)', color: 'white', pt: { xs: 7, md: 9 }, pb: 0 }}>
-        <Container maxWidth="lg" sx={{ textAlign: 'center', pb: 3 }}>
-          <Stack direction="row" alignItems="center" justifyContent="center" spacing={1.5} mb={1.5}>
-            <WaterIcon sx={{ fontSize: 36, color: '#4fc3f7' }} />
-            <Typography variant="h3" fontWeight={800} sx={{ fontSize: { xs: '1.8rem', md: '2.4rem' } }}>
-              Dive Sites
-            </Typography>
+      {/* Compact header bar */}
+      <Box sx={{ background: 'linear-gradient(135deg, #001f3f 0%, #003d7a 60%, #0077be 100%)', color: 'white' }}>
+        <Container maxWidth="lg">
+          <Stack direction="row" alignItems="center" justifyContent="space-between" py={1.5}>
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <WaterIcon sx={{ fontSize: 20, color: '#4fc3f7' }} />
+              <Typography fontWeight={800} sx={{ fontSize: '1.05rem', letterSpacing: '-0.3px' }}>
+                Dive Sites
+              </Typography>
+              {!loading && (
+                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.55)', ml: 0.5 }}>
+                  {sites.length.toLocaleString()} locations worldwide
+                </Typography>
+              )}
+            </Stack>
+            <SubmitSiteButton />
           </Stack>
-          <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.75)', maxWidth: 520, mx: 'auto', mb: 2 }}>
-            Explore freediving locations worldwide. Hover a pin for a quick look, click to view full details.
-          </Typography>
-          <SubmitSiteButton />
         </Container>
 
-        <Box sx={{ width: '100%', height: { xs: 340, sm: 420, md: 520 }, mt: 2, position: 'relative' }}>
+        {/* Full-width map — the real hero */}
+        <Box sx={{ width: '100%', height: { xs: 340, sm: 420, md: 520 }, position: 'relative' }}>
           {!loading && <DiveSiteMap sites={filtered.length > 0 ? filtered : sites} onSelect={handleMapSelect} />}
           {loading && <Skeleton variant="rectangular" width="100%" height="100%" sx={{ bgcolor: 'rgba(255,255,255,0.08)' }} />}
           <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 48, background: 'linear-gradient(to bottom, transparent, #f5f5f5)', pointerEvents: 'none', zIndex: 1000 }} />
@@ -487,6 +493,11 @@ function DiveSitesPageInner() {
           </Box>
         )}
 
+        {/* Destination strip — compact country scroll, shown when no filters active */}
+        {!loading && !search && !countryFilter && !continentFilter && !savedOnly && !userPos && sites.length > 0 && (
+          <ExploreByCountry sites={sites} />
+        )}
+
         {/* Recently viewed strip */}
         {recentlyViewed.length > 0 && !savedOnly && !search && (
           <Box mb={3}>
@@ -665,6 +676,7 @@ function DiveSitesPageInner() {
             </Typography>
           </Box>
         )}
+
       </Container>
     </Box>
   );

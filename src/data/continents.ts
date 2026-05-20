@@ -53,5 +53,19 @@ for (const [continent, codes] of Object.entries(CONTINENT_CODES) as [Continent, 
   }
 }
 
+// Countries that belong to more than one region for dive-site discovery purposes
+const MULTI_CONTINENT: Partial<Record<string, Continent[]>> = {
+  EG: ['Africa', 'Middle East'], // Egypt — geographically Africa, but Red Sea = Middle East diving
+  TR: ['Europe', 'Middle East'], // Turkey straddles both
+};
+
 export const getContinent = (isoCode: string): Continent | null =>
   CODE_TO_CONTINENT[isoCode.toUpperCase()] ?? null;
+
+// Returns all continents a country belongs to (handles dual-region countries)
+export const getContinents = (isoCode: string): Continent[] => {
+  const upper = isoCode.toUpperCase();
+  if (MULTI_CONTINENT[upper]) return MULTI_CONTINENT[upper]!;
+  const single = CODE_TO_CONTINENT[upper];
+  return single ? [single] : [];
+};
