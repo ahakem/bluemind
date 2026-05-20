@@ -4,6 +4,7 @@ import ThemeRegistry from '@/components/ThemeRegistry';
 import LayoutContent from '@/components/LayoutContent';
 import { Analytics } from '@/lib/analytics';
 import { generateLocalBusinessSchema } from '@/lib/schemaGenerator';
+import './globals.css';
 
 export const viewport: Viewport = {
   width: 'device-width',

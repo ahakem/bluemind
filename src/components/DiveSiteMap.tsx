@@ -109,8 +109,8 @@ export default function DiveSiteMap({ sites, onSelect }: Props) {
               onCloseClick={() => setSelected(null)}
               pixelOffset={[0, -36]}
             >
-              <div style={{ minWidth: 200, maxWidth: 260, fontFamily: 'system-ui, sans-serif', padding: '2px 0' }}>
-                <div style={{ marginBottom: 6 }}>
+              <div style={{ minWidth: 200, maxWidth: 260, fontFamily: 'system-ui, sans-serif', padding: '10px 12px 10px' }}>
+                <div style={{ marginBottom: 6, paddingRight: 24 }}>
                   <strong style={{ fontSize: 14, color: '#001f3f', lineHeight: 1.3 }}>{selected.name}</strong>
                 </div>
                 <div style={{ color: '#666', fontSize: 12, marginBottom: 8 }}>
