@@ -1,0 +1,7 @@
+node_modules/
+dist/
+logs/
+.env
+*.json
+!package.json
+!tsconfig.json

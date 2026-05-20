@@ -15,24 +15,30 @@ import useScrollPosition from "@/hooks/useScrollPosition";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
+import { useSiteFeatures } from "@/contexts/SiteSettingsContext";
 
-const navItems = [
-  { name: "Home", href: "/" },
-  { name: "About Us", href: "/about" },
-  { name: "Membership", href: "/membership" },
-  { name: "Gallery", href: "/gallery" },
-  { name: "Dive Sites", href: "/dive-sites" },
-  { name: "Blog", href: "/blog" },
-  { name: "Community", href: "/community" },
-  { name: "Schedule", href: "/schedule" },
-  { name: "Reviews", href: "/reviews" },
-  { name: "Contact", href: "/contact" },
+const ALL_NAV_ITEMS = [
+  { name: "Home", href: "/", feature: null },
+  { name: "About Us", href: "/about", feature: null },
+  { name: "Membership", href: "/membership", feature: null },
+  { name: "Gallery", href: "/gallery", feature: null },
+  { name: "Dive Sites", href: "/dive-sites", feature: "diveSitesEnabled" },
+  { name: "Blog", href: "/blog", feature: null },
+  { name: "Community", href: "/community", feature: null },
+  { name: "Schedule", href: "/schedule", feature: null },
+  { name: "Reviews", href: "/reviews", feature: null },
+  { name: "Contact", href: "/contact", feature: null },
 ];
 
 const Navbar = () => {
   const [anchorElNav, setAnchorElNav] = useState<null | HTMLElement>(null);
   const [elevated, setElevated] = useState(false);
   const scrollPosition = useScrollPosition();
+  const features = useSiteFeatures();
+
+  const navItems = ALL_NAV_ITEMS.filter((item) =>
+    !item.feature || features[item.feature as keyof typeof features]
+  );
   const pathname = usePathname();
 
   useEffect(() => {
@@ -156,19 +162,20 @@ const Navbar = () => {
                 key={item.name}
                 component={Link}
                 href={item.href}
-                sx={{ 
-                  my: 2, 
-                  mx: 0.5, 
-                  px: 1.5,
-                  display: "block", 
-                  color: isActive(item.href) ? "primary.main" : "text.primary", 
-                  textTransform: "none", 
+                sx={{
+                  my: 2,
+                  mx: 0.25,
+                  px: 1,
+                  display: "block",
+                  whiteSpace: 'nowrap',
+                  color: isActive(item.href) ? "primary.main" : "text.primary",
+                  textTransform: "none",
                   fontWeight: isActive(item.href) ? 600 : 500,
-                  fontSize: '0.9rem',
+                  fontSize: '0.85rem',
                   borderBottom: isActive(item.href) ? '2px solid' : 'none',
                   borderColor: 'primary.main',
                   borderRadius: 0,
-                  "&:hover": { color: "primary.main", background: "transparent" } 
+                  "&:hover": { color: "primary.main", background: "transparent" }
                 }}
               >
                 {item.name}

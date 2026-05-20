@@ -7,6 +7,7 @@ import Footer from '@/components/Footer';
 import BackToTop from '@/components/BackToTop';
 import SkipLinks from '@/components/SkipLinks';
 import CookieConsent from '@/components/CookieConsent';
+import { SiteSettingsProvider } from '@/contexts/SiteSettingsContext';
 
 export default function LayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -24,7 +25,7 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
 
   // For public routes, render with full site layout
   return (
-    <>
+    <SiteSettingsProvider>
       <SkipLinks />
       <Navbar />
       <main id="main-content" role="main" tabIndex={-1}>
@@ -35,6 +36,6 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
       </footer>
       <BackToTop />
       <CookieConsent />
-    </>
+    </SiteSettingsProvider>
   );
 }

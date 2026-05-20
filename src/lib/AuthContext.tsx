@@ -1,9 +1,11 @@
 'use client';
 
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { 
+import {
   User,
   signInWithEmailAndPassword,
+  signInWithPopup,
+  GoogleAuthProvider,
   signOut as firebaseSignOut,
   onAuthStateChanged,
   createUserWithEmailAndPassword,
@@ -27,6 +29,7 @@ interface AuthContextType {
   loading: boolean;
   isAdmin: boolean;
   signIn: (email: string, password: string) => Promise<void>;
+  signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
   createAdminUser: (email: string, password: string, displayName: string, role: 'admin' | 'editor' | 'author') => Promise<void>;
   getAdminUsers: () => Promise<AdminUser[]>;
@@ -98,6 +101,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     if (!adminDoc.exists()) {
       await firebaseSignOut(auth);
       throw new Error('Access denied. You are not an administrator.');
+    }
+  };
+
+  const signInWithGoogle = async () => {
+    if (!auth || !db) throw new Error('Firebase not configured');
+    const provider = new GoogleAuthProvider();
+    const userCredential = await signInWithPopup(auth, provider);
+    const adminDoc = await getDoc(doc(db, 'adminUsers', userCredential.user.uid));
+    if (!adminDoc.exists()) {
+      await firebaseSignOut(auth);
+      throw new Error('Access denied. Your Google account is not an administrator.');
     }
   };
 
@@ -183,6 +197,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     isAdmin: !!adminUser,
     signIn,
+    signInWithGoogle,
     signOut,
     createAdminUser,
     getAdminUsers,

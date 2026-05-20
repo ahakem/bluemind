@@ -1,0 +1,26 @@
+{
+  "name": "bluemind-dive-site-scraper",
+  "version": "1.0.0",
+  "description": "Scraper for divers-guide.com → Firestore (Blue Mind Freediving)",
+  "private": true,
+  "scripts": {
+    "scrape": "ts-node src/run.ts",
+    "scrape:dry": "ts-node src/run.ts --dry-run",
+    "scrape:limit": "ts-node src/run.ts --limit",
+    "build": "tsc"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.97.1",
+    "axios": "^1.7.0",
+    "cheerio": "^1.0.0",
+    "dotenv": "^16.4.0",
+    "firebase-admin": "^12.0.0",
+    "pino": "^9.0.0",
+    "pino-pretty": "^11.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "ts-node": "^10.9.0",
+    "typescript": "^5.4.0"
+  }
+}

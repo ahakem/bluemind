@@ -10,6 +10,7 @@ import SchoolIcon from '@mui/icons-material/School';
 import PeopleIcon from '@mui/icons-material/People';
 import ArticleIcon from '@mui/icons-material/Article';
 import WaterIcon from '@mui/icons-material/Water';
+import SettingsIcon from '@mui/icons-material/Settings';
 import LogoutIcon from '@mui/icons-material/Logout';
 import MenuIcon from '@mui/icons-material/Menu';
 import Link from 'next/link';
@@ -25,6 +26,7 @@ const getMenuItems = (role?: 'admin' | 'editor' | 'author') => {
     { text: 'Partners', icon: <HandshakeIcon />, href: '/admin/partners', roles: ['admin', 'editor'] },
     { text: 'Guest Instructors', icon: <SchoolIcon />, href: '/admin/instructors', roles: ['admin', 'editor'] },
     { text: 'User Management', icon: <PeopleIcon />, href: '/admin/users', roles: ['admin'] },
+    { text: 'Settings', icon: <SettingsIcon />, href: '/admin/settings', roles: ['admin'] },
   ];
   
   if (!role) return allItems;

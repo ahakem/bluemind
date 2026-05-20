@@ -1,5 +1,6 @@
 'use client';
 
+import { useState, useEffect, useRef } from 'react';
 import {
   Box,
   Container,
@@ -18,16 +19,12 @@ import DepthIcon from '@mui/icons-material/VerticalAlignBottom';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
+import DirectionsIcon from '@mui/icons-material/Directions';
 import ThermostatIcon from '@mui/icons-material/Thermostat';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import Link from 'next/link';
+import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { DiveSite, Thermocline } from '@/types/admin';
-
-const DIFFICULTY_COLORS: Record<DiveSite['difficulty'], 'success' | 'warning' | 'error'> = {
-  beginner: 'success',
-  intermediate: 'warning',
-  advanced: 'error',
-};
 
 const WATER_TYPE_LABELS: Record<DiveSite['waterType'], string> = {
   lake: 'Lake',
@@ -296,10 +293,209 @@ function StatCard({ icon, label, value }: { icon: React.ReactNode; label: string
   );
 }
 
+// ─── Location Photos ─────────────────────────────────────────────────────────
+const MAX_PHOTOS = 18;
+
+function LocationPhotos({ lat, lng, siteName }: { lat: number; lng: number; siteName: string }) {
+  const [photos, setPhotos] = useState<string[]>([]);
+  const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
+  const mapRef = useRef<HTMLDivElement>(null);
+  const placesLib = useMapsLibrary('places');
+
+  useEffect(() => {
+    if (!placesLib || !mapRef.current) return;
+    const service = new placesLib.PlacesService(mapRef.current);
+
+    const collectPhotos = (results: google.maps.places.PlaceResult[] | null) => {
+      if (!results?.length) return;
+      const urls: string[] = [];
+      for (const place of results.slice(0, 8)) {
+        if (!place.photos) continue;
+        for (const photo of place.photos.slice(0, 5)) {
+          urls.push(photo.getUrl({ maxWidth: 1200, maxHeight: 900 }));
+          if (urls.length >= MAX_PHOTOS) break;
+        }
+        if (urls.length >= MAX_PHOTOS) break;
+      }
+      if (urls.length) setPhotos(urls);
+    };
+
+    const hasCoords = !!(lat && lng);
+    service.textSearch(
+      { query: siteName, ...(hasCoords ? { location: { lat, lng }, radius: 10000 } : {}) },
+      (results) => {
+        if (results?.length && results.some((r) => r.photos?.length)) {
+          collectPhotos(results);
+        } else if (hasCoords) {
+          service.nearbySearch(
+            { location: { lat, lng }, radius: 8000, rankBy: placesLib.RankBy.PROMINENCE },
+            (nearby) => collectPhotos(nearby)
+          );
+        }
+      }
+    );
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [placesLib, lat, lng, siteName]);
+
+  // Keyboard navigation
+  useEffect(() => {
+    if (selectedIdx === null) return;
+    const handler = (e: KeyboardEvent) => {
+      if (e.key === 'ArrowRight') setSelectedIdx((i) => (i !== null ? Math.min(i + 1, photos.length - 1) : null));
+      if (e.key === 'ArrowLeft')  setSelectedIdx((i) => (i !== null ? Math.max(i - 1, 0) : null));
+      if (e.key === 'Escape')     setSelectedIdx(null);
+    };
+    window.addEventListener('keydown', handler);
+    return () => window.removeEventListener('keydown', handler);
+  }, [selectedIdx, photos.length]);
+
+  return (
+    <>
+      <div ref={mapRef} style={{ display: 'none' }} />
+      {!photos.length ? null : (
+      <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, mb: 3 }}>
+        <Typography variant="h6" fontWeight={700} mb={0.5}>Photos</Typography>
+        <Typography variant="caption" color="text.secondary" display="block" mb={2}>
+          Photos from Google Maps near {siteName} — may show the surrounding area
+        </Typography>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1 }}>
+          {photos.map((url, i) => (
+            <Box
+              key={i}
+              component="img"
+              src={url}
+              alt={`Photo ${i + 1} near ${siteName}`}
+              onClick={() => setSelectedIdx(i)}
+              sx={{
+                width: '100%', aspectRatio: '4/3', objectFit: 'cover',
+                borderRadius: 1, cursor: 'pointer',
+                transition: 'opacity 0.15s',
+                '&:hover': { opacity: 0.85 },
+              }}
+            />
+          ))}
+        </Box>
+
+        {/* Lightbox */}
+        {selectedIdx !== null && (
+          <Box
+            onClick={() => setSelectedIdx(null)}
+            sx={{
+              position: 'fixed', inset: 0, bgcolor: 'rgba(0,0,0,0.9)',
+              zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}
+          >
+            {/* Prev */}
+            <Box
+              onClick={(e) => { e.stopPropagation(); setSelectedIdx((i) => Math.max((i ?? 1) - 1, 0)); }}
+              sx={{
+                position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)',
+                bgcolor: 'rgba(255,255,255,0.15)', color: 'white', borderRadius: '50%',
+                width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', fontSize: 24, userSelect: 'none',
+                opacity: selectedIdx === 0 ? 0.2 : 1,
+                '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' },
+              }}
+            >
+              ‹
+            </Box>
+
+            <Box
+              component="img"
+              src={photos[selectedIdx]}
+              alt={`Photo ${selectedIdx + 1}`}
+              sx={{ maxWidth: '85vw', maxHeight: '90vh', borderRadius: 2, objectFit: 'contain' }}
+              onClick={(e) => e.stopPropagation()}
+            />
+
+            {/* Next */}
+            <Box
+              onClick={(e) => { e.stopPropagation(); setSelectedIdx((i) => Math.min((i ?? 0) + 1, photos.length - 1)); }}
+              sx={{
+                position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)',
+                bgcolor: 'rgba(255,255,255,0.15)', color: 'white', borderRadius: '50%',
+                width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                cursor: 'pointer', fontSize: 24, userSelect: 'none',
+                opacity: selectedIdx === photos.length - 1 ? 0.2 : 1,
+                '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' },
+              }}
+            >
+              ›
+            </Box>
+
+            {/* Counter */}
+            <Box sx={{
+              position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)',
+              color: 'rgba(255,255,255,0.7)', fontSize: 13,
+            }}>
+              {selectedIdx + 1} / {photos.length}
+            </Box>
+          </Box>
+        )}
+      </Paper>
+      )}
+    </>
+  );
+}
+
+// ─── Street View Panel ────────────────────────────────────────────────────────
+function StreetViewPanel({ lat, lng, apiKey }: { lat: number; lng: number; apiKey: string }) {
+  const [status, setStatus] = useState<'checking' | 'available' | 'unavailable'>('checking');
+  const streetViewUrl = `https://www.google.com/maps/embed/v1/streetview?key=${apiKey}&location=${lat},${lng}&fov=80&pitch=0`;
+
+  useEffect(() => {
+    fetch(`https://maps.googleapis.com/maps/api/streetview/metadata?location=${lat},${lng}&key=${apiKey}`)
+      .then((r) => r.json())
+      .then((data: { status: string }) => {
+        // Only hide if Google explicitly says there's no imagery
+        // Any other status (API errors, not enabled, etc.) → show iframe anyway
+        setStatus(data.status === 'ZERO_RESULTS' ? 'unavailable' : 'available');
+      })
+      .catch(() => setStatus('available')); // if metadata check fails, try showing it
+  }, [lat, lng, apiKey]);
+
+  return (
+    <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 2 }}>
+      <Box sx={{ px: 2, pt: 1.5, pb: 1 }}>
+        <Typography variant="caption" fontWeight={700} color="text.secondary">STREET VIEW — SITE ENTRANCE</Typography>
+      </Box>
+      {status === 'checking' && (
+        <Box sx={{ height: 200, display: 'flex', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.100' }}>
+          <Typography variant="body2" color="text.secondary">Loading…</Typography>
+        </Box>
+      )}
+      {status === 'available' && (
+        <Box
+          component="iframe"
+          src={streetViewUrl}
+          width="100%"
+          height={200}
+          sx={{ border: 'none', display: 'block' }}
+          loading="lazy"
+          referrerPolicy="no-referrer-when-downgrade"
+          allowFullScreen
+        />
+      )}
+      {status === 'unavailable' && (
+        <Box sx={{ height: 160, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', bgcolor: 'grey.50', gap: 1 }}>
+          <PlaceIcon sx={{ fontSize: 32, color: 'text.disabled' }} />
+          <Typography variant="body2" color="text.secondary">No Street View coverage at this location</Typography>
+        </Box>
+      )}
+    </Paper>
+  );
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
-  const mapsUrl = `https://www.google.com/maps?q=${site.coordinates.lat},${site.coordinates.lng}`;
-  const embedUrl = `https://maps.google.com/maps?q=${site.coordinates.lat},${site.coordinates.lng}&z=13&output=embed`;
+  const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? '';
+  const lat = site.coordinates?.lat ?? 0;
+  const lng = site.coordinates?.lng ?? 0;
+  const hasCoordinates = !!(lat && lng);
+  const mapsUrl = `https://www.google.com/maps?q=${lat},${lng}`;
+  const directionsUrl = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+  const embedUrl = `https://www.google.com/maps/embed/v1/place?key=${apiKey}&q=${lat},${lng}&zoom=14&maptype=satellite`;
+  const streetViewUrl = `https://www.google.com/maps/embed/v1/streetview?key=${apiKey}&location=${lat},${lng}&fov=80&pitch=0`;
   const currentMonthKey = MONTH_KEYS[new Date().getMonth()];
   const currentTemp = site.waterTemp[currentMonthKey];
 
@@ -317,7 +513,6 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
             All Dive Sites
           </Button>
           <Stack direction="row" spacing={1.5} mb={2} flexWrap="wrap" useFlexGap>
-            <Chip label={site.difficulty.charAt(0).toUpperCase() + site.difficulty.slice(1)} color={DIFFICULTY_COLORS[site.difficulty]} size="small" sx={{ fontWeight: 700 }} />
             <Chip label={WATER_TYPE_LABELS[site.waterType]} size="small" sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'white' }} />
             {site.thermocline && (
               <Chip
@@ -402,7 +597,7 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
 
             {/* Facilities */}
             {site.facilities.length > 0 && (
-              <Paper variant="outlined" sx={{ p: 3, borderRadius: 2 }}>
+              <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, mb: 3 }}>
                 <Typography variant="h6" fontWeight={700} mb={1.5}>Facilities</Typography>
                 <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                   {site.facilities.map((f) => (
@@ -411,36 +606,70 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                 </Stack>
               </Paper>
             )}
+
+            {/* Photos from Google Maps */}
+            <APIProvider apiKey={apiKey}>
+              <LocationPhotos lat={lat} lng={lng} siteName={site.name} />
+            </APIProvider>
           </Grid>
 
           {/* ── Right column ── */}
           <Grid size={{ xs: 12, md: 4 }}>
-            {/* Map */}
-            <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 3 }}>
-              <Box
-                component="iframe"
-                src={embedUrl}
-                width="100%"
-                height={260}
-                sx={{ border: 'none', display: 'block' }}
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-              />
-              <Box sx={{ p: 2 }}>
-                <Button
-                  component="a"
-                  href={mapsUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  startIcon={<OpenInNewIcon />}
-                  size="small"
-                  fullWidth
-                  variant="outlined"
-                >
-                  Open in Google Maps
-                </Button>
-              </Box>
-            </Paper>
+            {hasCoordinates ? (
+              <>
+                {/* Map */}
+                <Paper variant="outlined" sx={{ borderRadius: 2, overflow: 'hidden', mb: 2 }}>
+                  <Box
+                    component="iframe"
+                    src={embedUrl}
+                    width="100%"
+                    height={240}
+                    sx={{ border: 'none', display: 'block' }}
+                    loading="lazy"
+                    referrerPolicy="no-referrer-when-downgrade"
+                    allowFullScreen
+                  />
+                </Paper>
+
+                {/* Street View */}
+                <StreetViewPanel lat={lat} lng={lng} apiKey={apiKey} />
+
+                {/* Navigation buttons */}
+                <Stack spacing={1} mb={3}>
+                  <Button
+                    component="a"
+                    href={directionsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    startIcon={<DirectionsIcon />}
+                    variant="contained"
+                    fullWidth
+                    sx={{ fontWeight: 700 }}
+                  >
+                    Get Directions
+                  </Button>
+                  <Button
+                    component="a"
+                    href={mapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    startIcon={<OpenInNewIcon />}
+                    variant="outlined"
+                    fullWidth
+                    size="small"
+                  >
+                    Open in Google Maps
+                  </Button>
+                </Stack>
+              </>
+            ) : (
+              <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, mb: 3, textAlign: 'center' }}>
+                <PlaceIcon sx={{ fontSize: 40, color: 'text.disabled', mb: 1 }} />
+                <Typography variant="body2" color="text.secondary">
+                  Location coordinates not yet available for this site.
+                </Typography>
+              </Paper>
+            )}
 
             {/* Site details */}
             <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, mb: 3 }}>
@@ -448,10 +677,6 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                 SITE DETAILS
               </Typography>
               <Stack spacing={1.5} divider={<Divider />}>
-                <Stack direction="row" justifyContent="space-between">
-                  <Typography variant="body2" color="text.secondary">Difficulty</Typography>
-                  <Chip label={site.difficulty} color={DIFFICULTY_COLORS[site.difficulty]} size="small" sx={{ fontWeight: 600, height: 20, fontSize: '0.7rem' }} />
-                </Stack>
                 <Stack direction="row" justifyContent="space-between">
                   <Typography variant="body2" color="text.secondary">Water type</Typography>
                   <Typography variant="body2" fontWeight={600}>{WATER_TYPE_LABELS[site.waterType]}</Typography>
@@ -478,6 +703,17 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                   <Typography variant="body2" color="text.secondary">Location</Typography>
                   <Typography variant="body2" fontWeight={600}>{site.location}</Typography>
                 </Stack>
+                {site.googleRating && (
+                  <Stack direction="row" justifyContent="space-between" alignItems="center">
+                    <Typography variant="body2" color="text.secondary">Google rating</Typography>
+                    <Stack direction="row" alignItems="center" spacing={0.5}>
+                      <Typography variant="body2" fontWeight={700} sx={{ color: '#f59e0b' }}>★ {site.googleRating.toFixed(1)}</Typography>
+                      {site.googleRatingsTotal && (
+                        <Typography variant="caption" color="text.secondary">({site.googleRatingsTotal.toLocaleString()})</Typography>
+                      )}
+                    </Stack>
+                  </Stack>
+                )}
               </Stack>
             </Paper>
 

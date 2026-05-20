@@ -90,6 +90,16 @@ export interface DiveSite {
   status: 'active' | 'pending' | 'archived';
   createdAt: Date;
   updatedAt: Date;
+  // Enrichment flags (set by score-sites.ts)
+  freediverScore?: number;
+  needsReview?: boolean;
+  scubaOnly?: boolean;
+  depthUnknown?: boolean;
+  scubaFlags?: string[];
+  coordinatesOnShore?: boolean;
+  googleRating?: number;
+  googleRatingsTotal?: number;
+  googlePlaceId?: string;
 }
 
 export interface DiveSiteDraft {
