@@ -76,7 +76,7 @@ env:
       - RUNTIME
 
   - variable: GOOGLE_PLACES_API_KEY
-    value: AIzaSyD9Hq1pJVexzxs7UmwQxIfmzR4KqNsIOso
+    value: AIzaSyAInpEWuiOZkMX1QfN3ce1aI2Cw9iqpsA0
     availability:
       - RUNTIME
 
