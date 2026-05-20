@@ -498,57 +498,13 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
   const currentMonthKey = MONTH_KEYS[new Date().getMonth()];
   const currentTemp = site.waterTemp[currentMonthKey];
 
-  // Correction dialog + sticky bar
   const [correctionOpen, setCorrectionOpen] = useState(false);
-  const [showStickyBar, setShowStickyBar] = useState(false);
-  const correctionAnchorRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const el = correctionAnchorRef.current;
-    if (!el) return;
-    const observer = new IntersectionObserver(
-      ([entry]) => setShowStickyBar(!entry.isIntersecting),
-      { threshold: 0, rootMargin: '-80px 0px 0px 0px' }
-    );
-    observer.observe(el);
-    return () => observer.disconnect();
-  }, []);
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
 
-      {/* Sticky correction bar — appears after scrolling past the CTA */}
-      {showStickyBar && (
-        <Box sx={{
-          position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1100,
-          bgcolor: '#fff3e0', borderBottom: '1px solid #ffcc80',
-          px: { xs: 2, md: 4 }, py: 1,
-          display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2,
-          boxShadow: '0 2px 8px rgba(0,0,0,0.12)',
-        }}>
-          <Stack direction="row" alignItems="center" spacing={1}>
-            <FlagIcon sx={{ fontSize: 18, color: 'warning.dark' }} />
-            <Typography variant="body2" fontWeight={600} color="warning.dark" sx={{ display: { xs: 'none', sm: 'block' } }}>
-              Found incorrect data for {site.name}?
-            </Typography>
-            <Typography variant="body2" fontWeight={600} color="warning.dark" sx={{ display: { xs: 'block', sm: 'none' } }}>
-              Incorrect data?
-            </Typography>
-          </Stack>
-          <Button
-            variant="contained"
-            size="small"
-            startIcon={<FlagIcon />}
-            onClick={() => setCorrectionOpen(true)}
-            sx={{ bgcolor: 'warning.dark', '&:hover': { bgcolor: 'warning.main' }, whiteSpace: 'nowrap' }}
-          >
-            Report It
-          </Button>
-        </Box>
-      )}
-
       {/* Hero */}
-      <Box sx={{ background: 'linear-gradient(135deg, #001f3f 0%, #0077be 100%)', color: 'white', py: { xs: 6, md: 8 }, px: 2 }}>
+      <Box sx={{ background: 'linear-gradient(135deg, #001f3f 0%, #0077be 100%)', color: 'white', py: { xs: 4, md: 5 }, px: 2 }}>
         <Container maxWidth="lg">
           <Button
             component={Link}
@@ -600,6 +556,34 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
             </Stack>
           )}
         </Container>
+      </Box>
+
+      {/* Sticky report bar — sits right after hero, sticks below the navbar on scroll */}
+      <Box sx={{
+        position: 'sticky', top: 64, zIndex: 1050,
+        bgcolor: '#fff3e0', borderBottom: '1px solid #ffcc80',
+        px: { xs: 2, md: 4 }, py: 0.75,
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2,
+        boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
+      }}>
+        <Stack direction="row" alignItems="center" spacing={1}>
+          <FlagIcon sx={{ fontSize: 16, color: 'warning.dark' }} />
+          <Typography variant="body2" fontWeight={600} color="warning.dark" sx={{ display: { xs: 'none', sm: 'block' } }}>
+            Found incorrect data for <strong>{site.name}</strong>?
+          </Typography>
+          <Typography variant="body2" fontWeight={600} color="warning.dark" sx={{ display: { xs: 'block', sm: 'none' } }}>
+            Incorrect data?
+          </Typography>
+        </Stack>
+        <Button
+          variant="contained"
+          size="small"
+          startIcon={<FlagIcon />}
+          onClick={() => setCorrectionOpen(true)}
+          sx={{ bgcolor: 'warning.dark', '&:hover': { bgcolor: 'warning.main' }, whiteSpace: 'nowrap', py: 0.5 }}
+        >
+          Report It
+        </Button>
       </Box>
 
       <Container maxWidth="lg" sx={{ py: 5 }}>
@@ -811,8 +795,7 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
               </Stack>
             </Paper>
 
-            {/* Report incorrect data — prominent card with sticky anchor */}
-            <div ref={correctionAnchorRef} />
+            {/* Report incorrect data */}
             <Paper
               variant="outlined"
               sx={{ p: 2.5, borderRadius: 2, borderColor: '#ffcc80', bgcolor: '#fff8f0', mt: 2 }}
