@@ -21,9 +21,13 @@ export async function fetchReviews(): Promise<ReviewsResponse> {
     throw new Error('GOOGLE_PLACES_API_KEY or GOOGLE_PLACE_ID not set in environment');
   }
 
-  const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=reviews,rating,user_ratings_total&key=${apiKey}`;
-
-  const res = await fetch(url);
+  const url = `https://places.googleapis.com/v1/places/${placeId}`;
+  const res = await fetch(url, {
+    headers: {
+      'X-Goog-Api-Key': apiKey,
+      'X-Goog-FieldMask': 'rating,userRatingCount,reviews',
+    },
+  });
 
   if (!res.ok) {
     throw new Error(`Places API HTTP error: ${res.status}`);
@@ -31,13 +35,22 @@ export async function fetchReviews(): Promise<ReviewsResponse> {
 
   const data = await res.json();
 
-  if (data.status !== 'OK') {
-    throw new Error(`Places API error: ${data.status} — ${data.error_message ?? ''}`);
+  if (data.error) {
+    throw new Error(`Places API error: ${data.error.status} — ${data.error.message ?? ''}`);
   }
 
+  const reviews: Review[] = (data.reviews ?? []).map((r: any) => ({
+    author_name: r.authorAttribution?.displayName ?? '',
+    profile_photo_url: r.authorAttribution?.photoUri ?? '',
+    rating: r.rating ?? 0,
+    text: r.text?.text ?? '',
+    time: r.publishTime ? Math.floor(new Date(r.publishTime).getTime() / 1000) : 0,
+    relative_time_description: r.relativePublishTimeDescription ?? '',
+  }));
+
   return {
-    reviews: data.result.reviews ?? [],
-    totalReviewCount: data.result.user_ratings_total ?? 0,
-    averageRating: data.result.rating ?? 0,
+    reviews,
+    totalReviewCount: data.userRatingCount ?? 0,
+    averageRating: data.rating ?? 0,
   };
 }
