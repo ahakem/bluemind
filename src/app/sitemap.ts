@@ -1,5 +1,6 @@
 import type { MetadataRoute } from 'next';
 import { getActiveDiveSites } from '@/lib/diveSiteService';
+import { getPublishedPosts } from '@/lib/blogService';
 import { CONTINENTS } from '@/data/continents';
 
 // Revalidate daily — picks up newly published dive sites and new countries
@@ -14,6 +15,7 @@ const STATIC_PAGES: MetadataRoute.Sitemap = [
   { url: `${BASE_URL}/dive-sites`,                   changeFrequency: 'daily',   priority: 0.9 },
   { url: `${BASE_URL}/about`,                        changeFrequency: 'monthly', priority: 0.8 },
   { url: `${BASE_URL}/schedule`,                     changeFrequency: 'weekly',  priority: 0.8 },
+  { url: `${BASE_URL}/blog`,                         changeFrequency: 'weekly',  priority: 0.8 },
   { url: `${BASE_URL}/community`,                    changeFrequency: 'monthly', priority: 0.7 },
   { url: `${BASE_URL}/gallery`,                      changeFrequency: 'weekly',  priority: 0.7 },
   { url: `${BASE_URL}/contact`,                      changeFrequency: 'monthly', priority: 0.7 },
@@ -51,9 +53,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
 
   let countryEntries: MetadataRoute.Sitemap = [];
   let siteEntries: MetadataRoute.Sitemap = [];
+  let blogEntries: MetadataRoute.Sitemap = [];
 
   try {
-    const sites = await getActiveDiveSites();
+    const [sites, posts] = await Promise.all([getActiveDiveSites(), getPublishedPosts()]);
 
     // Unique countries with at least one site
     const countries = [...new Set(sites.map((s) => s.country).filter(Boolean))].sort();
@@ -71,6 +74,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: 'monthly' as const,
       priority: 0.7,
     }));
+
+    // Published blog posts
+    blogEntries = posts.map((post) => ({
+      url: `${BASE_URL}/blog/${post.slug}`,
+      lastModified: post.updatedAt instanceof Date ? post.updatedAt : new Date(post.updatedAt),
+      changeFrequency: 'monthly' as const,
+      priority: 0.6,
+    }));
   } catch {
     // Firestore unavailable — sitemap returns static + filter pages only
   }
@@ -81,5 +92,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...waterTypeEntries,
     ...countryEntries,
     ...siteEntries,
+    ...blogEntries,
   ];
 }
