@@ -499,91 +499,150 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
   const currentTemp = site.waterTemp[currentMonthKey];
 
   const [correctionOpen, setCorrectionOpen] = useState(false);
+  const [showBar, setShowBar] = useState(false);
+  const [navHeight, setNavHeight] = useState(64);
+  const heroRef = useRef<HTMLDivElement>(null);
+
+  // Measure actual navbar height on mount + resize
+  useEffect(() => {
+    const measure = () => {
+      const nav = document.getElementById('navigation');
+      if (nav) setNavHeight(nav.getBoundingClientRect().height);
+    };
+    measure();
+    window.addEventListener('resize', measure);
+    return () => window.removeEventListener('resize', measure);
+  }, []);
+
+  // Show bar after hero scrolls out of view
+  useEffect(() => {
+    const hero = heroRef.current;
+    if (!hero) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowBar(!entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(hero);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
 
+      {/* Report bar — fixed below navbar, shown after hero scrolls off */}
+      {showBar && (
+        <Box sx={{
+          position: 'fixed', top: navHeight, left: 0, right: 0, zIndex: 1099,
+          bgcolor: '#fffbf5',
+          borderTop: '1px solid #ffe0b2',
+          borderBottom: '1px solid #ffe0b2',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.07)',
+        }}>
+          <Container maxWidth="lg" sx={{ py: 0.75, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
+            <Stack direction="row" alignItems="center" spacing={1}>
+              <FlagIcon sx={{ fontSize: 15, color: '#e65100' }} />
+              <Typography variant="body2" color="text.secondary" sx={{ display: { xs: 'none', sm: 'block' }, fontSize: '0.82rem' }}>
+                Is the data on <Box component="span" fontWeight={700} color="text.primary">{site.name}</Box> incorrect?
+              </Typography>
+              <Typography variant="body2" color="text.secondary" sx={{ display: { xs: 'block', sm: 'none' }, fontSize: '0.82rem' }}>
+                Incorrect data?
+              </Typography>
+            </Stack>
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<FlagIcon sx={{ fontSize: '14px !important' }} />}
+              onClick={() => setCorrectionOpen(true)}
+              sx={{
+                borderColor: '#e65100', color: '#e65100', fontWeight: 600,
+                fontSize: '0.78rem', py: 0.4, whiteSpace: 'nowrap',
+                '&:hover': { bgcolor: '#fff3e0', borderColor: '#bf360c' },
+              }}
+            >
+              Report
+            </Button>
+          </Container>
+        </Box>
+      )}
+
       {/* Hero */}
-      <Box sx={{ background: 'linear-gradient(135deg, #001f3f 0%, #0077be 100%)', color: 'white', py: { xs: 4, md: 5 }, px: 2 }}>
+      <Box ref={heroRef} sx={{ background: 'linear-gradient(135deg, #001f3f 0%, #0077be 100%)', color: 'white', py: { xs: 3, md: 4 }, px: 2 }}>
         <Container maxWidth="lg">
           <Button
             component={Link}
             href="/dive-sites"
             startIcon={<ArrowBackIcon />}
-            sx={{ color: 'rgba(255,255,255,0.75)', mb: 2, '&:hover': { color: 'white' } }}
+            sx={{ color: 'rgba(255,255,255,0.6)', mb: 1.5, fontSize: '0.8rem', '&:hover': { color: 'white' } }}
+            size="small"
           >
             All Dive Sites
           </Button>
-          <Stack direction="row" spacing={1.5} mb={2} flexWrap="wrap" useFlexGap>
-            <Chip label={WATER_TYPE_LABELS[site.waterType]} size="small" sx={{ bgcolor: 'rgba(255,255,255,0.15)', color: 'white' }} />
-            {site.thermocline && (
-              <Chip
-                icon={<ThermostatIcon sx={{ fontSize: '14px !important', color: '#4fc3f7 !important' }} />}
-                label={`Thermocline ~${site.thermocline.depth}m`}
-                size="small"
-                sx={{ bgcolor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.9)', border: '1px solid rgba(79,195,247,0.5)' }}
-              />
-            )}
-            {site.bestSeasons.map((s) => (
-              <Chip key={s} label={s} size="small" sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.85)' }} />
-            ))}
-          </Stack>
-          <Typography variant="h2" fontWeight={800} gutterBottom sx={{ fontSize: { xs: '1.8rem', md: '2.8rem' } }}>
-            {site.name}
-          </Typography>
-          <Stack direction="row" alignItems="center" spacing={0.5} mb={site.tags?.length ? 2 : 0}>
-            <PlaceIcon sx={{ fontSize: 18, color: 'rgba(255,255,255,0.7)' }} />
-            <Typography sx={{ color: 'rgba(255,255,255,0.7)' }}>
-              {site.location}, {site.country}
-            </Typography>
-          </Stack>
-          {site.tags?.length > 0 && (
-            <Stack direction="row" spacing={0.75} flexWrap="wrap" useFlexGap>
-              {site.tags.map((tag) => (
-                <Chip
-                  key={tag}
-                  label={tag}
-                  size="small"
-                  sx={{
-                    bgcolor: 'rgba(255,255,255,0.12)',
-                    color: 'rgba(255,255,255,0.9)',
-                    border: '1px solid rgba(255,255,255,0.2)',
-                    fontWeight: 500,
-                    fontSize: '0.72rem',
-                  }}
-                />
-              ))}
-            </Stack>
-          )}
-        </Container>
-      </Box>
 
-      {/* Sticky report bar — sits right after hero, sticks below the navbar on scroll */}
-      <Box sx={{
-        position: 'sticky', top: 64, zIndex: 1050,
-        bgcolor: '#fff3e0', borderBottom: '1px solid #ffcc80',
-        px: { xs: 2, md: 4 }, py: 0.75,
-        display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2,
-        boxShadow: '0 2px 6px rgba(0,0,0,0.08)',
-      }}>
-        <Stack direction="row" alignItems="center" spacing={1}>
-          <FlagIcon sx={{ fontSize: 16, color: 'warning.dark' }} />
-          <Typography variant="body2" fontWeight={600} color="warning.dark" sx={{ display: { xs: 'none', sm: 'block' } }}>
-            Found incorrect data for <strong>{site.name}</strong>?
-          </Typography>
-          <Typography variant="body2" fontWeight={600} color="warning.dark" sx={{ display: { xs: 'block', sm: 'none' } }}>
-            Incorrect data?
-          </Typography>
-        </Stack>
-        <Button
-          variant="contained"
-          size="small"
-          startIcon={<FlagIcon />}
-          onClick={() => setCorrectionOpen(true)}
-          sx={{ bgcolor: 'warning.dark', '&:hover': { bgcolor: 'warning.main' }, whiteSpace: 'nowrap', py: 0.5 }}
-        >
-          Report It
-        </Button>
+          {/* Two-column on desktop: title left, meta right */}
+          <Stack direction={{ xs: 'column', md: 'row' }} alignItems={{ md: 'flex-start' }} justifyContent="space-between" spacing={{ xs: 1.5, md: 3 }}>
+            {/* Left: title */}
+            <Box sx={{ flex: '1 1 auto', minWidth: 0 }}>
+              <Typography
+                variant="h1"
+                fontWeight={800}
+                sx={{ fontSize: { xs: '1.6rem', md: '2rem' }, lineHeight: 1.2, mb: 0 }}
+              >
+                {site.name}
+              </Typography>
+            </Box>
+
+            {/* Right: location + chips */}
+            <Box sx={{ flex: '0 0 auto', maxWidth: { md: '44%' } }}>
+              <Stack direction="row" alignItems="center" spacing={0.5} mb={1}>
+                <PlaceIcon sx={{ fontSize: 15, color: 'rgba(255,255,255,0.6)', flexShrink: 0 }} />
+                <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.85rem' }}>
+                  {site.location}{site.location && site.country ? ', ' : ''}{site.country}
+                </Typography>
+              </Stack>
+
+              {/* Water type + thermocline + seasons */}
+              <Stack direction="row" spacing={0.6} flexWrap="wrap" useFlexGap mb={site.tags?.length ? 0.75 : 0}>
+                <Chip
+                  label={WATER_TYPE_LABELS[site.waterType]}
+                  size="small"
+                  sx={{ bgcolor: 'rgba(255,255,255,0.18)', color: 'white', fontSize: '0.7rem', height: 20 }}
+                />
+                {site.thermocline && (
+                  <Chip
+                    icon={<ThermostatIcon sx={{ fontSize: '12px !important', color: '#4fc3f7 !important' }} />}
+                    label={`Thermocline ~${site.thermocline.depth}m`}
+                    size="small"
+                    sx={{ bgcolor: 'rgba(255,255,255,0.12)', color: 'rgba(255,255,255,0.9)', border: '1px solid rgba(79,195,247,0.4)', fontSize: '0.7rem', height: 20 }}
+                  />
+                )}
+                {site.bestSeasons.map((s) => (
+                  <Chip key={s} label={s} size="small" sx={{ bgcolor: 'rgba(255,255,255,0.1)', color: 'rgba(255,255,255,0.8)', fontSize: '0.7rem', height: 20 }} />
+                ))}
+              </Stack>
+
+              {/* Tags */}
+              {site.tags?.length > 0 && (
+                <Stack direction="row" spacing={0.5} flexWrap="wrap" useFlexGap>
+                  {site.tags.map((tag) => (
+                    <Chip
+                      key={tag}
+                      label={tag}
+                      size="small"
+                      sx={{
+                        bgcolor: 'rgba(255,255,255,0.1)',
+                        color: 'rgba(255,255,255,0.85)',
+                        border: '1px solid rgba(255,255,255,0.18)',
+                        fontWeight: 500,
+                        fontSize: '0.68rem',
+                        height: 20,
+                      }}
+                    />
+                  ))}
+                </Stack>
+              )}
+            </Box>
+          </Stack>
+        </Container>
       </Box>
 
       <Container maxWidth="lg" sx={{ py: 5 }}>
