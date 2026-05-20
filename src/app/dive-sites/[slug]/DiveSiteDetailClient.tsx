@@ -11,8 +11,12 @@ import {
   Paper,
   Divider,
   Button,
+  IconButton,
+  Tooltip,
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
+import BookmarkIcon from '@mui/icons-material/Bookmark';
 import PlaceIcon from '@mui/icons-material/Place';
 import WaterIcon from '@mui/icons-material/Water';
 import DepthIcon from '@mui/icons-material/VerticalAlignBottom';
@@ -519,9 +523,28 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
   const [hasVerified, setHasVerified] = useState(false);
   const [verifying, setVerifying] = useState(false);
 
+  const [bookmarked, setBookmarked] = useState(false);
+
   useEffect(() => {
     setHasVerified(!!localStorage.getItem(localKey));
-  }, [localKey]);
+    try {
+      const stored = localStorage.getItem('bm_saved_sites');
+      if (stored) setBookmarked((JSON.parse(stored) as string[]).includes(site.id));
+    } catch {}
+  }, [localKey, site.id]);
+
+  const toggleBookmark = () => {
+    setBookmarked((prev) => {
+      const next = !prev;
+      try {
+        const stored = localStorage.getItem('bm_saved_sites');
+        const ids: string[] = stored ? JSON.parse(stored) : [];
+        const updated = next ? [...ids.filter((x) => x !== site.id), site.id] : ids.filter((x) => x !== site.id);
+        localStorage.setItem('bm_saved_sites', JSON.stringify(updated));
+      } catch {}
+      return next;
+    });
+  };
 
   const handleVerify = async () => {
     if (hasVerified || verifying || site.verified) return;
@@ -638,13 +661,30 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
           <Stack direction={{ xs: 'column', md: 'row' }} alignItems={{ md: 'flex-start' }} justifyContent="space-between" spacing={{ xs: 1.5, md: 3 }}>
             {/* Left: title */}
             <Box sx={{ flex: '1 1 auto', minWidth: 0 }}>
-              <Typography
-                variant="h1"
-                fontWeight={800}
-                sx={{ fontSize: { xs: '1.6rem', md: '2rem' }, lineHeight: 1.2, mb: 0 }}
-              >
-                {site.name}
-              </Typography>
+              <Stack direction="row" alignItems="flex-start" spacing={1}>
+                <Typography
+                  variant="h1"
+                  fontWeight={800}
+                  sx={{ fontSize: { xs: '1.6rem', md: '2rem' }, lineHeight: 1.2, mb: 0, flex: '1 1 auto' }}
+                >
+                  {site.name}
+                </Typography>
+                <Tooltip title={bookmarked ? 'Remove from saved' : 'Save this site'} placement="top">
+                  <IconButton
+                    onClick={toggleBookmark}
+                    size="small"
+                    sx={{
+                      color: bookmarked ? '#ffcc02' : 'rgba(255,255,255,0.55)',
+                      mt: 0.25,
+                      flexShrink: 0,
+                      '&:hover': { color: bookmarked ? '#ffe066' : 'rgba(255,255,255,0.9)', bgcolor: 'rgba(255,255,255,0.1)' },
+                    }}
+                    aria-label={bookmarked ? 'Remove bookmark' : 'Bookmark this site'}
+                  >
+                    {bookmarked ? <BookmarkIcon fontSize="medium" /> : <BookmarkBorderIcon fontSize="medium" />}
+                  </IconButton>
+                </Tooltip>
+              </Stack>
               {site.verified && (
                 <Stack direction="row" alignItems="center" spacing={0.5} mt={0.75}>
                   <VerifiedIcon sx={{ fontSize: 15, color: '#69f0ae' }} />
