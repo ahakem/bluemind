@@ -122,6 +122,56 @@ export interface DiveSiteDraft {
   status: 'active' | 'pending' | 'archived';
 }
 
+export interface SiteSubmission {
+  id: string;
+  name: string;
+  location: string;
+  country: string;
+  coordinates: { lat: number; lng: number };
+  waterType: DiveSite['waterType'];
+  difficulty: DiveSite['difficulty'];
+  maxDepth: number;
+  description: string;
+  highlights: string[];
+  facilities: string[];
+  visibility: { min: number; max: number };
+  bestSeasons: string[];
+  submitterEmail: string;
+  submitterNote: string;
+  status: 'pending' | 'approved' | 'rejected';
+  reviewedBy: string | null;
+  reviewedAt: Date | null;
+  rejectionReason: string | null;
+  createdSiteId: string | null;
+  submittedAt: Date;
+  _hp: string;
+  ipFingerprint: string;
+}
+
+export type SiteSubmissionDraft = Omit<SiteSubmission,
+  'id' | 'status' | 'reviewedBy' | 'reviewedAt' | 'rejectionReason' | 'createdSiteId' | 'submittedAt'
+>;
+
+export interface SiteCorrection {
+  id: string;
+  siteId: string;
+  siteSlug: string;
+  siteName: string;
+  fields: Record<string, { current: unknown; suggested: unknown }>;
+  submitterEmail: string;
+  correctionNote: string;
+  status: 'pending' | 'approved' | 'rejected';
+  reviewedBy: string | null;
+  reviewedAt: Date | null;
+  rejectionReason: string | null;
+  submittedAt: Date;
+  _hp: string;
+}
+
+export type SiteCorrectionDraft = Omit<SiteCorrection,
+  'id' | 'status' | 'reviewedBy' | 'reviewedAt' | 'rejectionReason' | 'submittedAt'
+>;
+
 export interface BlogDraft {
   title: string;
   slug?: string;

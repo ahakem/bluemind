@@ -43,6 +43,35 @@ service cloud.firestore {
         get(/databases/$(database)/documents/adminUsers/$(request.auth.uid)).data.role == 'admin';
     }
 
+    // ── Helper reusable function ─────────────────────────────────────────────
+    function isAdminOrEditor() {
+      return request.auth != null &&
+        get(/databases/$(database)/documents/adminUsers/$(request.auth.uid)).data.role
+          in ['admin', 'editor'];
+    }
+
+    // Community-submitted new dive sites — public create only; admins can manage
+    match /siteSubmissions/{docId} {
+      allow create: if
+        request.resource.data.status == 'pending' &&
+        request.resource.data._hp == '' &&
+        request.resource.data.name is string &&
+        request.resource.data.submitterEmail is string &&
+        request.resource.data.coordinates.lat is number &&
+        request.resource.data.coordinates.lng is number;
+      allow read, update, delete: if isAdminOrEditor();
+    }
+
+    // Community data-correction requests — public create only; admins can manage
+    match /siteCorrections/{docId} {
+      allow create: if
+        request.resource.data.status == 'pending' &&
+        request.resource.data._hp == '' &&
+        request.resource.data.siteId is string &&
+        request.resource.data.submitterEmail is string;
+      allow read, update, delete: if isAdminOrEditor();
+    }
+
     // Site settings — public read, admin-only write
     match /siteSettings/{docId} {
       allow read: if true;

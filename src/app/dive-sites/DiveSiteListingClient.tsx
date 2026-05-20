@@ -35,6 +35,7 @@ import { CountryType, lookupCountry } from '@/data/countries';
 import { Continent, CONTINENTS, getContinent } from '@/data/continents';
 import { getActiveDiveSites } from '@/lib/diveSiteService';
 import { DiveSite } from '@/types/admin';
+import SubmitSiteButton from '@/components/SubmitSiteButton';
 
 // Leaflet must be client-side only (no SSR)
 const DiveSiteMap = dynamic(() => import('@/components/DiveSiteMap'), {
@@ -188,9 +189,10 @@ function DiveSitesPageInner() {
               Dive Sites
             </Typography>
           </Stack>
-          <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.75)', maxWidth: 520, mx: 'auto' }}>
+          <Typography variant="body1" sx={{ color: 'rgba(255,255,255,0.75)', maxWidth: 520, mx: 'auto', mb: 2 }}>
             Explore freediving locations worldwide. Hover a pin for a quick look, click to view full details.
           </Typography>
+          <SubmitSiteButton />
         </Container>
 
         {/* Full-width map — flush against the bottom of the hero */}

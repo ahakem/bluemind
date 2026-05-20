@@ -25,6 +25,7 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import Link from 'next/link';
 import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { DiveSite, Thermocline } from '@/types/admin';
+import RequestCorrectionButton from '@/components/RequestCorrectionButton';
 
 const WATER_TYPE_LABELS: Record<DiveSite['waterType'], string> = {
   lake: 'Lake',
@@ -744,6 +745,7 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                 >
                   Become a Member
                 </Button>
+                <RequestCorrectionButton site={site} />
               </Stack>
             </Paper>
           </Grid>
