@@ -72,6 +72,14 @@ service cloud.firestore {
       allow read, update, delete: if isAdminOrEditor();
     }
 
+    // Community data-verification votes — public create only; admins can manage
+    match /siteVerifications/{docId} {
+      allow create: if
+        request.resource.data.siteId is string &&
+        request.resource.data.siteName is string;
+      allow read, update, delete: if isAdminOrEditor();
+    }
+
     // Site settings — public read, admin-only write
     match /siteSettings/{docId} {
       allow read: if true;

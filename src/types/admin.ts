@@ -100,6 +100,7 @@ export interface DiveSite {
   googleRating?: number;
   googleRatingsTotal?: number;
   googlePlaceId?: string;
+  verified?: boolean;
 }
 
 export interface DiveSiteDraft {
@@ -171,6 +172,14 @@ export interface SiteCorrection {
 export type SiteCorrectionDraft = Omit<SiteCorrection,
   'id' | 'status' | 'reviewedBy' | 'reviewedAt' | 'rejectionReason' | 'submittedAt'
 >;
+
+export interface SiteVerification {
+  id: string;
+  siteId: string;
+  siteSlug: string;
+  siteName: string;
+  submittedAt: Date;
+}
 
 export interface BlogDraft {
   title: string;

@@ -18,6 +18,7 @@ import { DiveSite, DiveSiteDraft } from '@/types/admin';
 import { SEED_DIVE_SITES } from '@/data/diveSites';
 
 const COLLECTION = 'diveSites';
+const VERIFICATIONS_COLLECTION = 'siteVerifications';
 
 const validateDb = (): Firestore => {
   if (!db) throw new Error('Firebase not initialized');
@@ -60,6 +61,7 @@ const docToDiveSite = (id: string, data: Record<string, unknown>): DiveSite => (
   googleRating: data.googleRating as number | undefined,
   googleRatingsTotal: data.googleRatingsTotal as number | undefined,
   googlePlaceId: data.googlePlaceId as string | undefined,
+  verified: data.verified as boolean | undefined,
 });
 
 export const generateSlug = (name: string): string =>
@@ -165,4 +167,37 @@ export const updateDiveSite = async (id: string, updates: Partial<DiveSiteDraft>
 export const deleteDiveSite = async (id: string): Promise<void> => {
   const firestore = validateDb();
   await deleteDoc(doc(firestore, COLLECTION, id));
+};
+
+export const submitVerification = async (
+  siteId: string,
+  siteSlug: string,
+  siteName: string,
+): Promise<void> => {
+  const firestore = validateDb();
+  await addDoc(collection(firestore, VERIFICATIONS_COLLECTION), {
+    siteId,
+    siteSlug,
+    siteName,
+    submittedAt: Timestamp.now(),
+  });
+};
+
+export const getSiteVerificationCounts = async (): Promise<Map<string, number>> => {
+  const firestore = validateDb();
+  const snap = await getDocs(collection(firestore, VERIFICATIONS_COLLECTION));
+  const counts = new Map<string, number>();
+  snap.docs.forEach((d) => {
+    const id = d.data().siteId as string;
+    counts.set(id, (counts.get(id) ?? 0) + 1);
+  });
+  return counts;
+};
+
+export const markSiteVerified = async (id: string, verified: boolean): Promise<void> => {
+  const firestore = validateDb();
+  await updateDoc(doc(firestore, COLLECTION, id), {
+    verified,
+    updatedAt: Timestamp.now(),
+  });
 };

@@ -45,6 +45,7 @@ import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import VerifiedIcon from '@mui/icons-material/Verified';
 import ArchiveIcon from '@mui/icons-material/Archive';
 import PendingIcon from '@mui/icons-material/HourglassEmpty';
 import PublicIcon from '@mui/icons-material/Public';
@@ -55,6 +56,8 @@ import {
   updateDiveSite,
   deleteDiveSite,
   generateSlug,
+  markSiteVerified,
+  getSiteVerificationCounts,
 } from '@/lib/diveSiteService';
 import { DiveSite, DiveSiteDraft, WaterTempByMonth } from '@/types/admin';
 
@@ -83,6 +86,7 @@ const EMPTY_DRAFT: DiveSiteDraft = {
 
 export default function AdminDiveSitesPage() {
   const [sites, setSites] = useState<DiveSite[]>([]);
+  const [verificationCounts, setVerificationCounts] = useState<Map<string, number>>(new Map());
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -108,6 +112,8 @@ export default function AdminDiveSitesPage() {
     if (relevanceFilter === 'depth-unknown' && !s.depthUnknown) return false;
     if (relevanceFilter === 'not-scored' && s.freediverScore !== undefined) return false;
     if (relevanceFilter === 'on-shore' && !s.coordinatesOnShore) return false;
+    if (relevanceFilter === 'verified' && !s.verified) return false;
+    if (relevanceFilter === 'has-votes' && !verificationCounts.get(s.id)) return false;
     return true;
   });
 
@@ -144,8 +150,9 @@ export default function AdminDiveSitesPage() {
 
   const load = async () => {
     try {
-      const data = await getAllDiveSites();
+      const [data, counts] = await Promise.all([getAllDiveSites(), getSiteVerificationCounts()]);
       setSites(data);
+      setVerificationCounts(counts);
     } catch {
       setError('Failed to load sites');
     } finally {
@@ -354,6 +361,8 @@ export default function AdminDiveSitesPage() {
               <MenuItem value="depth-unknown">Depth unknown</MenuItem>
               <MenuItem value="not-scored">Not scored yet</MenuItem>
               <MenuItem value="on-shore">Coordinates on shore</MenuItem>
+              <MenuItem value="verified">Verified</MenuItem>
+              <MenuItem value="has-votes">Has community votes</MenuItem>
             </Select>
           </FormControl>
           {hasFilters && (
@@ -475,9 +484,9 @@ export default function AdminDiveSitesPage() {
                   <TableCell sx={{ fontWeight: 700 }}>Name</TableCell>
                   <TableCell sx={{ fontWeight: 700 }}>Country</TableCell>
                   <TableCell sx={{ fontWeight: 700 }}>Type</TableCell>
-                  <TableCell sx={{ fontWeight: 700 }}>Difficulty</TableCell>
                   <TableCell sx={{ fontWeight: 700 }}>Depth</TableCell>
                   <TableCell sx={{ fontWeight: 700 }}>Score</TableCell>
+                  <TableCell sx={{ fontWeight: 700 }}>Votes</TableCell>
                   <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
                   <TableCell sx={{ fontWeight: 700 }} align="right">Actions</TableCell>
                 </TableRow>
@@ -520,6 +529,26 @@ export default function AdminDiveSitesPage() {
                       )}
                     </TableCell>
                     <TableCell>
+                      <Stack direction="row" alignItems="center" spacing={0.5}>
+                        {site.verified && (
+                          <Tooltip title="Verified by admin">
+                            <VerifiedIcon sx={{ fontSize: 16, color: 'success.main' }} />
+                          </Tooltip>
+                        )}
+                        {(verificationCounts.get(site.id) ?? 0) > 0 ? (
+                          <Chip
+                            label={verificationCounts.get(site.id)}
+                            size="small"
+                            color="success"
+                            variant="outlined"
+                            sx={{ fontSize: '0.7rem', height: 20 }}
+                          />
+                        ) : (
+                          <Typography variant="caption" color="text.disabled">—</Typography>
+                        )}
+                      </Stack>
+                    </TableCell>
+                    <TableCell>
                       <Chip
                         label={site.status}
                         size="small"
@@ -529,6 +558,18 @@ export default function AdminDiveSitesPage() {
                     </TableCell>
                     <TableCell align="right">
                       <Stack direction="row" spacing={0.5} justifyContent="flex-end">
+                        <Tooltip title={site.verified ? 'Unmark as verified' : 'Mark as verified'}>
+                          <IconButton
+                            size="small"
+                            color={site.verified ? 'success' : 'default'}
+                            onClick={async () => {
+                              await markSiteVerified(site.id, !site.verified);
+                              await load();
+                            }}
+                          >
+                            <VerifiedIcon fontSize="small" />
+                          </IconButton>
+                        </Tooltip>
                         <Tooltip title="View site">
                           <IconButton size="small" component="a" href={`/dive-sites/${site.slug}`} target="_blank">
                             <OpenInNewIcon fontSize="small" />

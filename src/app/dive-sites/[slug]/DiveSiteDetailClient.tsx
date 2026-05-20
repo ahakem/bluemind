@@ -18,6 +18,8 @@ import WaterIcon from '@mui/icons-material/Water';
 import DepthIcon from '@mui/icons-material/VerticalAlignBottom';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
+import CheckCircleOutlineIcon from '@mui/icons-material/CheckCircleOutline';
+import VerifiedIcon from '@mui/icons-material/Verified';
 import OpenInNewIcon from '@mui/icons-material/OpenInNew';
 import DirectionsIcon from '@mui/icons-material/Directions';
 import ThermostatIcon from '@mui/icons-material/Thermostat';
@@ -28,6 +30,7 @@ import Link from 'next/link';
 import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { DiveSite, Thermocline } from '@/types/admin';
 import RequestCorrectionDialog from '@/components/RequestCorrectionDialog';
+import { submitVerification } from '@/lib/diveSiteService';
 
 const WATER_TYPE_LABELS: Record<DiveSite['waterType'], string> = {
   lake: 'Lake',
@@ -299,20 +302,24 @@ const MAX_PHOTOS = 18;
 function LocationPhotos({ lat, lng, siteName }: { lat: number; lng: number; siteName: string }) {
   const [photos, setPhotos] = useState<string[]>([]);
   const [selectedIdx, setSelectedIdx] = useState<number | null>(null);
-  const mapRef = useRef<HTMLDivElement>(null);
   const placesLib = useMapsLibrary('places');
 
   useEffect(() => {
-    if (!placesLib || !mapRef.current) return;
-    const service = new placesLib.PlacesService(mapRef.current);
+    if (!placesLib) return;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const Place = (placesLib as any).Place;
+    if (!Place?.searchByText) return;
 
-    const collectPhotos = (results: google.maps.places.PlaceResult[] | null) => {
+    type Photo = { getURI: (opts: { maxWidth: number; maxHeight: number }) => string };
+    type PlaceWithPhotos = { photos?: Photo[] };
+
+    const collectPhotos = (results: PlaceWithPhotos[]) => {
       if (!results?.length) return;
       const urls: string[] = [];
       for (const place of results.slice(0, 8)) {
         if (!place.photos) continue;
         for (const photo of place.photos.slice(0, 5)) {
-          urls.push(photo.getUrl({ maxWidth: 1200, maxHeight: 900 }));
+          urls.push(photo.getURI({ maxWidth: 1200, maxHeight: 900 }));
           if (urls.length >= MAX_PHOTOS) break;
         }
         if (urls.length >= MAX_PHOTOS) break;
@@ -321,19 +328,22 @@ function LocationPhotos({ lat, lng, siteName }: { lat: number; lng: number; site
     };
 
     const hasCoords = !!(lat && lng);
-    service.textSearch(
-      { query: siteName, ...(hasCoords ? { location: { lat, lng }, radius: 10000 } : {}) },
-      (results) => {
-        if (results?.length && results.some((r) => r.photos?.length)) {
-          collectPhotos(results);
+    (Place.searchByText({
+      textQuery: siteName,
+      fields: ['photos'],
+      ...(hasCoords ? { locationBias: { lat, lng } } : {}),
+    }) as Promise<{ places: PlaceWithPhotos[] }>)
+      .then(({ places }) => {
+        if (places.length && places.some((p) => p.photos?.length)) {
+          collectPhotos(places);
         } else if (hasCoords) {
-          service.nearbySearch(
-            { location: { lat, lng }, radius: 8000, rankBy: placesLib.RankBy.PROMINENCE },
-            (nearby) => collectPhotos(nearby)
-          );
+          return (Place.searchNearby({
+            fields: ['photos'],
+            locationRestriction: { center: { lat, lng }, radius: 8000 },
+          }) as Promise<{ places: PlaceWithPhotos[] }>).then(({ places: nearby }) => collectPhotos(nearby));
         }
-      }
-    );
+      })
+      .catch(() => {});
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [placesLib, lat, lng, siteName]);
 
@@ -351,7 +361,6 @@ function LocationPhotos({ lat, lng, siteName }: { lat: number; lng: number; site
 
   return (
     <>
-      <div ref={mapRef} style={{ display: 'none' }} />
       {!photos.length ? null : (
       <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, mb: 3 }}>
         <Typography variant="h6" fontWeight={700} mb={0.5}>Photos</Typography>
@@ -474,6 +483,7 @@ function StreetViewPanel({ lat, lng, apiKey }: { lat: number; lng: number; apiKe
           loading="lazy"
           referrerPolicy="no-referrer-when-downgrade"
           allowFullScreen
+          allow="accelerometer; gyroscope; magnetometer"
         />
       )}
       {status === 'unavailable' && (
@@ -503,6 +513,26 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
   const [navHeight, setNavHeight] = useState(64);
   const heroRef = useRef<HTMLDivElement>(null);
 
+  const localKey = `bm_verified_${site.id}`;
+  const [hasVerified, setHasVerified] = useState(false);
+  const [verifying, setVerifying] = useState(false);
+
+  useEffect(() => {
+    setHasVerified(!!localStorage.getItem(localKey));
+  }, [localKey]);
+
+  const handleVerify = async () => {
+    if (hasVerified || verifying || site.verified) return;
+    setVerifying(true);
+    try {
+      await submitVerification(site.id, site.slug, site.name);
+      localStorage.setItem(localKey, '1');
+      setHasVerified(true);
+    } finally {
+      setVerifying(false);
+    }
+  };
+
   // Measure actual navbar height on mount + resize
   useEffect(() => {
     const measure = () => {
@@ -529,7 +559,7 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
 
-      {/* Report bar — fixed below navbar, shown after hero scrolls off */}
+      {/* Sticky bar — fixed below navbar, shown after hero scrolls off */}
       {showBar && (
         <Box sx={{
           position: 'fixed', top: navHeight, left: 0, right: 0, zIndex: 1099,
@@ -540,27 +570,51 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
         }}>
           <Container maxWidth="lg" sx={{ py: 0.75, display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 2 }}>
             <Stack direction="row" alignItems="center" spacing={1}>
-              <FlagIcon sx={{ fontSize: 15, color: '#e65100' }} />
+              {site.verified ? (
+                <VerifiedIcon sx={{ fontSize: 15, color: '#2e7d32' }} />
+              ) : (
+                <FlagIcon sx={{ fontSize: 15, color: '#e65100' }} />
+              )}
               <Typography variant="body2" color="text.secondary" sx={{ display: { xs: 'none', sm: 'block' }, fontSize: '0.82rem' }}>
-                Is the data on <Box component="span" fontWeight={700} color="text.primary">{site.name}</Box> incorrect?
-              </Typography>
-              <Typography variant="body2" color="text.secondary" sx={{ display: { xs: 'block', sm: 'none' }, fontSize: '0.82rem' }}>
-                Incorrect data?
+                {site.verified
+                  ? <Box component="span" fontWeight={600} color="success.main">Data verified by Blue Mind team</Box>
+                  : <>Is the data on <Box component="span" fontWeight={700} color="text.primary">{site.name}</Box> incorrect?</>
+                }
               </Typography>
             </Stack>
-            <Button
-              variant="outlined"
-              size="small"
-              startIcon={<FlagIcon sx={{ fontSize: '14px !important' }} />}
-              onClick={() => setCorrectionOpen(true)}
-              sx={{
-                borderColor: '#e65100', color: '#e65100', fontWeight: 600,
-                fontSize: '0.78rem', py: 0.4, whiteSpace: 'nowrap',
-                '&:hover': { bgcolor: '#fff3e0', borderColor: '#bf360c' },
-              }}
-            >
-              Report
-            </Button>
+            {!site.verified && (
+              <Stack direction="row" spacing={1}>
+                {!hasVerified && (
+                  <Button
+                    variant="outlined"
+                    size="small"
+                    startIcon={<CheckCircleOutlineIcon sx={{ fontSize: '14px !important' }} />}
+                    onClick={handleVerify}
+                    disabled={verifying}
+                    sx={{
+                      borderColor: '#2e7d32', color: '#2e7d32', fontWeight: 600,
+                      fontSize: '0.78rem', py: 0.4, whiteSpace: 'nowrap',
+                      '&:hover': { bgcolor: '#f1f8f1', borderColor: '#1b5e20' },
+                    }}
+                  >
+                    Looks correct
+                  </Button>
+                )}
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<FlagIcon sx={{ fontSize: '14px !important' }} />}
+                  onClick={() => setCorrectionOpen(true)}
+                  sx={{
+                    borderColor: '#e65100', color: '#e65100', fontWeight: 600,
+                    fontSize: '0.78rem', py: 0.4, whiteSpace: 'nowrap',
+                    '&:hover': { bgcolor: '#fff3e0', borderColor: '#bf360c' },
+                  }}
+                >
+                  Report
+                </Button>
+              </Stack>
+            )}
           </Container>
         </Box>
       )}
@@ -589,6 +643,14 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
               >
                 {site.name}
               </Typography>
+              {site.verified && (
+                <Stack direction="row" alignItems="center" spacing={0.5} mt={0.75}>
+                  <VerifiedIcon sx={{ fontSize: 15, color: '#69f0ae' }} />
+                  <Typography variant="caption" sx={{ color: '#69f0ae', fontWeight: 600, fontSize: '0.75rem' }}>
+                    Verified by Blue Mind team
+                  </Typography>
+                </Stack>
+              )}
             </Box>
 
             {/* Right: location + chips */}
@@ -641,6 +703,51 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                 </Stack>
               )}
             </Box>
+          </Stack>
+
+          {/* Data accuracy actions */}
+          <Stack direction="row" spacing={1} mt={2.5} flexWrap="wrap" useFlexGap>
+            {!site.verified && (
+              <>
+                <Button
+                  variant="contained"
+                  size="small"
+                  startIcon={
+                    hasVerified
+                      ? <CheckCircleIcon sx={{ fontSize: '15px !important' }} />
+                      : <CheckCircleOutlineIcon sx={{ fontSize: '15px !important' }} />
+                  }
+                  onClick={handleVerify}
+                  disabled={hasVerified || verifying}
+                  sx={{
+                    bgcolor: hasVerified ? 'rgba(56,142,60,0.85)' : 'rgba(56,142,60,0.75)',
+                    color: 'white',
+                    fontWeight: 600,
+                    fontSize: '0.78rem',
+                    boxShadow: 'none',
+                    '&:hover': { bgcolor: 'rgba(56,142,60,0.95)', boxShadow: 'none' },
+                    '&.Mui-disabled': { bgcolor: 'rgba(56,142,60,0.5)', color: 'rgba(255,255,255,0.8)' },
+                  }}
+                >
+                  {hasVerified ? 'You verified this' : verifying ? 'Saving…' : 'Data looks correct'}
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<FlagIcon sx={{ fontSize: '14px !important' }} />}
+                  onClick={() => setCorrectionOpen(true)}
+                  sx={{
+                    borderColor: 'rgba(255,255,255,0.4)',
+                    color: 'rgba(255,255,255,0.75)',
+                    fontWeight: 600,
+                    fontSize: '0.78rem',
+                    '&:hover': { borderColor: 'white', color: 'white', bgcolor: 'rgba(255,255,255,0.08)' },
+                  }}
+                >
+                  Report incorrect data
+                </Button>
+              </>
+            )}
           </Stack>
         </Container>
       </Box>
