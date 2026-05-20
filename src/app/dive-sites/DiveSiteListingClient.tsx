@@ -242,13 +242,14 @@ function DiveSitesPageInner() {
             border: '1px solid',
             borderColor: 'divider',
             borderRadius: 3,
-            p: 3,
-            mb: 4,
+            p: 2,
+            mb: 3,
             boxShadow: 1,
           }}
         >
-          <Stack spacing={2.5}>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+          <Stack spacing={1.5}>
+            {/* Row 1: search + country */}
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5}>
               <TextField
                 placeholder="Search by name or location…"
                 value={search}
@@ -269,15 +270,21 @@ function DiveSitesPageInner() {
                 onChange={handleCountryChange}
                 label="Country"
                 placeholder="All countries"
-                sx={{ minWidth: 220 }}
+                sx={{ minWidth: 200 }}
               />
             </Stack>
 
-            <Box>
-              <Typography variant="caption" fontWeight={600} color="text.secondary" mb={0.5} display="block">
-                CONTINENT
-              </Typography>
-              <Stack direction="row" flexWrap="wrap" gap={1}>
+            {/* Row 2: continent chips (left) + water type (right) */}
+            <Stack
+              direction={{ xs: 'column', sm: 'row' }}
+              alignItems={{ sm: 'center' }}
+              justifyContent="space-between"
+              spacing={1}
+            >
+              <Stack direction="row" flexWrap="wrap" gap={0.75} alignItems="center">
+                <Typography variant="caption" fontWeight={600} color="text.secondary" sx={{ mr: 0.5 }}>
+                  CONTINENT
+                </Typography>
                 {CONTINENTS.map((c) => (
                   <Chip
                     key={c}
@@ -290,22 +297,20 @@ function DiveSitesPageInner() {
                   />
                 ))}
               </Stack>
-            </Box>
 
-            <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, alignItems: 'center' }}>
-              <Box>
-                <Typography variant="caption" fontWeight={600} color="text.secondary" mb={0.5} display="block">
+              <Stack direction="row" alignItems="center" spacing={1} sx={{ flexShrink: 0 }}>
+                <Typography variant="caption" fontWeight={600} color="text.secondary">
                   WATER TYPE
                 </Typography>
-                <ToggleButtonGroup value={waterTypeFilter} onChange={handleWaterType} size="small" sx={{ flexWrap: 'wrap' }}>
+                <ToggleButtonGroup value={waterTypeFilter} onChange={handleWaterType} size="small">
                   {(['lake', 'sea'] as const).map((t) => (
-                    <ToggleButton key={t} value={t} sx={{ textTransform: 'capitalize', px: 2 }}>
+                    <ToggleButton key={t} value={t} sx={{ textTransform: 'capitalize', px: 1.5, py: 0.4 }}>
                       {WATER_TYPE_LABELS[t]}
                     </ToggleButton>
                   ))}
                 </ToggleButtonGroup>
-              </Box>
-            </Box>
+              </Stack>
+            </Stack>
           </Stack>
         </Box>
 
