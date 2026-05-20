@@ -449,7 +449,7 @@ function FilterChipsRow({
 
         {hasBothTypes && (
           <>
-            <Box sx={{ width: 1, height: 16, bgcolor: 'divider', flexShrink: 0, mx: 0.5 }} />
+            <Box sx={{ width: "1px", height: 16, bgcolor: "divider", flexShrink: 0, mx: 0.5 }} />
             <Typography variant="caption" sx={{ fontSize: '0.64rem', textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: 700, color: 'text.disabled', flexShrink: 0, mr: 0.25 }}>
               Type
             </Typography>
