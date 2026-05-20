@@ -3,3 +3,84 @@ runConfig:
   cpu: 1
   memoryMiB: 512
   concurrency: 80
+  maxInstances: 3
+
+env:
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: AIzaSyCOyP6k20y-w1HdamXPrg5pqmcCtLEb3fI
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: bluemind-landing.firebaseapp.com
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: bluemind-landing
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: bluemind-landing.firebasestorage.app
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "687366093897"
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: 1:687366093897:web:4c7502c2408e96adeb5398
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_GA_MEASUREMENT_ID
+    value: G-SVTHWQ8X55
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+    value: AIzaSyD9Hq1pJVexzxs7UmwQxIfmzR4KqNsIOso
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_ADMIN_EMAILS
+    value: admin@bluemindfreediving.nl
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_EMAILJS_SERVICE_ID
+    value: service_bluemind
+    availability:
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_EMAILJS_TEMPLATE_ID
+    value: template_contact
+    availability:
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+    value: YOUR_PUBLIC_KEY
+    availability:
+      - RUNTIME
+
+  - variable: GOOGLE_PLACES_API_KEY
+    value: AIzaSyD9Hq1pJVexzxs7UmwQxIfmzR4KqNsIOso
+    availability:
+      - RUNTIME
+
+  - variable: GOOGLE_PLACE_ID
+    value: ChIJUdb15qHjxUcRtuajYyqwLDs
+    availability:
+      - RUNTIME
