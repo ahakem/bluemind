@@ -1,7 +1,8 @@
 import type { MetadataRoute } from 'next';
 import { getActiveDiveSites } from '@/lib/diveSiteService';
+import { CONTINENTS } from '@/data/continents';
 
-// Revalidate daily — picks up newly published dive sites without a redeploy
+// Revalidate daily — picks up newly published dive sites and new countries
 export const revalidate = 86400;
 
 const BASE_URL = 'https://bluemindfreediving.nl';
@@ -23,16 +24,47 @@ const STATIC_PAGES: MetadataRoute.Sitemap = [
   { url: `${BASE_URL}/documents/terms-of-service`,   changeFrequency: 'yearly',  priority: 0.3 },
 ];
 
+function listingUrl(params: Record<string, string>): string {
+  const qs = new URLSearchParams(params).toString();
+  return `${BASE_URL}/dive-sites?${qs}`;
+}
+
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = new Date();
-
-  // Stamp static pages with today's date
   const staticEntries = STATIC_PAGES.map((p) => ({ ...p, lastModified: now }));
 
-  // Fetch all published dive sites from Firestore
+  // Continent filter pages — one per continent
+  const continentEntries: MetadataRoute.Sitemap = CONTINENTS.map((c) => ({
+    url: listingUrl({ continent: c }),
+    lastModified: now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.8,
+  }));
+
+  // Water type pages
+  const waterTypeEntries: MetadataRoute.Sitemap = ['sea', 'lake'].map((wt) => ({
+    url: listingUrl({ waterType: wt }),
+    lastModified: now,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
+  }));
+
+  let countryEntries: MetadataRoute.Sitemap = [];
   let siteEntries: MetadataRoute.Sitemap = [];
+
   try {
     const sites = await getActiveDiveSites();
+
+    // Unique countries with at least one site
+    const countries = [...new Set(sites.map((s) => s.country).filter(Boolean))].sort();
+    countryEntries = countries.map((country) => ({
+      url: listingUrl({ country }),
+      lastModified: now,
+      changeFrequency: 'weekly' as const,
+      priority: 0.8,
+    }));
+
+    // Individual dive site pages
     siteEntries = sites.map((site) => ({
       url: `${BASE_URL}/dive-sites/${site.slug}`,
       lastModified: site.updatedAt instanceof Date ? site.updatedAt : new Date(site.updatedAt),
@@ -40,8 +72,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.7,
     }));
   } catch {
-    // Firestore unavailable — sitemap will omit dive sites rather than fail
+    // Firestore unavailable — sitemap returns static + filter pages only
   }
 
-  return [...staticEntries, ...siteEntries];
+  return [
+    ...staticEntries,
+    ...continentEntries,
+    ...waterTypeEntries,
+    ...countryEntries,
+    ...siteEntries,
+  ];
 }
