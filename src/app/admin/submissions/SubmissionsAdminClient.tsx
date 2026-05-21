@@ -20,8 +20,11 @@ import {
   getPendingCorrections, getAllCorrections,
   approveSubmission, rejectSubmission,
   approveCorrection, rejectCorrection,
+  getPendingRemovalRequests, getAllRemovalRequests,
+  resolveRemovalRequest,
 } from '@/lib/communityService';
 import { SiteSubmission, SiteCorrection } from '@/types/admin';
+import BlockIcon from '@mui/icons-material/Block';
 
 const CoordinatePickerMap = dynamic(() => import('@/components/CoordinatePickerMap'), { ssr: false });
 
@@ -321,24 +324,87 @@ function CorrectionRow({
   );
 }
 
+// ── Removal Request Row ───────────────────────────────────────────────────────
+function RemovalRow({ req, adminUid, onRefresh }: { req: Record<string, unknown>; adminUid: string; onRefresh: () => void }) {
+  const [loading, setLoading] = useState(false);
+  const [snack, setSnack] = useState('');
+  const statusColor = req.status === 'pending' ? 'warning' : req.status === 'approved' ? 'success' : 'error';
+
+  const handle = async (action: 'approved' | 'rejected') => {
+    setLoading(true);
+    try {
+      await resolveRemovalRequest(req.id as string, action, adminUid);
+      setSnack(action === 'approved' ? '✅ Marked for removal' : '❌ Request rejected');
+      onRefresh();
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const reasons = (req.reasons as string[] | undefined) ?? [];
+  const submitted = req.submittedAt instanceof Date ? req.submittedAt.toLocaleDateString() : '—';
+
+  return (
+    <>
+      <TableRow hover>
+        <TableCell>{submitted}</TableCell>
+        <TableCell>
+          <MuiLink href={`/dive-sites/${req.siteSlug as string}`} target="_blank" rel="noopener"
+            sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
+            {req.siteName as string} <OpenInNewIcon sx={{ fontSize: 12 }} />
+          </MuiLink>
+        </TableCell>
+        <TableCell>
+          <Stack spacing={0.5}>
+            {reasons.map((r) => (
+              <Chip key={r} label={r.replace(/_/g, ' ')} size="small" sx={{ fontSize: '0.7rem', height: 20 }} />
+            ))}
+          </Stack>
+        </TableCell>
+        <TableCell>{(req.note as string) || '—'}</TableCell>
+        <TableCell>{req.submitterEmail as string}</TableCell>
+        <TableCell><Chip label={req.status as string} size="small" color={statusColor} /></TableCell>
+        <TableCell>
+          {req.status === 'pending' && (
+            <Stack direction="row" spacing={0.5}>
+              <Button size="small" variant="contained" color="error" startIcon={<BlockIcon />}
+                onClick={() => handle('approved')} disabled={loading}>
+                Remove
+              </Button>
+              <Button size="small" variant="outlined" color="inherit" startIcon={<CancelIcon />}
+                onClick={() => handle('rejected')} disabled={loading}>
+                Dismiss
+              </Button>
+            </Stack>
+          )}
+        </TableCell>
+      </TableRow>
+      <Snackbar open={!!snack} autoHideDuration={4000} onClose={() => setSnack('')} message={snack} />
+    </>
+  );
+}
+
 // ── Main Component ─────────────────────────────────────────────────────────────
 export default function SubmissionsAdminClient() {
   const { user } = useAuth();
   const [tab, setTab] = useState(0);
   const [submissions, setSubmissions] = useState<SiteSubmission[]>([]);
   const [corrections, setCorrections] = useState<SiteCorrection[]>([]);
+  const [removals, setRemovals] = useState<Record<string, unknown>[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<'pending' | 'all'>('pending');
 
   const load = useCallback(async () => {
     setLoading(true);
     try {
-      const [subs, cors] = await Promise.all([
+      const [subs, cors, rems] = await Promise.all([
         filter === 'pending' ? getPendingSubmissions() : getAllSubmissions(),
         filter === 'pending' ? getPendingCorrections() : getAllCorrections(),
+        filter === 'pending' ? getPendingRemovalRequests() : getAllRemovalRequests(),
       ]);
       setSubmissions(subs);
       setCorrections(cors);
+      setRemovals(rems);
     } finally {
       setLoading(false);
     }
@@ -350,6 +416,7 @@ export default function SubmissionsAdminClient() {
 
   const pendingSubs = submissions.filter((s) => s.status === 'pending').length;
   const pendingCors = corrections.filter((c) => c.status === 'pending').length;
+  const pendingRems = removals.filter((r) => r.status === 'pending').length;
 
   return (
     <Box>
@@ -376,6 +443,14 @@ export default function SubmissionsAdminClient() {
             <span>Corrections</span>
             {pendingCors > 0 && (
               <Chip label={pendingCors} size="small" color="warning" sx={{ height: 20, fontSize: '0.7rem' }} />
+            )}
+          </Stack>
+        } />
+        <Tab label={
+          <Stack direction="row" spacing={1} alignItems="center">
+            <span>Removal Requests</span>
+            {pendingRems > 0 && (
+              <Chip label={pendingRems} size="small" color="error" sx={{ height: 20, fontSize: '0.7rem' }} />
             )}
           </Stack>
         } />
@@ -440,6 +515,34 @@ export default function SubmissionsAdminClient() {
                   <TableBody>
                     {corrections.map((cor) => (
                       <CorrectionRow key={cor.id} cor={cor} adminUid={adminUid} onRefresh={load} />
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )
+          )}
+
+          {/* Removal Requests tab */}
+          {tab === 2 && (
+            removals.length === 0 ? (
+              <Alert severity="info">No {filter === 'pending' ? 'pending' : ''} removal requests.</Alert>
+            ) : (
+              <TableContainer component={Paper} variant="outlined">
+                <Table size="small">
+                  <TableHead>
+                    <TableRow>
+                      <TableCell>Submitted</TableCell>
+                      <TableCell>Site</TableCell>
+                      <TableCell>Reasons</TableCell>
+                      <TableCell>Note</TableCell>
+                      <TableCell>Email</TableCell>
+                      <TableCell>Status</TableCell>
+                      <TableCell>Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {removals.map((req) => (
+                      <RemovalRow key={req.id as string} req={req} adminUid={adminUid} onRefresh={load} />
                     ))}
                   </TableBody>
                 </Table>

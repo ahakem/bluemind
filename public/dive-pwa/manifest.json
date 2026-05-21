@@ -1,0 +1,46 @@
+{
+  "name": "Blue Mind Dive Sites",
+  "short_name": "Dive Sites",
+  "description": "Explore the world's best freediving sites — searchable by country, depth, visibility and season.",
+  "start_url": "/dive-sites",
+  "scope": "/dive-sites",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ffffff",
+  "theme_color": "#0077be",
+  "lang": "en",
+  "categories": ["sports", "travel", "lifestyle"],
+  "icons": [
+    { "src": "/dive-pwa/icon-72.png",      "sizes": "72x72",   "type": "image/png" },
+    { "src": "/dive-pwa/icon-96.png",      "sizes": "96x96",   "type": "image/png" },
+    { "src": "/dive-pwa/icon-128.png",     "sizes": "128x128", "type": "image/png" },
+    { "src": "/dive-pwa/icon-144.png",     "sizes": "144x144", "type": "image/png" },
+    { "src": "/dive-pwa/icon-152.png",     "sizes": "152x152", "type": "image/png" },
+    { "src": "/dive-pwa/icon-192.png",     "sizes": "192x192", "type": "image/png" },
+    { "src": "/dive-pwa/icon-384.png",     "sizes": "384x384", "type": "image/png" },
+    { "src": "/dive-pwa/icon-512.png",     "sizes": "512x512", "type": "image/png" },
+    { "src": "/dive-pwa/maskable-192.png", "sizes": "192x192", "type": "image/png", "purpose": "maskable" },
+    { "src": "/dive-pwa/maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    {
+      "name": "Sea Sites",
+      "url": "/dive-sites?waterType=sea",
+      "icons": [{ "src": "/dive-pwa/icon-96.png", "sizes": "96x96" }]
+    },
+    {
+      "name": "Lake Sites",
+      "url": "/dive-sites?waterType=lake",
+      "icons": [{ "src": "/dive-pwa/icon-96.png", "sizes": "96x96" }]
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/images/og-image.jpg",
+      "sizes": "1200x630",
+      "type": "image/jpeg",
+      "form_factor": "wide",
+      "label": "Blue Mind Dive Sites Directory"
+    }
+  ]
+}

@@ -35,11 +35,13 @@ import DirectionsIcon from '@mui/icons-material/Directions';
 import ThermostatIcon from '@mui/icons-material/Thermostat';
 import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import FlagIcon from '@mui/icons-material/Flag';
+import BlockIcon from '@mui/icons-material/Block';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
 import Link from 'next/link';
 import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { DiveSite, Thermocline } from '@/types/admin';
 import RequestCorrectionDialog from '@/components/RequestCorrectionDialog';
+import NotFreedivingFriendlyDialog from '@/components/NotFreedivingFriendlyDialog';
 import { submitVerification, submitDiveLog, submitRating, getSiteRatingsSummary } from '@/lib/diveSiteService';
 
 const WATER_TYPE_LABELS: Record<DiveSite['waterType'], string> = {
@@ -586,6 +588,7 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
   const currentTemp = site.waterTemp[currentMonthKey];
 
   const [correctionOpen, setCorrectionOpen] = useState(false);
+  const [removalOpen, setRemovalOpen] = useState(false);
   const [showBar, setShowBar] = useState(false);
   const heroRef = useRef<HTMLDivElement>(null);
 
@@ -766,6 +769,19 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                   }}
                 >
                   Report
+                </Button>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  startIcon={<BlockIcon sx={{ fontSize: '14px !important' }} />}
+                  onClick={() => setRemovalOpen(true)}
+                  sx={{
+                    borderColor: '#c62828', color: '#c62828', fontWeight: 600,
+                    fontSize: '0.78rem', py: 0.4, whiteSpace: 'nowrap',
+                    '&:hover': { bgcolor: '#fff5f5', borderColor: '#b71c1c' },
+                  }}
+                >
+                  Not friendly
                 </Button>
               </Stack>
             )}
@@ -970,6 +986,19 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                 </Button>
               </>
             )}
+            <Button
+              variant="outlined"
+              size="small"
+              startIcon={<BlockIcon sx={{ fontSize: '14px !important' }} />}
+              onClick={() => setRemovalOpen(true)}
+              sx={{
+                borderColor: 'rgba(255,100,100,0.45)', color: 'rgba(255,160,160,0.9)',
+                fontWeight: 600, fontSize: '0.78rem',
+                '&:hover': { borderColor: 'rgba(255,100,100,0.8)', color: '#ff8a80', bgcolor: 'rgba(255,80,80,0.08)' },
+              }}
+            >
+              Not freediving friendly
+            </Button>
           </Stack>
         </Container>
       </Box>
@@ -1274,6 +1303,34 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                 </Box>
               </Stack>
             </Paper>
+
+            {/* Not freediving friendly */}
+            <Paper
+              variant="outlined"
+              sx={{ p: 2.5, borderRadius: 2, borderColor: '#ffcdd2', bgcolor: '#fff5f5', mt: 2 }}
+            >
+              <Stack direction="row" spacing={1.5} alignItems="flex-start">
+                <BlockIcon sx={{ color: 'error.dark', mt: 0.25, flexShrink: 0 }} />
+                <Box sx={{ flex: 1 }}>
+                  <Typography variant="subtitle2" fontWeight={700} color="error.dark" mb={0.5}>
+                    Not freediving friendly?
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary" mb={1.5} sx={{ lineHeight: 1.6 }}>
+                    If this site is scuba-only, inaccessible, or otherwise unsuitable for freediving, request its removal from the directory.
+                  </Typography>
+                  <Button
+                    variant="contained"
+                    startIcon={<BlockIcon />}
+                    onClick={() => setRemovalOpen(true)}
+                    size="small"
+                    fullWidth
+                    sx={{ bgcolor: 'error.dark', '&:hover': { bgcolor: 'error.main' } }}
+                  >
+                    Request Removal
+                  </Button>
+                </Box>
+              </Stack>
+            </Paper>
           </Grid>
         </Grid>
       </Container>
@@ -1281,6 +1338,11 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
       <RequestCorrectionDialog
         open={correctionOpen}
         onClose={() => setCorrectionOpen(false)}
+        site={site}
+      />
+      <NotFreedivingFriendlyDialog
+        open={removalOpen}
+        onClose={() => setRemovalOpen(false)}
         site={site}
       />
     </Box>

@@ -19,6 +19,9 @@ import { sanitizeText, sanitizeEmail, sanitizeCoordinates, buildFingerprint, val
 
 const SUB_COL = 'siteSubmissions';
 const COR_COL = 'siteCorrections';
+const REMOVAL_COL = 'siteRemovalRequests';
+
+const THROTTLE_KEY_REMOVAL = 'bm_lastSiteRemoval';
 
 const THROTTLE_KEY_SUBMIT = 'bm_lastSiteSubmit';
 const THROTTLE_KEY_CORRECT = 'bm_lastSiteCorrect';
@@ -305,4 +308,62 @@ export async function rejectCorrection(id: string, adminUid: string, reason: str
     reviewedAt: serverTimestamp() as any,
     rejectionReason: reason || '',
   });
+}
+
+export async function getPendingRemovalRequests(): Promise<Record<string, unknown>[]> {
+  if (!db) return [];
+  const q = query(collection(db, REMOVAL_COL), where('status', '==', 'pending'), orderBy('submittedAt', 'desc'));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data(), submittedAt: toDate(d.data().submittedAt) }));
+}
+
+export async function getAllRemovalRequests(): Promise<Record<string, unknown>[]> {
+  if (!db) return [];
+  const q = query(collection(db, REMOVAL_COL), orderBy('submittedAt', 'desc'));
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => ({ id: d.id, ...d.data(), submittedAt: toDate(d.data().submittedAt) }));
+}
+
+export async function resolveRemovalRequest(id: string, status: 'approved' | 'rejected', adminUid: string): Promise<void> {
+  if (!db) throw new Error('Firebase not initialized');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await updateDoc(doc(db, REMOVAL_COL, id), { status, reviewedBy: adminUid, reviewedAt: serverTimestamp() as any });
+}
+
+export async function submitRemovalRequest(data: {
+  siteId: string;
+  siteSlug: string;
+  siteName: string;
+  reasons: string[];
+  note: string;
+  submitterEmail: string;
+  _hp: string;
+}): Promise<void> {
+  if (data._hp) return; // honeypot
+  if (!db) throw new Error('Firebase not initialized');
+
+  checkThrottle(THROTTLE_KEY_REMOVAL);
+
+  const rawEmail = data.submitterEmail.trim();
+  if (!sanitizeEmail(rawEmail)) throw new Error('A valid email is required.');
+
+  const note = sanitizeText(data.note, 1000);
+  const fingerprint = buildFingerprint();
+
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await addDoc(collection(db, REMOVAL_COL), {
+    siteId: data.siteId,
+    siteSlug: data.siteSlug,
+    siteName: data.siteName,
+    reasons: data.reasons,
+    note,
+    submitterEmail: rawEmail,
+    fingerprint,
+    status: 'pending',
+    _hp: '',
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    submittedAt: serverTimestamp() as any,
+  });
+
+  setThrottle(THROTTLE_KEY_REMOVAL);
 }
