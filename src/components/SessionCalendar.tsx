@@ -141,19 +141,68 @@ const SessionCardSkeleton = () => (
   </Paper>
 );
 
+// Returns unique "YYYY-MM" keys present in the sessions list, in order
+const monthKeys = (sessions: BookingSession[]): string[] => {
+  const seen = new Set<string>();
+  sessions.forEach((s) => {
+    const key = `${s.date.getFullYear()}-${String(s.date.getMonth() + 1).padStart(2, '0')}`;
+    seen.add(key);
+  });
+  return Array.from(seen);
+};
+
+const monthLabel = (key: string): string => {
+  const [year, month] = key.split('-');
+  return `${MONTHS[parseInt(month, 10) - 1]} ${year}`;
+};
+
 export default function SessionCalendar() {
   const [sessions, setSessions] = useState<BookingSession[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeMonth, setActiveMonth] = useState<string | null>(null);
 
   useEffect(() => {
     getUpcomingSessions().then((data) => {
       setSessions(data);
+      if (data.length > 0) {
+        const firstKey = `${data[0].date.getFullYear()}-${String(data[0].date.getMonth() + 1).padStart(2, '0')}`;
+        setActiveMonth(firstKey);
+      }
       setLoading(false);
     });
   }, []);
 
+  const months = monthKeys(sessions);
+  const filtered = activeMonth
+    ? sessions.filter((s) => {
+        const key = `${s.date.getFullYear()}-${String(s.date.getMonth() + 1).padStart(2, '0')}`;
+        return key === activeMonth;
+      })
+    : sessions;
+
   return (
     <Box>
+      {/* Month filter chips */}
+      {!loading && months.length > 1 && (
+        <Box
+          sx={{ display: 'flex', gap: 1, flexWrap: 'wrap', mb: 3 }}
+          role="group"
+          aria-label="Filter sessions by month"
+        >
+          {months.map((key) => (
+            <Chip
+              key={key}
+              label={monthLabel(key)}
+              onClick={() => setActiveMonth(key)}
+              color={activeMonth === key ? 'primary' : 'default'}
+              variant={activeMonth === key ? 'filled' : 'outlined'}
+              aria-pressed={activeMonth === key}
+              sx={{ fontWeight: activeMonth === key ? 700 : 400, cursor: 'pointer' }}
+            />
+          ))}
+        </Box>
+      )}
+
       {loading ? (
         <Box
           sx={{
@@ -184,7 +233,7 @@ export default function SessionCalendar() {
             gap: 2.5,
           }}
         >
-          {sessions.map((session) => (
+          {filtered.map((session) => (
             <SessionCard key={session.id} session={session} />
           ))}
         </Box>
