@@ -5,3 +5,4 @@ logs/
 *.json
 !package.json
 !tsconfig.json
+serviceAccountKey.json
