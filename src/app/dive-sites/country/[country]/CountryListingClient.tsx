@@ -338,20 +338,24 @@ export default function CountryListingClient({ countryName, countryCode, contine
           </Box>
         </Box>
 
-        {/* Right: sticky map panel — starts at top of page */}
+        {/* Right: map panel — outer clips for layout, inner keeps full width so map never resets */}
         <Box sx={{
           display: { xs: 'none', md: 'block' },
           flexShrink: 0,
           width: mapOpen ? MAP_WIDTH : 0,
-          position: 'sticky',
-          top: 0,
-          height: '100vh',
           overflow: 'hidden',
           transition: 'width 0.25s ease',
-          borderLeft: mapOpen ? '1px solid' : 'none',
-          borderColor: 'divider',
         }}>
-          <DiveSiteMap sites={filtered} />
+          <Box sx={{
+            width: MAP_WIDTH,
+            position: 'sticky',
+            top: 0,
+            height: '100vh',
+            borderLeft: '1px solid',
+            borderColor: 'divider',
+          }}>
+            <DiveSiteMap sites={filtered} />
+          </Box>
         </Box>
       </Box>
 
