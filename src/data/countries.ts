@@ -33,6 +33,7 @@ export const countries: CountryType[] = [
   { code: 'BL', label: 'Saint Barthelemy', phone: '590' },
   { code: 'BM', label: 'Bermuda', phone: '1-441' },
   { code: 'BN', label: 'Brunei Darussalam', phone: '673' },
+  { code: 'BQ', label: 'Bonaire', phone: '599' },
   { code: 'BO', label: 'Bolivia', phone: '591' },
   { code: 'BR', label: 'Brazil', phone: '55' },
   { code: 'BS', label: 'Bahamas', phone: '1-242' },

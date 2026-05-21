@@ -34,7 +34,7 @@ const CONTINENT_CODES: Record<Continent, string[]> = {
     'TH','TJ','TL','TM','TW','UZ','VN',
   ],
   Americas: [
-    'AG','AI','AN','AR','AW','BB','BL','BO','BR','BS','BZ','CA','CL','CO',
+    'AG','AI','AN','AR','AW','BB','BL','BO','BQ','BR','BS','BZ','CA','CL','CO',
     'CR','CU','CW','DM','DO','EC','FK','GD','GF','GP','GT','GY','HN','HT',
     'JM','KN','KY','LC','MF','MQ','MS','MX','NI','PA','PE','PR','PY','SR',
     'SV','TC','TT','US','UY','VC','VE','VG','VI',
