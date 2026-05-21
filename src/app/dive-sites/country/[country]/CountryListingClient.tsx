@@ -184,12 +184,13 @@ export default function CountryListingClient({ countryName, countryCode, contine
                 onChange={(e) => { setSearch(e.target.value); resetPage(); }}
                 size="small"
                 fullWidth
+                inputProps={{ 'aria-label': `Search dive sites in ${countryName}` }}
                 sx={{
                   flex: 1,
                   maxWidth: { sm: 400 },
                   '& .MuiInputBase-root': { borderRadius: 2.5, fontSize: { xs: '0.9rem', md: '0.875rem' } },
                 }}
-                InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 18 }} color="action" /></InputAdornment> }}
+                InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon sx={{ fontSize: 18 }} color="action" aria-hidden="true" /></InputAdornment> }}
               />
               <Typography variant="body2" color="text.disabled" sx={{ display: { xs: 'none', sm: 'block' }, whiteSpace: 'nowrap', fontSize: '0.78rem' }}>
                 {filtered.length} {filtered.length === 1 ? 'site' : 'sites'}
@@ -198,7 +199,8 @@ export default function CountryListingClient({ countryName, countryCode, contine
               <IconButton
                 onClick={() => setMapOpen((v) => !v)}
                 size="small"
-                title={mapOpen ? 'Hide map' : 'Show map'}
+                aria-label={mapOpen ? 'Hide map' : 'Show map'}
+                aria-pressed={mapOpen}
                 sx={{
                   display: { xs: 'none', md: 'flex' },
                   border: '1px solid',
@@ -210,7 +212,7 @@ export default function CountryListingClient({ countryName, countryCode, contine
                   '&:hover': { bgcolor: mapOpen ? 'rgba(0,119,190,0.12)' : 'grey.100' },
                 }}
               >
-                <MapIcon sx={{ fontSize: 17 }} />
+                <MapIcon sx={{ fontSize: 17 }} aria-hidden="true" />
               </IconButton>
             </Stack>
 
@@ -363,7 +365,8 @@ export default function CountryListingClient({ countryName, countryCode, contine
       <IconButton
         onClick={() => setMapOpen((v) => !v)}
         size="small"
-        title={mapOpen ? 'Hide map' : 'Show map'}
+        aria-label={mapOpen ? 'Hide map panel' : 'Show map panel'}
+        aria-pressed={mapOpen}
         sx={{
           display: { xs: 'none', md: 'flex' },
           position: 'fixed',
@@ -380,24 +383,28 @@ export default function CountryListingClient({ countryName, countryCode, contine
           boxShadow: '-3px 0 12px rgba(0,0,0,0.18)',
           transition: 'right 0.25s ease',
           '&:hover': { bgcolor: '#004e96' },
+          '&:focus-visible': { outline: '2px solid white', outlineOffset: '2px' },
         }}
       >
-        {mapOpen ? <ChevronRightIcon sx={{ fontSize: 15 }} /> : <ChevronLeftIcon sx={{ fontSize: 15 }} />}
+        {mapOpen ? <ChevronRightIcon sx={{ fontSize: 15 }} aria-hidden="true" /> : <ChevronLeftIcon sx={{ fontSize: 15 }} aria-hidden="true" />}
       </IconButton>
 
       {/* Mobile: floating Show Map button */}
       <Fab variant="extended" size="medium" onClick={() => setMobileMapOpen(true)}
+        aria-label="Open map view"
         sx={{ display: { xs: 'flex', md: 'none' }, position: 'fixed', bottom: 20, left: '50%', transform: 'translateX(-50%)', zIndex: 50, bgcolor: '#001f3f', color: 'white', px: 3, gap: 1, '&:hover': { bgcolor: '#0077be' }, boxShadow: 4 }}>
-        <MapIcon sx={{ fontSize: 18 }} /> Show Map
+        <MapIcon sx={{ fontSize: 18 }} aria-hidden="true" /> Show Map
       </Fab>
 
       {/* Mobile: fullscreen map */}
-      <Dialog fullScreen open={mobileMapOpen} onClose={() => setMobileMapOpen(false)} sx={{ display: { xs: 'block', md: 'none' } }}>
+      <Dialog fullScreen open={mobileMapOpen} onClose={() => setMobileMapOpen(false)} sx={{ display: { xs: 'block', md: 'none' } }}
+        aria-label="Map view">
         <Box sx={{ height: '100%', position: 'relative' }}>
           <DiveSiteMap sites={filtered} />
           <IconButton onClick={() => setMobileMapOpen(false)}
+            aria-label="Close map"
             sx={{ position: 'absolute', top: 12, right: 12, bgcolor: 'white', boxShadow: 2, '&:hover': { bgcolor: 'grey.100' }, zIndex: 10 }}>
-            <CloseIcon />
+            <CloseIcon aria-hidden="true" />
           </IconButton>
         </Box>
       </Dialog>
@@ -446,6 +453,7 @@ function FilterChipsRow({
         {DEPTH_OPTIONS.map(({ label, value }) => (
           <Chip key={value} label={label} size="small" clickable
             onClick={() => setDepthFilter(value)}
+            aria-pressed={depthFilter === value}
             variant={depthFilter === value ? 'filled' : 'outlined'}
             sx={{ flexShrink: 0, fontSize: '0.72rem', height: 24, ...(depthFilter === value ? activeDepth : inactive) }}
           />
@@ -453,13 +461,14 @@ function FilterChipsRow({
 
         {hasBothTypes && (
           <>
-            <Box sx={{ width: "1px", height: 16, bgcolor: "divider", flexShrink: 0, mx: 0.5 }} />
+            <Box aria-hidden="true" sx={{ width: "1px", height: 16, bgcolor: "divider", flexShrink: 0, mx: 0.5 }} />
             <Typography variant="caption" sx={{ fontSize: '0.64rem', textTransform: 'uppercase', letterSpacing: '0.07em', fontWeight: 700, color: 'text.disabled', flexShrink: 0, mr: 0.25 }}>
               Type
             </Typography>
             {TYPE_OPTIONS.map(({ label, value }) => (
               <Chip key={value} label={label} size="small" clickable
                 onClick={() => setTypeFilter(value)}
+                aria-pressed={typeFilter === value}
                 variant={typeFilter === value ? 'filled' : 'outlined'}
                 sx={{ flexShrink: 0, fontSize: '0.72rem', height: 24, ...(typeFilter === value ? activeType : inactive) }}
               />

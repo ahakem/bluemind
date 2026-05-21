@@ -72,8 +72,11 @@ function WaterTempChart({ waterTemp }: { waterTemp: DiveSite['waterTemp'] }) {
   const CHART_H = 90;
   const currentMonth = new Date().getMonth();
 
+  const monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const chartAriaLabel = `Water temperature chart. Coldest: ${min}°C, warmest: ${max}°C. ${values.map((t, i) => t !== null ? `${monthNames[i]}: ${t}°C` : `${monthNames[i]}: no data`).join(', ')}.`;
+
   return (
-    <Box>
+    <Box role="img" aria-label={chartAriaLabel}>
       {/* Header */}
       <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={3}>
         <Box>
@@ -306,7 +309,12 @@ function StarRating({
   onRate?: (n: number) => void; onHover?: (n: number | null) => void;
 }) {
   return (
-    <Stack direction="row" spacing={0.25}>
+    <Stack
+      direction="row"
+      spacing={0.25}
+      role={interactive ? 'group' : undefined}
+      aria-label={interactive ? 'Rate this site' : `Rating: ${value} out of ${max} stars`}
+    >
       {Array.from({ length: max }, (_, i) => {
         const full = value >= i + 1;
         const half = !full && value >= i + 0.5;
@@ -314,10 +322,16 @@ function StarRating({
         return (
           <Box
             key={i}
+            role={interactive ? 'button' : undefined}
+            tabIndex={interactive ? 0 : undefined}
+            aria-label={interactive ? `Rate ${i + 1} star${i + 1 !== 1 ? 's' : ''}` : undefined}
             onMouseEnter={() => interactive && onHover?.(i + 1)}
             onMouseLeave={() => interactive && onHover?.(null)}
             onClick={() => interactive && onRate?.(i + 1)}
-            sx={{ cursor: interactive ? 'pointer' : 'default', color: '#f59e0b', display: 'flex' }}
+            onKeyDown={(e) => { if (interactive && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); onRate?.(i + 1); } }}
+            sx={{ cursor: interactive ? 'pointer' : 'default', color: '#f59e0b', display: 'flex',
+              ...(interactive ? { '&:focus-visible': { outline: '2px solid #f59e0b', borderRadius: '2px', outlineOffset: '1px' } } : {}),
+            }}
           >
             <Icon sx={{ fontSize: interactive ? 26 : 16 }} />
           </Box>
@@ -409,21 +423,33 @@ function LocationPhotos({ lat, lng, siteName }: { lat: number; lng: number; site
         <Typography variant="caption" color="text.secondary" display="block" mb={2}>
           Photos from Google Maps near {siteName} — may show the surrounding area
         </Typography>
-        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1 }}>
+        <Box sx={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1 }} role="list">
           {photos.map((url, i) => (
             <Box
               key={i}
-              component="img"
-              src={url}
-              alt={`Photo ${i + 1} near ${siteName}`}
+              role="listitem"
+              component="button"
+              aria-label={`Open photo ${i + 1} of ${photos.length} near ${siteName}`}
               onClick={() => setSelectedIdx(i)}
+              onKeyDown={(e: React.KeyboardEvent) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); setSelectedIdx(i); } }}
               sx={{
-                width: '100%', aspectRatio: '4/3', objectFit: 'cover',
-                borderRadius: 1, cursor: 'pointer',
-                transition: 'opacity 0.15s',
-                '&:hover': { opacity: 0.85 },
+                p: 0, border: 'none', background: 'none', cursor: 'pointer',
+                borderRadius: 1, display: 'block', width: '100%',
+                '&:focus-visible': { outline: '2px solid #0077be', outlineOffset: '2px' },
               }}
-            />
+            >
+              <Box
+                component="img"
+                src={url}
+                alt={`Photo ${i + 1} near ${siteName}`}
+                sx={{
+                  width: '100%', aspectRatio: '4/3', objectFit: 'cover',
+                  borderRadius: 1, display: 'block',
+                  transition: 'opacity 0.15s',
+                  '&:hover': { opacity: 0.85 },
+                }}
+              />
+            </Box>
           ))}
         </Box>
 
@@ -438,14 +464,18 @@ function LocationPhotos({ lat, lng, siteName }: { lat: number; lng: number; site
           >
             {/* Prev */}
             <Box
-              onClick={(e) => { e.stopPropagation(); setSelectedIdx((i) => Math.max((i ?? 1) - 1, 0)); }}
+              component="button"
+              onClick={(e: React.MouseEvent) => { e.stopPropagation(); setSelectedIdx((i) => Math.max((i ?? 1) - 1, 0)); }}
+              aria-label="Previous photo"
+              disabled={selectedIdx === 0}
               sx={{
                 position: 'absolute', left: 16, top: '50%', transform: 'translateY(-50%)',
                 bgcolor: 'rgba(255,255,255,0.15)', color: 'white', borderRadius: '50%',
                 width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer', fontSize: 24, userSelect: 'none',
+                cursor: selectedIdx === 0 ? 'default' : 'pointer', fontSize: 24, border: 'none',
                 opacity: selectedIdx === 0 ? 0.2 : 1,
-                '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' },
+                '&:hover:not(:disabled)': { bgcolor: 'rgba(255,255,255,0.25)' },
+                '&:focus-visible': { outline: '2px solid white', outlineOffset: '2px' },
               }}
             >
               ‹
@@ -454,28 +484,32 @@ function LocationPhotos({ lat, lng, siteName }: { lat: number; lng: number; site
             <Box
               component="img"
               src={photos[selectedIdx]}
-              alt={`Photo ${selectedIdx + 1}`}
+              alt={`Photo ${selectedIdx + 1} of ${photos.length} near ${siteName}`}
               sx={{ maxWidth: '85vw', maxHeight: '90vh', borderRadius: 2, objectFit: 'contain' }}
-              onClick={(e) => e.stopPropagation()}
+              onClick={(e: React.MouseEvent) => e.stopPropagation()}
             />
 
             {/* Next */}
             <Box
-              onClick={(e) => { e.stopPropagation(); setSelectedIdx((i) => Math.min((i ?? 0) + 1, photos.length - 1)); }}
+              component="button"
+              onClick={(e: React.MouseEvent) => { e.stopPropagation(); setSelectedIdx((i) => Math.min((i ?? 0) + 1, photos.length - 1)); }}
+              aria-label="Next photo"
+              disabled={selectedIdx === photos.length - 1}
               sx={{
                 position: 'absolute', right: 16, top: '50%', transform: 'translateY(-50%)',
                 bgcolor: 'rgba(255,255,255,0.15)', color: 'white', borderRadius: '50%',
                 width: 48, height: 48, display: 'flex', alignItems: 'center', justifyContent: 'center',
-                cursor: 'pointer', fontSize: 24, userSelect: 'none',
+                cursor: selectedIdx === photos.length - 1 ? 'default' : 'pointer', fontSize: 24, border: 'none',
                 opacity: selectedIdx === photos.length - 1 ? 0.2 : 1,
-                '&:hover': { bgcolor: 'rgba(255,255,255,0.25)' },
+                '&:hover:not(:disabled)': { bgcolor: 'rgba(255,255,255,0.25)' },
+                '&:focus-visible': { outline: '2px solid white', outlineOffset: '2px' },
               }}
             >
               ›
             </Box>
 
             {/* Counter */}
-            <Box sx={{
+            <Box aria-live="polite" aria-atomic="true" sx={{
               position: 'absolute', bottom: 20, left: '50%', transform: 'translateX(-50%)',
               color: 'rgba(255,255,255,0.7)', fontSize: 13,
             }}>
@@ -519,6 +553,7 @@ function StreetViewPanel({ lat, lng, apiKey }: { lat: number; lng: number; apiKe
         <Box
           component="iframe"
           src={streetViewUrl}
+          title="Google Street View of dive site location"
           width="100%"
           height={200}
           sx={{ border: 'none', display: 'block' }}
@@ -742,10 +777,10 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
       <Box ref={heroRef} sx={{ background: 'linear-gradient(135deg, #001f3f 0%, #0077be 100%)', color: 'white', py: { xs: 3, md: 4 }, px: 2 }}>
         <Container maxWidth="lg">
           {/* Breadcrumb */}
-          <Stack direction="row" alignItems="center" spacing={0.5} mb={2}>
+          <Stack component="nav" aria-label="Breadcrumb" direction="row" alignItems="center" spacing={0.5} mb={2}>
             <Typography
               component={Link} href="/dive-sites"
-              sx={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.75rem', textDecoration: 'none', '&:hover': { color: 'rgba(255,255,255,0.8)' }, transition: 'color 0.15s' }}
+              sx={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.75rem', textDecoration: 'none', '&:hover': { color: 'rgba(255,255,255,0.8)' }, transition: 'color 0.15s', '&:focus-visible': { outline: '2px solid white', borderRadius: '2px', outlineOffset: '2px' } }}
             >
               Dive Sites
             </Typography>
@@ -753,18 +788,18 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
               const countrySlug = site.country.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
               return (
                 <>
-                  <NavigateNextIcon sx={{ fontSize: 14, color: 'rgba(255,255,255,0.25)' }} />
+                  <NavigateNextIcon sx={{ fontSize: 14, color: 'rgba(255,255,255,0.25)' }} aria-hidden="true" />
                   <Typography
                     component={Link} href={`/dive-sites/country/${countrySlug}`}
-                    sx={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.75rem', textDecoration: 'none', '&:hover': { color: 'rgba(255,255,255,0.8)' }, transition: 'color 0.15s' }}
+                    sx={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.75rem', textDecoration: 'none', '&:hover': { color: 'rgba(255,255,255,0.8)' }, transition: 'color 0.15s', '&:focus-visible': { outline: '2px solid white', borderRadius: '2px', outlineOffset: '2px' } }}
                   >
                     {site.country}
                   </Typography>
                 </>
               );
             })()}
-            <NavigateNextIcon sx={{ fontSize: 14, color: 'rgba(255,255,255,0.25)' }} />
-            <Typography sx={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.75rem', fontWeight: 500 }}>
+            <NavigateNextIcon sx={{ fontSize: 14, color: 'rgba(255,255,255,0.25)' }} aria-hidden="true" />
+            <Typography aria-current="page" sx={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.75rem', fontWeight: 500 }}>
               {site.name}
             </Typography>
           </Stack>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import {
   APIProvider,
   Map,
@@ -83,9 +83,20 @@ function PopupCard({ site, onClose }: { site: DiveSite; onClose: () => void }) {
   const color = siteColor(site);
   const temp = currentMonthTemp(site);
   const tempColor = temp === null ? null : temp <= 8 ? '#1976d2' : temp <= 14 ? '#1a7f72' : '#e65100';
+  const closeRef = useRef<HTMLButtonElement>(null);
+
+  useEffect(() => {
+    closeRef.current?.focus();
+    const handleKey = (e: KeyboardEvent) => { if (e.key === 'Escape') onClose(); };
+    window.addEventListener('keydown', handleKey);
+    return () => window.removeEventListener('keydown', handleKey);
+  }, [onClose]);
 
   return (
     <div
+      role="dialog"
+      aria-modal="true"
+      aria-label={`${site.name} dive site details`}
       onClick={(e) => e.stopPropagation()}
       style={{
         position: 'absolute',
@@ -109,7 +120,9 @@ function PopupCard({ site, onClose }: { site: DiveSite; onClose: () => void }) {
 
         {/* Close */}
         <button
+          ref={closeRef}
           onClick={onClose}
+          aria-label="Close popup"
           style={{
             position: 'absolute', top: 10, right: 10,
             width: 22, height: 22, border: 'none', cursor: 'pointer',
@@ -122,7 +135,7 @@ function PopupCard({ site, onClose }: { site: DiveSite; onClose: () => void }) {
         </button>
 
         {/* Name */}
-        <div style={{ fontWeight: 700, fontSize: 14, color: '#0d1b2a', lineHeight: 1.3, paddingRight: 24, marginBottom: 3 }}>
+        <div id={`popup-title-${site.slug}`} style={{ fontWeight: 700, fontSize: 14, color: '#0d1b2a', lineHeight: 1.3, paddingRight: 24, marginBottom: 3 }}>
           {site.name}
         </div>
 
@@ -155,14 +168,17 @@ function PopupCard({ site, onClose }: { site: DiveSite; onClose: () => void }) {
             padding: '8px', borderRadius: 8,
             fontSize: 12.5, fontWeight: 600, textDecoration: 'none',
             letterSpacing: '0.01em',
+            outline: 'none',
           }}
+          onFocus={(e) => { e.currentTarget.style.outline = '2px solid white'; e.currentTarget.style.outlineOffset = '2px'; }}
+          onBlur={(e) => { e.currentTarget.style.outline = 'none'; }}
         >
           View site →
         </a>
       </div>
 
       {/* Tail arrow */}
-      <div style={{
+      <div aria-hidden="true" style={{
         position: 'absolute', bottom: -7, left: '50%', transform: 'translateX(-50%)',
         width: 14, height: 7,
         background: 'white',
@@ -191,9 +207,19 @@ function Chip({ bg, color, children }: { bg: string; color: string; children: Re
 function DepthPin({ site, isSelected }: { site: DiveSite; isSelected: boolean }) {
   const color = siteColor(site);
   const label = site.maxDepth > 0 ? `${site.maxDepth}m` : '·';
+  const ariaLabel = [
+    site.name,
+    site.maxDepth > 0 ? `max depth ${site.maxDepth}m` : null,
+    site.waterType === 'sea' ? 'sea' : 'lake',
+  ].filter(Boolean).join(', ');
 
   return (
-    <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+    <div
+      role="button"
+      aria-label={ariaLabel}
+      aria-pressed={isSelected}
+      style={{ position: 'relative', display: 'flex', flexDirection: 'column', alignItems: 'center' }}
+    >
       {/* Popup floats above the pin */}
       <div style={{
         display: 'flex', flexDirection: 'column', alignItems: 'center',
@@ -248,7 +274,7 @@ export default function DiveSiteMap({ sites, onSelect }: Props) {
 
   return (
     <APIProvider apiKey={API_KEY}>
-      <div style={{ width: '100%', height: '100%' }}>
+      <div role="region" aria-label="Dive sites map" style={{ width: '100%', height: '100%' }}>
         <Map
           defaultCenter={{ lat: 20, lng: 10 }}
           defaultZoom={2}

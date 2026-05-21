@@ -317,7 +317,7 @@ function DiveSitesPageInner() {
               <Typography variant="body2" sx={{ color: '#004d80', flexGrow: 1 }}>
                 Dive site data is automatically collected and may be inaccurate. Always verify depth, conditions, and local regulations before diving.
               </Typography>
-              <IconButton size="small" onClick={dismissDisclaimer} sx={{ color: '#0077be', flexShrink: 0 }}>
+              <IconButton size="small" onClick={dismissDisclaimer} aria-label="Dismiss disclaimer" sx={{ color: '#0077be', flexShrink: 0 }}>
                 <CloseIcon fontSize="small" />
               </IconButton>
             </Stack>
@@ -338,7 +338,8 @@ function DiveSitesPageInner() {
                 value={search}
                 onChange={(e) => handleSearch(e.target.value)}
                 size="small" fullWidth
-                InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon color="action" /></InputAdornment> }}
+                inputProps={{ 'aria-label': 'Search dive sites by name or location' }}
+                InputProps={{ startAdornment: <InputAdornment position="start"><SearchIcon color="action" aria-hidden="true" /></InputAdornment> }}
               />
               <CountryAutocomplete
                 limitToLabels={presentCountryLabels}
@@ -359,13 +360,14 @@ function DiveSitesPageInner() {
                     color={continentFilter === c ? 'primary' : 'default'}
                     variant={continentFilter === c ? 'filled' : 'outlined'}
                     size="small"
+                    aria-pressed={continentFilter === c}
                     sx={{ cursor: 'pointer', fontWeight: continentFilter === c ? 700 : 400 }}
                   />
                 ))}
               </Stack>
               <Stack direction="row" alignItems="center" spacing={1} sx={{ flexShrink: 0 }}>
                 <Typography variant="caption" fontWeight={600} color="text.secondary">WATER TYPE</Typography>
-                <ToggleButtonGroup value={waterTypeFilter} onChange={handleWaterType} size="small">
+                <ToggleButtonGroup value={waterTypeFilter} onChange={handleWaterType} size="small" aria-label="Filter by water type">
                   {(['lake', 'sea'] as const).map((t) => (
                     <ToggleButton key={t} value={t} sx={{ textTransform: 'capitalize', px: 1.5, py: 0.4 }}>
                       {WATER_TYPE_LABELS[t]}
@@ -385,6 +387,7 @@ function DiveSitesPageInner() {
                   startIcon={<MyLocationIcon sx={{ fontSize: '15px !important' }} />}
                   onClick={handleNearMe}
                   disabled={nearMeLoading}
+                  aria-pressed={!!userPos}
                   sx={{
                     borderRadius: 5, fontSize: '0.75rem', py: 0.4, px: 1.5,
                     ...(userPos ? { bgcolor: '#0077be', '&:hover': { bgcolor: '#005f99' } } : {}),
@@ -399,6 +402,7 @@ function DiveSitesPageInner() {
                   variant={savedOnly ? 'contained' : 'outlined'}
                   startIcon={savedOnly ? <BookmarkIcon sx={{ fontSize: '15px !important' }} /> : <BookmarkBorderIcon sx={{ fontSize: '15px !important' }} />}
                   onClick={() => { setSavedOnly((v) => !v); setVisibleCount(24); }}
+                  aria-pressed={savedOnly}
                   sx={{
                     borderRadius: 5, fontSize: '0.75rem', py: 0.4, px: 1.5,
                     ...(savedOnly ? { bgcolor: '#2e7d32', '&:hover': { bgcolor: '#1b5e20' } } : {}),
@@ -419,6 +423,8 @@ function DiveSitesPageInner() {
                 startIcon={<TuneIcon sx={{ fontSize: '15px !important' }} />}
                 endIcon={<ExpandMoreIcon sx={{ fontSize: '15px !important', transform: moreOpen ? 'rotate(180deg)' : 'none', transition: '0.2s' }} />}
                 onClick={() => setMoreOpen((v) => !v)}
+                aria-expanded={moreOpen}
+                aria-controls="advanced-filters"
                 sx={{ fontSize: '0.75rem', color: hasAdvancedFilters ? 'primary.main' : 'text.secondary', fontWeight: hasAdvancedFilters ? 700 : 400 }}
               >
                 {hasAdvancedFilters ? 'Filters active' : 'More filters'}
@@ -426,7 +432,7 @@ function DiveSitesPageInner() {
             </Stack>
 
             {/* Row 4: advanced filters (collapsible) */}
-            <Collapse in={moreOpen}>
+            <Collapse in={moreOpen} id="advanced-filters">
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} pt={0.5}>
                 <FormControl size="small" sx={{ minWidth: 140 }}>
                   <InputLabel>Min depth</InputLabel>
@@ -510,12 +516,14 @@ function DiveSitesPageInner() {
                   key={site.id}
                   component={Link}
                   href={`/dive-sites/${site.slug}`}
+                  aria-label={`${site.name}, ${site.country}`}
                   sx={{
                     flexShrink: 0, textDecoration: 'none',
                     bgcolor: 'white', border: '1px solid', borderColor: 'divider',
                     borderRadius: 2, px: 1.5, py: 1, minWidth: 160, maxWidth: 200,
                     transition: 'box-shadow 0.15s',
                     '&:hover': { boxShadow: 3, borderColor: '#0077be' },
+                    '&:focus-visible': { outline: '2px solid #0077be', outlineOffset: '2px' },
                   }}
                 >
                   <Box sx={{ height: 3, borderRadius: 1, mb: 0.75, bgcolor: site.waterType === 'sea' ? '#0077be' : '#26a69a' }} />
@@ -572,11 +580,14 @@ function DiveSitesPageInner() {
                   <IconButton
                     size="small"
                     onClick={() => toggleBookmark(site.id)}
+                    aria-label={isBookmarked ? `Remove ${site.name} from saved` : `Save ${site.name}`}
+                    aria-pressed={isBookmarked}
                     sx={{
                       position: 'absolute', top: 10, right: 10, zIndex: 2,
                       bgcolor: 'rgba(255,255,255,0.92)', backdropFilter: 'blur(4px)',
                       width: 28, height: 28,
                       '&:hover': { bgcolor: 'white' },
+                      '&:focus-visible': { outline: '2px solid #0077be', outlineOffset: '2px' },
                     }}
                   >
                     {isBookmarked
