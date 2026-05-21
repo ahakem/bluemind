@@ -1,4 +1,4 @@
-'use client';
+
 
 import { Box, Container, Typography, Card, CardContent } from "@mui/material";
 import { team } from "@/data";
@@ -17,7 +17,7 @@ const Team = () => {
         <Box sx={{ textAlign: "center", mb: 8 }}>
           <Typography
             variant="subtitle1"
-            fontFamily="Montserrat"
+            fontFamily="var(--font-montserrat), Helvetica Neue, sans-serif"
             color="primary"
             mb={1}
           >
@@ -27,7 +27,7 @@ const Team = () => {
             id="team-heading"
             variant="h2"
             component="h2"
-            fontFamily="Poppins"
+            fontFamily="var(--font-poppins), Helvetica Neue, sans-serif"
             fontWeight={700}
           >
             Board Members
@@ -90,7 +90,7 @@ const Team = () => {
                 <CardContent sx={{ textAlign: "center", p: 3, flexGrow: 1 }}>
                   <Typography
                     variant="h5"
-                    fontFamily="Poppins"
+                    fontFamily="var(--font-poppins), Helvetica Neue, sans-serif"
                     fontWeight={600}
                     mb={1}
                   >

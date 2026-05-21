@@ -3,7 +3,8 @@
  */
 
 import React from 'react';
-import { Container, Box, Typography, Chip, Card, CardContent, CardMedia, Avatar } from '@mui/material';
+import Image from 'next/image';
+import { Container, Box, Typography, Chip, Card, CardContent, Avatar } from '@mui/material';
 import Link from 'next/link';
 import type { Metadata } from 'next';
 import { getPublishedPosts, getAuthorInfo } from '@/lib/blogService';
@@ -29,29 +30,29 @@ export default async function BlogPage() {
 
   try {
     posts = await getPublishedPosts();
-    
-    // Fetch author info for all posts with error handling
-    const postsWithAuthors = await Promise.all(
-      posts.map(async (post) => {
+
+    // Batch author fetches: collect unique IDs, fetch each once, then map
+    const uniqueAuthorIds = [...new Set(posts.map((p) => p.author).filter(Boolean))] as string[];
+    const authorMap = new Map<string, { displayName: string; avatar?: string }>();
+    await Promise.all(
+      uniqueAuthorIds.map(async (id) => {
         try {
-          const authorInfo = post.author ? await getAuthorInfo(post.author) : null;
-          const authorDisplayName = authorInfo?.displayName || post.authorDisplayName || 'BlueMind';
-          return {
-            ...post,
-            authorDisplayName,
-            authorAvatar: authorInfo?.avatar || post.authorAvatar,
-          };
-        } catch (err) {
-          console.error(`Error fetching author info for ${post.author}:`, err);
-          return {
-            ...post,
-            authorDisplayName: post.authorDisplayName || 'BlueMind',
-            authorAvatar: post.authorAvatar,
-          };
+          const info = await getAuthorInfo(id);
+          if (info) authorMap.set(id, info);
+        } catch {
+          // leave missing authors to fallback below
         }
       })
     );
-    posts = postsWithAuthors;
+
+    posts = posts.map((post) => {
+      const info = post.author ? authorMap.get(post.author) : undefined;
+      return {
+        ...post,
+        authorDisplayName: info?.displayName || post.authorDisplayName || 'BlueMind',
+        authorAvatar: info?.avatar || post.authorAvatar,
+      };
+    });
   } catch (err) {
     console.error('Error loading blog posts:', err);
     error = true;
@@ -122,12 +123,15 @@ export default async function BlogPage() {
                 }}
               >
                 {post.image && (
-                  <CardMedia
-                    component="img"
-                    height="200"
-                    image={post.image}
-                    alt={post.title}
-                  />
+                  <Box sx={{ position: 'relative', width: '100%', height: 200, overflow: 'hidden' }}>
+                    <Image
+                      src={post.image}
+                      alt={post.title}
+                      fill
+                      sizes="(max-width: 600px) 100vw, (max-width: 960px) 50vw, 33vw"
+                      style={{ objectFit: 'cover' }}
+                    />
+                  </Box>
                 )}
                 <CardContent sx={{ flex: 1, display: 'flex', flexDirection: 'column' }}>
                   <Typography

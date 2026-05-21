@@ -1,4 +1,4 @@
-'use client';
+
 
 import { 
   Box, 
@@ -32,7 +32,7 @@ const Membership = () => {
           <Typography
             variant="subtitle1"
             component="p"
-            fontFamily="Montserrat"
+            fontFamily="var(--font-montserrat), Helvetica Neue, sans-serif"
             color="primary"
             mb={1}
           >
@@ -42,7 +42,7 @@ const Membership = () => {
             id="membership-heading"
             variant="h2"
             component="h1"
-            fontFamily="Poppins"
+            fontFamily="var(--font-poppins), Helvetica Neue, sans-serif"
             fontWeight={700}
             mb={1}
           >

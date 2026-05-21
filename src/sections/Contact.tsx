@@ -113,7 +113,7 @@ const Contact = () => {
           <Typography
             variant="subtitle1"
             component="p"
-            fontFamily="Montserrat"
+            fontFamily="var(--font-montserrat), Helvetica Neue, sans-serif"
             color="primary"
             mb={1}
           >
@@ -123,7 +123,7 @@ const Contact = () => {
             id="contact-heading"
             variant="h2"
             component="h1"
-            fontFamily="Poppins"
+            fontFamily="var(--font-poppins), Helvetica Neue, sans-serif"
             fontWeight={700}
             mb={1}
           >
@@ -173,7 +173,7 @@ const Contact = () => {
             <Typography
               variant="h4"
               component="h3"
-              fontFamily="Poppins"
+              fontFamily="var(--font-poppins), Helvetica Neue, sans-serif"
               fontWeight={600}
               mb={3}
               color="white"
@@ -323,7 +323,7 @@ const Contact = () => {
             <Typography
               variant="h5"
               component="h3"
-              fontFamily="Poppins"
+              fontFamily="var(--font-poppins), Helvetica Neue, sans-serif"
               fontWeight={600}
               mb={3}
             >
@@ -397,7 +397,7 @@ const Contact = () => {
                   py: 1.5,
                   px: 4,
                   borderRadius: '50px',
-                  fontFamily: "Poppins",
+                  fontFamily: "var(--font-poppins), Helvetica Neue, sans-serif",
                   fontWeight: 500,
                   textTransform: "none",
                 }}

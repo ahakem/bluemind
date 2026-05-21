@@ -212,9 +212,17 @@ export const submitDiveLog = async (siteId: string, siteSlug: string, siteName: 
     siteId, siteSlug, siteName,
     submittedAt: Timestamp.now(),
   });
+  _logCountsCache = null; // invalidate on write
 };
 
+const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
+
+let _logCountsCache: { data: Map<string, number>; ts: number } | null = null;
+
 export const getDiveLogCounts = async (): Promise<Map<string, number>> => {
+  if (_logCountsCache && Date.now() - _logCountsCache.ts < CACHE_TTL) {
+    return _logCountsCache.data;
+  }
   const firestore = validateDb();
   const snap = await getDocs(collection(firestore, DIVE_LOGS_COLLECTION));
   const counts = new Map<string, number>();
@@ -222,6 +230,7 @@ export const getDiveLogCounts = async (): Promise<Map<string, number>> => {
     const id = d.data().siteId as string;
     counts.set(id, (counts.get(id) ?? 0) + 1);
   });
+  _logCountsCache = { data: counts, ts: Date.now() };
   return counts;
 };
 
@@ -235,9 +244,15 @@ export const submitRating = async (
     siteId, siteSlug, siteName, rating,
     submittedAt: Timestamp.now(),
   });
+  _ratingsCache = null; // invalidate on write
 };
 
+let _ratingsCache: { data: Map<string, { avg: number; count: number }>; ts: number } | null = null;
+
 export const getAverageRatings = async (): Promise<Map<string, { avg: number; count: number }>> => {
+  if (_ratingsCache && Date.now() - _ratingsCache.ts < CACHE_TTL) {
+    return _ratingsCache.data;
+  }
   const firestore = validateDb();
   const snap = await getDocs(collection(firestore, RATINGS_COLLECTION));
   const acc = new Map<string, { sum: number; count: number }>();
@@ -250,6 +265,7 @@ export const getAverageRatings = async (): Promise<Map<string, { avg: number; co
   acc.forEach(({ sum, count }, id) =>
     result.set(id, { avg: Math.round((sum / count) * 10) / 10, count })
   );
+  _ratingsCache = { data: result, ts: Date.now() };
   return result;
 };
 

@@ -43,20 +43,21 @@ export const theme = createTheme({
   },
   typography: {
     fontFamily: [
+      "var(--font-poppins)",
       "Helvetica Neue",
       "Arial",
       "sans-serif",
     ].join(","),
     h1: {
-      fontFamily: "Helvetica Neue, Arial, sans-serif",
+      fontFamily: "var(--font-montserrat), Helvetica Neue, Arial, sans-serif",
       fontWeight: 700,
     },
     h2: {
-      fontFamily: "Helvetica Neue, Arial, sans-serif",
+      fontFamily: "var(--font-montserrat), Helvetica Neue, Arial, sans-serif",
       fontWeight: 700,
     },
     h3: {
-      fontFamily: "Helvetica Neue, Arial, sans-serif",
+      fontFamily: "var(--font-montserrat), Helvetica Neue, Arial, sans-serif",
       fontWeight: 700,
     },
     h4: {

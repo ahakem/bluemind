@@ -1,4 +1,4 @@
-'use client';
+
 
 import { Box, Container, Typography, Button, Grid } from "@mui/material";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
@@ -38,7 +38,7 @@ const About = ({ showFullContent = false, showCTA = true }: AboutProps) => {
           <Typography
             variant="subtitle1"
             component="p"
-            fontFamily="Montserrat"
+            fontFamily="var(--font-montserrat), Helvetica Neue, sans-serif"
             color="white"
             mb={1}
             sx={{ opacity: 0.9 }}
@@ -49,7 +49,7 @@ const About = ({ showFullContent = false, showCTA = true }: AboutProps) => {
             id="about-heading"
             variant="h2"
             component="h1"
-            fontFamily="Poppins"
+            fontFamily="var(--font-poppins), Helvetica Neue, sans-serif"
             fontWeight={700}
             mb={2}
             color="white"
@@ -101,7 +101,7 @@ const About = ({ showFullContent = false, showCTA = true }: AboutProps) => {
                 color: "white",
               }}
             >
-              <Typography variant="h2" fontWeight={700} fontFamily="Poppins" component="div">
+              <Typography variant="h2" fontWeight={700} fontFamily="var(--font-poppins), Helvetica Neue, sans-serif" component="div">
                 2025
               </Typography>
               <Typography variant="body2" align="center" fontWeight={500} sx={{ opacity: 0.9 }}>
@@ -114,7 +114,7 @@ const About = ({ showFullContent = false, showCTA = true }: AboutProps) => {
             <Typography
               variant="h4"
               component="h2"
-              fontFamily="Poppins"
+              fontFamily="var(--font-poppins), Helvetica Neue, sans-serif"
               fontWeight={600}
               mb={3}
               color="white"
@@ -196,7 +196,7 @@ const About = ({ showFullContent = false, showCTA = true }: AboutProps) => {
                     borderRadius: "50px",
                     px: 4,
                     py: 1.5,
-                    fontFamily: "Poppins",
+                    fontFamily: "var(--font-poppins), Helvetica Neue, sans-serif",
                     textTransform: "none",
                     bgcolor: "white",
                     color: "primary.main",
@@ -217,7 +217,7 @@ const About = ({ showFullContent = false, showCTA = true }: AboutProps) => {
                       borderRadius: "50px",
                       px: 4,
                       py: 1.5,
-                      fontFamily: "Poppins",
+                      fontFamily: "var(--font-poppins), Helvetica Neue, sans-serif",
                       textTransform: "none",
                       color: "white",
                       borderColor: "white",

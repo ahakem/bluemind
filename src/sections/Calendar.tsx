@@ -1,4 +1,4 @@
-'use client';
+
 
 import { Box, Container, Typography, Paper, Button } from "@mui/material";
 
@@ -16,7 +16,7 @@ const Calendar = () => {
         <Box sx={{ textAlign: "center", mb: 6 }}>
           <Typography
             variant="subtitle1"
-            fontFamily="Montserrat"
+            fontFamily="var(--font-montserrat), Helvetica Neue, sans-serif"
             color="primary"
             mb={1}
           >
@@ -26,7 +26,7 @@ const Calendar = () => {
             id="schedule-heading"
             variant="h2"
             component="h1"
-            fontFamily="Poppins"
+            fontFamily="var(--font-poppins), Helvetica Neue, sans-serif"
             fontWeight={700}
             mb={2}
           >

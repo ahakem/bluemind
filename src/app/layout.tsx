@@ -1,10 +1,24 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
+import { Montserrat, Poppins } from 'next/font/google';
 import ThemeRegistry from '@/components/ThemeRegistry';
 import LayoutContent from '@/components/LayoutContent';
 import { Analytics } from '@/lib/analytics';
 import { generateLocalBusinessSchema } from '@/lib/schemaGenerator';
 import './globals.css';
+
+const montserrat = Montserrat({
+  subsets: ['latin'],
+  variable: '--font-montserrat',
+  display: 'swap',
+});
+
+const poppins = Poppins({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-poppins',
+  display: 'swap',
+});
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -92,7 +106,7 @@ export default function RootLayout({
   const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '';
   
   return (
-    <html lang="en">
+    <html lang="en" className={`${montserrat.variable} ${poppins.variable}`}>
       <head>
         <link rel="icon" href="/favicon.ico" sizes="any" />
         <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
