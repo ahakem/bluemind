@@ -76,11 +76,47 @@ env:
       - RUNTIME
 
   - variable: GOOGLE_PLACES_API_KEY
-    value: AIzaSyAInpEWuiOZkMX1QfN3ce1aI2Cw9iqpsA0
+    value: AIzaSyDunc5VLPVG68iLV19jRY89xgF-E48hG-o
     availability:
       - RUNTIME
 
   - variable: GOOGLE_PLACE_ID
     value: ChIJUdb15qHjxUcRtuajYyqwLDs
     availability:
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_BOOKING_FIREBASE_API_KEY
+    value: AIzaSyAL1VF7rCgJyv4PtuZm_nSdYh7v5VV6KMg
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_BOOKING_FIREBASE_AUTH_DOMAIN
+    value: bluemind-freediving.firebaseapp.com
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_BOOKING_FIREBASE_PROJECT_ID
+    value: bluemind-freediving
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_BOOKING_FIREBASE_STORAGE_BUCKET
+    value: bluemind-freediving.firebasestorage.app
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_BOOKING_FIREBASE_MESSAGING_SENDER_ID
+    value: "302328541732"
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_BOOKING_FIREBASE_APP_ID
+    value: 1:302328541732:web:399e2eca0e94634b09deb1
+    availability:
+      - BUILD
       - RUNTIME
