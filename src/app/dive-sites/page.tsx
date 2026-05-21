@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
+import { getActiveDiveSites } from '@/lib/diveSiteService';
 import DiveSiteListingClient from './DiveSiteListingClient';
+
+export const revalidate = 3600; // re-fetch from Firestore at most once per hour
 
 const BASE_URL = 'https://bluemindfreediving.nl';
 const SITE_NAME = 'Blue Mind Freediving';
@@ -101,5 +104,12 @@ export async function generateMetadata({ searchParams }: Props): Promise<Metadat
 }
 
 export default async function DiveSitesPage() {
-  return <DiveSiteListingClient />;
+  const sites = await getActiveDiveSites();
+  const initialSites = sites.map((s) => ({
+    ...s,
+    createdAt: s.createdAt instanceof Date ? s.createdAt.toISOString() : s.createdAt,
+    updatedAt: s.updatedAt instanceof Date ? s.updatedAt.toISOString() : s.updatedAt,
+  }));
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  return <DiveSiteListingClient initialSites={initialSites as any} />;
 }

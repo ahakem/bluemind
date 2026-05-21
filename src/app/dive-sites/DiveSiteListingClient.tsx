@@ -87,12 +87,12 @@ function TempBadge({ temp }: { temp: number }) {
   );
 }
 
-function DiveSitesPageInner() {
+function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
-  const [sites, setSites] = useState<DiveSite[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [sites, setSites] = useState<DiveSite[]>(initialSites ?? []);
+  const [loading, setLoading] = useState(!initialSites);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(24);
   const [disclaimerVisible, setDisclaimerVisible] = useState(false);
@@ -165,14 +165,18 @@ function DiveSitesPageInner() {
   }, [router]);
 
   useEffect(() => {
-    getActiveDiveSites().then((data) => {
-      setSites(data);
+    const loadSites = initialSites
+      ? Promise.resolve(initialSites)
+      : getActiveDiveSites();
+
+    loadSites.then((data) => {
+      if (!initialSites) setSites(data);
       const countryParam = searchParams.get('country');
       if (countryParam) {
         const found = data.find((s) => s.country.toLowerCase() === countryParam.toLowerCase());
         if (found) { const c = lookupCountry(found.country); if (c) setCountryFilter(c); }
       }
-      setLoading(false);
+      if (!initialSites) setLoading(false);
       // Recently viewed — cross-reference after sites loaded
       try {
         const stored = localStorage.getItem('bm_recently_viewed');
@@ -695,10 +699,10 @@ function DiveSitesPageInner() {
   );
 }
 
-export default function DiveSiteListingClient() {
+export default function DiveSiteListingClient({ initialSites }: { initialSites?: DiveSite[] }) {
   return (
     <Suspense>
-      <DiveSitesPageInner />
+      <DiveSitesPageInner initialSites={initialSites} />
     </Suspense>
   );
 }
