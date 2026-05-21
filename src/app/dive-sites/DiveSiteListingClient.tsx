@@ -48,6 +48,7 @@ import { getActiveDiveSites, getDiveLogCounts, getAverageRatings } from '@/lib/d
 import { DiveSite } from '@/types/admin';
 import SubmitSiteButton from '@/components/SubmitSiteButton';
 import ExploreByCountry from '@/components/ExploreByCountry';
+import DiverLoader from '@/components/DiverLoader';
 
 const DiveSiteMap = dynamic(() => import('@/components/DiveSiteMap'), {
   ssr: false,
@@ -279,6 +280,8 @@ function DiveSitesPageInner() {
     return { total: countrySites.length, avgDepth, seaCount, lakeCount };
   }, [countryFilter, sites, loading]);
 
+  if (loading) return <DiverLoader />;
+
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
       {/* Compact header bar */}
@@ -302,8 +305,7 @@ function DiveSitesPageInner() {
 
         {/* Full-width map — the real hero */}
         <Box sx={{ width: '100%', height: { xs: 340, sm: 420, md: 520 }, position: 'relative' }}>
-          {!loading && <DiveSiteMap sites={filtered.length > 0 ? filtered : sites} onSelect={handleMapSelect} />}
-          {loading && <Skeleton variant="rectangular" width="100%" height="100%" sx={{ bgcolor: 'rgba(255,255,255,0.08)' }} />}
+          <DiveSiteMap sites={filtered.length > 0 ? filtered : sites} onSelect={handleMapSelect} />
           <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 48, background: 'linear-gradient(to bottom, transparent, #f5f5f5)', pointerEvents: 'none', zIndex: 1000 }} />
         </Box>
       </Box>
@@ -542,7 +544,7 @@ function DiveSitesPageInner() {
         {/* Results count */}
         <Stack direction="row" justifyContent="space-between" alignItems="center" mb={3}>
           <Typography variant="body2" color="text.secondary">
-            {loading ? 'Loading…' : `${filtered.length} site${filtered.length !== 1 ? 's' : ''}${activeFilterCount > 0 ? ' match your filters' : ''}`}
+            {`${filtered.length} site${filtered.length !== 1 ? 's' : ''}${activeFilterCount > 0 ? ' match your filters' : ''}`}
           </Typography>
           {userPos && (
             <Typography variant="caption" color="primary" fontWeight={600}>
