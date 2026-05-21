@@ -1,6 +1,6 @@
 {
-  "name": "Blue Mind Dive Sites",
-  "short_name": "Dive Sites",
+  "name": "BMF Dive Sites",
+  "short_name": "BMF Dive Sites",
   "description": "Explore the world's best freediving sites — searchable by country, depth, visibility and season.",
   "start_url": "/dive-sites",
   "scope": "/dive-sites",
