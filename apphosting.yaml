@@ -7,116 +7,119 @@ runConfig:
 
 env:
   - variable: NEXT_PUBLIC_FIREBASE_API_KEY
-    value: AIzaSyCOyP6k20y-w1HdamXPrg5pqmcCtLEb3fI
+    secret: NEXT_PUBLIC_FIREBASE_API_KEY
     availability:
       - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
-    value: bluemind-landing.firebaseapp.com
+    secret: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
     availability:
       - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
-    value: bluemind-landing
+    secret: NEXT_PUBLIC_FIREBASE_PROJECT_ID
     availability:
       - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
-    value: bluemind-landing.firebasestorage.app
+    secret: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
     availability:
       - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
-    value: "687366093897"
+    secret: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
     availability:
       - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_FIREBASE_APP_ID
-    value: 1:687366093897:web:4c7502c2408e96adeb5398
+    secret: NEXT_PUBLIC_FIREBASE_APP_ID
     availability:
       - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_GA_MEASUREMENT_ID
-    value: G-SVTHWQ8X55
+    secret: NEXT_PUBLIC_GA_MEASUREMENT_ID
     availability:
       - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
-    value: AIzaSyD9Hq1pJVexzxs7UmwQxIfmzR4KqNsIOso
+    secret: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
     availability:
       - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_ADMIN_EMAILS
-    value: admin@bluemindfreediving.nl
+    secret: NEXT_PUBLIC_ADMIN_EMAILS
     availability:
       - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_EMAILJS_SERVICE_ID
-    value: service_bluemind
+    secret: NEXT_PUBLIC_EMAILJS_SERVICE_ID
     availability:
+      - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_EMAILJS_TEMPLATE_ID
-    value: template_contact
+    secret: NEXT_PUBLIC_EMAILJS_TEMPLATE_ID
     availability:
+      - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
-    value: YOUR_PUBLIC_KEY
+    secret: NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
     availability:
+      - BUILD
       - RUNTIME
 
   - variable: GOOGLE_PLACES_API_KEY
-    value: AIzaSyDunc5VLPVG68iLV19jRY89xgF-E48hG-o
+    secret: GOOGLE_PLACES_API_KEY
     availability:
       - RUNTIME
 
   - variable: GOOGLE_PLACE_ID
-    value: ChIJUdb15qHjxUcRtuajYyqwLDs
+    secret: GOOGLE_PLACE_ID
     availability:
       - RUNTIME
 
   - variable: NEXT_PUBLIC_BOOKING_FIREBASE_API_KEY
-    value: AIzaSyAL1VF7rCgJyv4PtuZm_nSdYh7v5VV6KMg
+    secret: NEXT_PUBLIC_BOOKING_FIREBASE_API_KEY
     availability:
       - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_BOOKING_FIREBASE_AUTH_DOMAIN
-    value: bluemind-freediving.firebaseapp.com
+    secret: NEXT_PUBLIC_BOOKING_FIREBASE_AUTH_DOMAIN
     availability:
       - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_BOOKING_FIREBASE_PROJECT_ID
-    value: bluemind-freediving
+    secret: NEXT_PUBLIC_BOOKING_FIREBASE_PROJECT_ID
     availability:
       - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_BOOKING_FIREBASE_STORAGE_BUCKET
-    value: bluemind-freediving.firebasestorage.app
+    secret: NEXT_PUBLIC_BOOKING_FIREBASE_STORAGE_BUCKET
     availability:
       - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_BOOKING_FIREBASE_MESSAGING_SENDER_ID
-    value: "302328541732"
+    secret: NEXT_PUBLIC_BOOKING_FIREBASE_MESSAGING_SENDER_ID
     availability:
       - BUILD
       - RUNTIME
 
   - variable: NEXT_PUBLIC_BOOKING_FIREBASE_APP_ID
-    value: 1:302328541732:web:399e2eca0e94634b09deb1
+    secret: NEXT_PUBLIC_BOOKING_FIREBASE_APP_ID
     availability:
       - BUILD
       - RUNTIME
