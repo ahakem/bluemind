@@ -931,6 +931,34 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                   </Typography>
                 </Stack>
               )}
+              {(site.activities?.length ?? 0) > 0 && (
+                <Stack direction="row" spacing={1} mt={1.25} flexWrap="wrap" useFlexGap>
+                  {(site.activities ?? []).includes('line_diving') && (
+                    <Chip
+                      label="🪢 Line Diving"
+                      size="small"
+                      sx={{
+                        fontWeight: 700, fontSize: '0.8rem', height: 26,
+                        bgcolor: 'rgba(0,119,190,0.85)', color: 'white',
+                        border: '1.5px solid rgba(79,195,247,0.7)',
+                        backdropFilter: 'blur(4px)',
+                      }}
+                    />
+                  )}
+                  {(site.activities ?? []).includes('snorkeling') && (
+                    <Chip
+                      label="🤿 Snorkeling"
+                      size="small"
+                      sx={{
+                        fontWeight: 700, fontSize: '0.8rem', height: 26,
+                        bgcolor: 'rgba(0,137,123,0.85)', color: 'white',
+                        border: '1.5px solid rgba(128,203,196,0.7)',
+                        backdropFilter: 'blur(4px)',
+                      }}
+                    />
+                  )}
+                </Stack>
+              )}
             </Box>
 
             {/* Right: location + chips */}
@@ -1204,6 +1232,19 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                 SITE DETAILS
               </Typography>
               <Stack spacing={1.5} divider={<Divider />}>
+                {(site.activities?.length ?? 0) > 0 && (
+                  <Stack direction="row" justifyContent="space-between" alignItems="center">
+                    <Typography variant="body2" color="text.secondary">Activities</Typography>
+                    <Stack direction="row" spacing={0.75} flexWrap="wrap" justifyContent="flex-end">
+                      {(site.activities ?? []).includes('line_diving') && (
+                        <Chip label="Line Diving" size="small" sx={{ fontWeight: 700, fontSize: '0.75rem', bgcolor: '#e3f2fd', color: '#0055a5', border: '1.5px solid #90caf9' }} />
+                      )}
+                      {(site.activities ?? []).includes('snorkeling') && (
+                        <Chip label="Snorkeling" size="small" sx={{ fontWeight: 700, fontSize: '0.75rem', bgcolor: '#e0f2f1', color: '#00695c', border: '1.5px solid #80cbc4' }} />
+                      )}
+                    </Stack>
+                  </Stack>
+                )}
                 <Stack direction="row" justifyContent="space-between">
                   <Typography variant="body2" color="text.secondary">Water type</Typography>
                   <Typography variant="body2" fontWeight={600}>{WATER_TYPE_LABELS[site.waterType]}</Typography>

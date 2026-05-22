@@ -22,16 +22,22 @@ const CORRECTABLE_FIELDS: { key: keyof DiveSite | 'coordinates'; label: string; 
   { key: 'name',        label: 'Site Name' },
   { key: 'location',    label: 'City / Region' },
   { key: 'country',     label: 'Country' },
-  { key: 'maxDepth',    label: 'Max Depth',    hint: 'Enter depth in metres, e.g. 40' },
-  { key: 'waterType',   label: 'Water Type',   hint: 'sea or lake' },
+  { key: 'maxDepth',    label: 'Max Depth',      hint: 'Enter depth in metres, e.g. 40' },
+  { key: 'waterType',   label: 'Water Type',     hint: 'sea or lake' },
+  { key: 'activities',  label: 'Activity Type',  hint: 'Line Diving, Snorkeling, or both' },
   { key: 'description', label: 'Description' },
-  { key: 'coordinates', label: 'Map Location', hint: 'Pin the correct location on the map' },
+  { key: 'coordinates', label: 'Map Location',   hint: 'Pin the correct location on the map' },
 ];
 
 function formatValue(key: string, site: DiveSite): string {
   if (key === 'coordinates') {
     const c = site.coordinates;
     return c ? `${c.lat.toFixed(5)}, ${c.lng.toFixed(5)}` : '—';
+  }
+  if (key === 'activities') {
+    const a = site.activities ?? [];
+    if (!a.length) return 'Uncharted (no activity tagged)';
+    return a.map((v) => v === 'line_diving' ? 'Line Diving' : 'Snorkeling').join(', ');
   }
   const v = site[key as keyof DiveSite];
   if (v === null || v === undefined) return '—';
@@ -55,6 +61,9 @@ export default function RequestCorrectionDialog({
   const [step, setStep] = useState<1 | 2>(1);
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const [suggested, setSuggested] = useState<Partial<Record<string, string>>>({});
+  const [suggestedActivities, setSuggestedActivities] = useState<('line_diving' | 'snorkeling')[]>(
+    site.activities ?? []
+  );
   const [newCoords, setNewCoords] = useState<{ lat: number; lng: number }>(
     site.coordinates ?? { lat: 0, lng: 0 }
   );
@@ -83,6 +92,8 @@ export default function RequestCorrectionDialog({
     checked.forEach((key) => {
       if (key === 'coordinates') {
         fields.coordinates = { current: site.coordinates, suggested: newCoords };
+      } else if (key === 'activities') {
+        fields.activities = { current: site.activities ?? [], suggested: suggestedActivities };
       } else {
         fields[key] = {
           current: site[key as keyof DiveSite],
@@ -116,6 +127,7 @@ export default function RequestCorrectionDialog({
     setStep(1);
     setChecked(new Set());
     setSuggested({});
+    setSuggestedActivities(site.activities ?? []);
     setNewCoords(site.coordinates ?? { lat: 0, lng: 0 });
     setEmail('');
     setNote('');
@@ -274,7 +286,47 @@ export default function RequestCorrectionDialog({
                   Current: <Box component="span" sx={{ fontStyle: 'italic' }}>{truncate(formatValue(key, site), 80)}</Box>
                 </Typography>
 
-                {key === 'coordinates' ? (
+                {key === 'activities' ? (
+                  <Box>
+                    <Stack spacing={0.75}>
+                      {([['line_diving', 'Line Diving', '#0077be'], ['snorkeling', 'Snorkeling', '#00897b']] as const).map(([val, label, color]) => {
+                        const on = suggestedActivities.includes(val);
+                        return (
+                          <Box
+                            key={val}
+                            onClick={() => setSuggestedActivities((prev) =>
+                              prev.includes(val) ? prev.filter((a) => a !== val) : [...prev, val]
+                            )}
+                            sx={{
+                              display: 'flex', alignItems: 'center', gap: 1.5, px: 2, py: 1.25,
+                              borderRadius: 2, border: '1.5px solid', cursor: 'pointer', transition: 'all 0.15s',
+                              borderColor: on ? color : 'divider',
+                              bgcolor: on ? (val === 'line_diving' ? '#e3f2fd' : '#e0f2f1') : 'background.paper',
+                              '&:hover': { borderColor: color },
+                            }}
+                          >
+                            <Box sx={{
+                              width: 20, height: 20, borderRadius: 0.75, flexShrink: 0,
+                              border: '2px solid', borderColor: on ? color : '#bdbdbd',
+                              bgcolor: on ? color : 'transparent',
+                              display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            }}>
+                              {on && <CheckIcon sx={{ fontSize: 13, color: 'white' }} />}
+                            </Box>
+                            <Typography variant="body2" fontWeight={600} sx={{ color: on ? color : 'text.primary' }}>
+                              {label}
+                            </Typography>
+                          </Box>
+                        );
+                      })}
+                    </Stack>
+                    {suggestedActivities.length === 0 && (
+                      <Typography variant="caption" color="text.secondary" sx={{ mt: 0.75, display: 'block' }}>
+                        Leave both unchecked to suggest this site is Uncharted / unclassified.
+                      </Typography>
+                    )}
+                  </Box>
+                ) : key === 'coordinates' ? (
                   <Box>
                     {newCoords.lat !== 0 && (
                       <Typography variant="caption" sx={{ color: 'success.main', fontWeight: 600, display: 'block', mb: 0.75 }}>

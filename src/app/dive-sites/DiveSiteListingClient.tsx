@@ -38,6 +38,7 @@ import MyLocationIcon from '@mui/icons-material/MyLocation';
 import TuneIcon from '@mui/icons-material/Tune';
 import VerifiedIcon from '@mui/icons-material/Verified';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import ExploreIcon from '@mui/icons-material/Explore';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
 import CountryAutocomplete from '@/components/CountryAutocomplete';
@@ -125,6 +126,11 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
   const [bookmarks, setBookmarks] = useState<Set<string>>(new Set());
   const [savedOnly, setSavedOnly] = useState(false);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
+
+  // ── Activity filter ────────────────────────────────────────────────────────
+  // Default: line diving shown, snorkeling + uncharted hidden
+  const [activityFilter, setActivityFilter] = useState<('line_diving' | 'snorkeling')[]>(['line_diving']);
+  const [showUncharted, setShowUncharted] = useState(false);
 
   const toggleBookmark = useCallback((id: string) => {
     setBookmarks((prev) => {
@@ -226,6 +232,12 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
       }
       if (savedOnly && !bookmarks.has(site.id)) return false;
       if (verifiedOnly && !site.verified) return false;
+      // Activity filter
+      if (activityFilter.length > 0 || showUncharted) {
+        const isUncharted = !(site.activities?.length);
+        const matchesActivity = !isUncharted && site.activities!.some((a) => activityFilter.includes(a));
+        if (!matchesActivity && !(showUncharted && isUncharted)) return false;
+      }
       return true;
     });
 
@@ -239,7 +251,7 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
     }
 
     return result;
-  }, [sites, search, waterTypeFilter, countryFilter, continentFilter, minDepth, minVisibility, minTemp, savedOnly, bookmarks, userPos, verifiedOnly]);
+  }, [sites, search, waterTypeFilter, countryFilter, continentFilter, minDepth, minVisibility, minTemp, savedOnly, bookmarks, userPos, verifiedOnly, activityFilter, showUncharted]);
 
   // ── Handler helpers ───────────────────────────────────────────────────────
   const handleWaterType = (_: React.MouseEvent<HTMLElement>, values: string[]) => {
@@ -271,7 +283,9 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
   const hasAdvancedFilters = minDepth > 0 || minVisibility > 0 || minTemp > 0;
   const activeFilterCount = (search ? 1 : 0) + (waterTypeFilter.length > 0 ? 1 : 0)
     + (countryFilter ? 1 : 0) + (continentFilter ? 1 : 0)
-    + (hasAdvancedFilters ? 1 : 0) + (savedOnly ? 1 : 0) + (userPos ? 1 : 0) + (verifiedOnly ? 1 : 0);
+    + (hasAdvancedFilters ? 1 : 0) + (savedOnly ? 1 : 0) + (userPos ? 1 : 0) + (verifiedOnly ? 1 : 0)
+    + (activityFilter.length !== 1 || activityFilter[0] !== 'line_diving' ? 1 : 0)
+    + (showUncharted ? 1 : 0);
 
   // Country stats for banner
   const countryStats = useMemo(() => {
@@ -386,7 +400,57 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
               </Stack>
             </Stack>
 
-            {/* Row 3: near me + saved + more filters */}
+            {/* Row 3: activity type group */}
+            <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap" useFlexGap
+              sx={{ px: 1.5, py: 1, bgcolor: '#f8fafc', borderRadius: 2, border: '1px solid', borderColor: 'divider' }}
+            >
+              <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ flexShrink: 0 }}>
+                ACTIVITY
+              </Typography>
+              {([
+                { val: 'line_diving' as const, label: 'Line Diving', activeColor: '#0077be', hoverColor: '#005f99' },
+                { val: 'snorkeling' as const, label: 'Snorkeling', activeColor: '#00897b', hoverColor: '#00695c' },
+              ] as const).map(({ val, label, activeColor, hoverColor }) => {
+                const on = activityFilter.includes(val);
+                return (
+                  <Button
+                    key={val}
+                    size="small"
+                    variant={on ? 'contained' : 'outlined'}
+                    onClick={() => {
+                      setActivityFilter((prev) =>
+                        prev.includes(val) ? prev.filter((a) => a !== val) : [...prev, val]
+                      );
+                      setVisibleCount(24);
+                    }}
+                    aria-pressed={on}
+                    sx={{
+                      borderRadius: 5, fontSize: '0.75rem', py: 0.4, px: 1.5,
+                      ...(on ? { bgcolor: activeColor, '&:hover': { bgcolor: hoverColor } } : { borderColor: activeColor, color: activeColor }),
+                    }}
+                  >
+                    {label}
+                  </Button>
+                );
+              })}
+              <Button
+                size="small"
+                variant={showUncharted ? 'contained' : 'outlined'}
+                startIcon={<ExploreIcon sx={{ fontSize: '15px !important' }} />}
+                onClick={() => { setShowUncharted((v) => !v); setVisibleCount(24); }}
+                aria-pressed={showUncharted}
+                sx={{
+                  borderRadius: 5, fontSize: '0.75rem', py: 0.4, px: 1.5,
+                  ...(showUncharted
+                    ? { bgcolor: '#b45309', '&:hover': { bgcolor: '#92400e' } }
+                    : { borderColor: '#d97706', color: '#92400e' }),
+                }}
+              >
+                Uncharted
+              </Button>
+            </Stack>
+
+            {/* Row 4: near me + saved + verified + more filters */}
             <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
               <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                 {/* Near me */}
@@ -681,6 +745,25 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
                         <Chip label={`↓ ${site.maxDepth}m`} size="small" variant="outlined" />
                         <Chip label={`${site.visibility.min}–${site.visibility.max}m vis`} size="small" variant="outlined" />
                         {temp !== null && <Box sx={{ display: 'flex', alignItems: 'center' }}><TempBadge temp={temp} /></Box>}
+                      </Stack>
+                      <Stack direction="row" spacing={0.75} mt={1} flexWrap="wrap" useFlexGap>
+                        {(site.activities?.length ?? 0) === 0 ? (
+                          <Chip
+                            label="Uncharted"
+                            icon={<ExploreIcon sx={{ fontSize: '13px !important', color: '#92400e !important' }} />}
+                            size="small"
+                            sx={{ fontWeight: 700, fontSize: '0.72rem', bgcolor: '#fef3c7', color: '#92400e', border: '1.5px solid #fcd34d' }}
+                          />
+                        ) : (
+                          <>
+                            {(site.activities ?? []).includes('line_diving') && (
+                              <Chip label="Line Diving" size="small" sx={{ fontWeight: 700, fontSize: '0.72rem', bgcolor: '#e3f2fd', color: '#0055a5', border: '1.5px solid #90caf9' }} />
+                            )}
+                            {(site.activities ?? []).includes('snorkeling') && (
+                              <Chip label="Snorkeling" size="small" sx={{ fontWeight: 700, fontSize: '0.72rem', bgcolor: '#e0f2f1', color: '#00695c', border: '1.5px solid #80cbc4' }} />
+                            )}
+                          </>
+                        )}
                       </Stack>
                     </CardContent>
                   </CardActionArea>

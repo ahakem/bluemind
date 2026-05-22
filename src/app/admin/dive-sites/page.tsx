@@ -55,6 +55,7 @@ import ArchiveIcon from '@mui/icons-material/Archive';
 import PendingIcon from '@mui/icons-material/HourglassEmpty';
 import PublicIcon from '@mui/icons-material/Public';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
+import SportsIcon from '@mui/icons-material/Sports';
 import {
   getAllDiveSites,
   createDiveSite,
@@ -87,6 +88,7 @@ const EMPTY_DRAFT: DiveSiteDraft = {
   bestSeasons: [],
   photos: [],
   status: 'active',
+  activities: [],
 };
 
 // ── Column visibility ────────────────────────────────────────────────────────
@@ -254,6 +256,8 @@ export default function AdminDiveSitesPage() {
   const [bulkDeleteConfirm, setBulkDeleteConfirm] = useState(false);
   const [countryDialogOpen, setCountryDialogOpen] = useState(false);
   const [bulkCountry, setBulkCountry] = useState<{ code: string; label: string; phone: string } | null>(null);
+  const [activityDialogOpen, setActivityDialogOpen] = useState(false);
+  const [bulkActivities, setBulkActivities] = useState<('line_diving' | 'snorkeling')[]>([]);
   const [mapPickerOpen, setMapPickerOpen] = useState(false);
   const [mapPickerPos, setMapPickerPos] = useState<{ lat: number; lng: number }>({ lat: 0, lng: 0 });
 
@@ -319,6 +323,17 @@ export default function AdminDiveSitesPage() {
     } catch { setError('Bulk country update failed'); } finally { setBulkWorking(false); }
   };
 
+  const bulkSetActivity = async () => {
+    setBulkWorking(true);
+    try {
+      await Promise.all([...selected].map((id) => updateDiveSite(id, { activities: bulkActivities })));
+      setSelected(new Set());
+      setActivityDialogOpen(false);
+      setBulkActivities([]);
+      await load();
+    } catch { setError('Bulk activity update failed'); } finally { setBulkWorking(false); }
+  };
+
   // Single site actions
   const openCreate = () => { setEditingSite(null); setDraft(EMPTY_DRAFT); setDialogOpen(true); };
 
@@ -333,6 +348,7 @@ export default function AdminDiveSitesPage() {
       waterTemp: site.waterTemp, visibility: site.visibility,
       bestSeasons: site.bestSeasons, photos: site.photos,
       status: site.status, slug: site.slug,
+      activities: site.activities ?? [],
     });
     setDialogOpen(true);
   };
@@ -603,6 +619,11 @@ export default function AdminDiveSitesPage() {
                 <IconButton size="small" onClick={() => setCountryDialogOpen(true)} disabled={bulkWorking}>
                   <PublicIcon fontSize="small" />
                 </IconButton>
+                <Tooltip title="Set Activity Type">
+                  <IconButton size="small" onClick={() => { setBulkActivities([]); setActivityDialogOpen(true); }} disabled={bulkWorking}>
+                    <SportsIcon fontSize="small" />
+                  </IconButton>
+                </Tooltip>
                 <IconButton size="small" color="error" onClick={() => setBulkDeleteConfirm(true)} disabled={bulkWorking}>
                   <DeleteIcon fontSize="small" />
                 </IconButton>
@@ -681,6 +702,15 @@ export default function AdminDiveSitesPage() {
                     {site.verified && (
                       <Chip icon={<VerifiedIcon sx={{ fontSize: '12px !important' }} />} label="Verified" size="small" color="success" sx={{ fontSize: '0.7rem', height: 22 }} />
                     )}
+                    {(site.activities?.length ?? 0) === 0 && (
+                      <Chip label="⚓ Uncharted" size="small" sx={{ fontSize: '0.7rem', height: 22, bgcolor: '#fef3c7', color: '#92400e', fontWeight: 700, border: '1px solid #fcd34d' }} />
+                    )}
+                    {(site.activities ?? []).includes('line_diving') && (
+                      <Chip label="Line Diving" size="small" sx={{ fontSize: '0.7rem', height: 22, bgcolor: '#e3f2fd', color: '#0077be', fontWeight: 700 }} />
+                    )}
+                    {(site.activities ?? []).includes('snorkeling') && (
+                      <Chip label="Snorkeling" size="small" sx={{ fontSize: '0.7rem', height: 22, bgcolor: '#e0f2f1', color: '#00897b', fontWeight: 700 }} />
+                    )}
                   </Stack>
 
                   {/* Coordinates row */}
@@ -741,6 +771,7 @@ export default function AdminDiveSitesPage() {
               <Button size="small" startIcon={<PendingIcon />} variant="outlined" onClick={() => bulkUpdateStatus('pending')} disabled={bulkWorking}>Pending</Button>
               <Button size="small" startIcon={<ArchiveIcon />} variant="outlined" onClick={() => bulkUpdateStatus('archived')} disabled={bulkWorking}>Archive</Button>
               <Button size="small" startIcon={<PublicIcon />} variant="outlined" onClick={() => setCountryDialogOpen(true)} disabled={bulkWorking}>Set Country</Button>
+              <Button size="small" startIcon={<SportsIcon />} variant="outlined" onClick={() => { setBulkActivities([]); setActivityDialogOpen(true); }} disabled={bulkWorking}>Set Activity</Button>
               <Button size="small" startIcon={<DeleteIcon />} color="error" variant="outlined" onClick={() => setBulkDeleteConfirm(true)} disabled={bulkWorking}>Delete</Button>
               {bulkWorking && <CircularProgress size={20} />}
             </Toolbar>
@@ -777,6 +808,17 @@ export default function AdminDiveSitesPage() {
                       <TableCell>
                         <Typography fontWeight={600} fontSize={14}>{site.name}</Typography>
                         <Typography variant="caption" color="text.secondary">{site.location}</Typography>
+                        <Stack direction="row" spacing={0.5} mt={0.5} flexWrap="wrap">
+                          {(site.activities?.length ?? 0) === 0 && (
+                            <Chip label="⚓ Uncharted" size="small" sx={{ fontSize: '0.65rem', height: 18, bgcolor: '#fef3c7', color: '#92400e', fontWeight: 700, border: '1px solid #fcd34d' }} />
+                          )}
+                          {(site.activities ?? []).includes('line_diving') && (
+                            <Chip label="Line Diving" size="small" sx={{ fontSize: '0.65rem', height: 18, bgcolor: '#e3f2fd', color: '#0077be', fontWeight: 700 }} />
+                          )}
+                          {(site.activities ?? []).includes('snorkeling') && (
+                            <Chip label="Snorkeling" size="small" sx={{ fontSize: '0.65rem', height: 18, bgcolor: '#e0f2f1', color: '#00897b', fontWeight: 700 }} />
+                          )}
+                        </Stack>
                       </TableCell>
 
                       {show('country') && (
@@ -890,6 +932,43 @@ export default function AdminDiveSitesPage() {
         <DialogTitle fontWeight={700}>{editingSite ? `Edit: ${editingSite.name}` : 'Add Dive Site'}</DialogTitle>
         <DialogContent dividers>
           <Stack spacing={2.5} pt={1}>
+
+            {/* ── Activity Types — top of form ─────────────────────────────── */}
+            <Box sx={{ p: 2, borderRadius: 2, border: '2px solid', borderColor: (draft.activities?.length ?? 0) === 0 ? '#f59e0b' : '#0077be', bgcolor: (draft.activities?.length ?? 0) === 0 ? '#fffbeb' : '#f0f7ff' }}>
+              <Stack direction="row" justifyContent="space-between" alignItems="center" mb={1}>
+                <Typography variant="subtitle2" fontWeight={700}>Activity Types</Typography>
+                {(draft.activities?.length ?? 0) === 0 && (
+                  <Chip label="⚓ Uncharted" size="small" sx={{ fontWeight: 700, fontSize: '0.72rem', bgcolor: '#fef3c7', color: '#92400e', border: '1.5px solid #fcd34d' }} />
+                )}
+              </Stack>
+              <Stack direction="row" spacing={2} flexWrap="wrap">
+                {([['line_diving', 'Line Diving', '#0077be'], ['snorkeling', 'Snorkeling', '#00897b']] as const).map(([val, label, color]) => (
+                  <FormControlLabel
+                    key={val}
+                    control={
+                      <Checkbox
+                        size="small"
+                        checked={(draft.activities ?? []).includes(val)}
+                        onChange={(e) => setDraft((d) => ({
+                          ...d,
+                          activities: e.target.checked
+                            ? [...(d.activities ?? []), val]
+                            : (d.activities ?? []).filter((a) => a !== val),
+                        }))}
+                        sx={{ color, '&.Mui-checked': { color } }}
+                      />
+                    }
+                    label={<Typography variant="body2" fontWeight={600}>{label}</Typography>}
+                  />
+                ))}
+              </Stack>
+              {(draft.activities?.length ?? 0) === 0 && (
+                <Typography variant="caption" sx={{ color: '#92400e', mt: 0.75, display: 'block' }}>
+                  This site is <strong>Uncharted</strong> — it won't appear in the public listing until tagged as Line Diving or Snorkeling.
+                </Typography>
+              )}
+            </Box>
+
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <TextField label="Site Name" value={draft.name}
                 onChange={(e) => setDraft((d) => ({ ...d, name: e.target.value }))} fullWidth required />
@@ -983,6 +1062,7 @@ export default function AdminDiveSitesPage() {
               </Stack>
             </Box>
 
+
             <Box>
               <Typography variant="subtitle2" fontWeight={600} mb={1.5}>Water Temperature by Month (°C)</Typography>
               <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
@@ -1071,6 +1151,44 @@ export default function AdminDiveSitesPage() {
           <Button onClick={() => setCountryDialogOpen(false)}>Cancel</Button>
           <Button variant="contained" onClick={bulkSetCountry} disabled={!bulkCountry || bulkWorking}>
             {bulkWorking ? <CircularProgress size={20} /> : 'Apply'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Bulk set activity dialog */}
+      <Dialog open={activityDialogOpen} onClose={() => setActivityDialogOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle fontWeight={700}>Set Activity for {selected.size} sites</DialogTitle>
+        <DialogContent sx={{ pt: 2 }}>
+          <Typography variant="body2" color="text.secondary" mb={2}>
+            This will <strong>replace</strong> the activity tags on all selected sites. Select at least one activity, or leave both unchecked to mark them as <strong>Uncharted</strong>.
+          </Typography>
+          <Stack spacing={1}>
+            {([['line_diving', 'Line Diving', '#0077be'], ['snorkeling', 'Snorkeling', '#00897b']] as const).map(([val, label, color]) => (
+              <FormControlLabel
+                key={val}
+                control={
+                  <Checkbox
+                    checked={bulkActivities.includes(val)}
+                    onChange={(e) => setBulkActivities((prev) =>
+                      e.target.checked ? [...prev, val] : prev.filter((a) => a !== val)
+                    )}
+                    sx={{ color, '&.Mui-checked': { color } }}
+                  />
+                }
+                label={<Typography fontWeight={600}>{label}</Typography>}
+              />
+            ))}
+          </Stack>
+          {bulkActivities.length === 0 && (
+            <Alert severity="warning" sx={{ mt: 2 }}>
+              No activity selected — sites will be marked as <strong>⚓ Uncharted</strong> and hidden from the public listing.
+            </Alert>
+          )}
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setActivityDialogOpen(false)}>Cancel</Button>
+          <Button variant="contained" onClick={bulkSetActivity} disabled={bulkWorking}>
+            {bulkWorking ? <CircularProgress size={20} /> : `Apply to ${selected.size} sites`}
           </Button>
         </DialogActions>
       </Dialog>

@@ -64,6 +64,7 @@ const docToDiveSite = (id: string, data: Record<string, unknown>): DiveSite => (
   googleRatingsTotal: data.googleRatingsTotal as number | undefined,
   googlePlaceId: data.googlePlaceId as string | undefined,
   verified: data.verified as boolean | undefined,
+  activities: (data.activities as ('line_diving' | 'snorkeling')[]) || [],
 });
 
 export const generateSlug = (name: string): string =>

@@ -101,6 +101,7 @@ export interface DiveSite {
   googleRatingsTotal?: number;
   googlePlaceId?: string;
   verified?: boolean;
+  activities?: ('line_diving' | 'snorkeling')[];
 }
 
 export interface DiveSiteDraft {
@@ -121,6 +122,7 @@ export interface DiveSiteDraft {
   photos: string[];
   thermocline?: Thermocline;
   status: 'active' | 'pending' | 'archived';
+  activities?: ('line_diving' | 'snorkeling')[];
 }
 
 export interface SiteSubmission {
