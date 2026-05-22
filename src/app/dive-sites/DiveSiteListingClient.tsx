@@ -36,6 +36,7 @@ import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder';
 import BookmarkIcon from '@mui/icons-material/Bookmark';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 import TuneIcon from '@mui/icons-material/Tune';
+import VerifiedIcon from '@mui/icons-material/Verified';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
@@ -123,6 +124,7 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
   // ── Bookmarks ─────────────────────────────────────────────────────────────
   const [bookmarks, setBookmarks] = useState<Set<string>>(new Set());
   const [savedOnly, setSavedOnly] = useState(false);
+  const [verifiedOnly, setVerifiedOnly] = useState(false);
 
   const toggleBookmark = useCallback((id: string) => {
     setBookmarks((prev) => {
@@ -223,6 +225,7 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
         if (temp === null || temp < minTemp) return false;
       }
       if (savedOnly && !bookmarks.has(site.id)) return false;
+      if (verifiedOnly && !site.verified) return false;
       return true;
     });
 
@@ -236,7 +239,7 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
     }
 
     return result;
-  }, [sites, search, waterTypeFilter, countryFilter, continentFilter, minDepth, minVisibility, minTemp, savedOnly, bookmarks, userPos]);
+  }, [sites, search, waterTypeFilter, countryFilter, continentFilter, minDepth, minVisibility, minTemp, savedOnly, bookmarks, userPos, verifiedOnly]);
 
   // ── Handler helpers ───────────────────────────────────────────────────────
   const handleWaterType = (_: React.MouseEvent<HTMLElement>, values: string[]) => {
@@ -268,7 +271,7 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
   const hasAdvancedFilters = minDepth > 0 || minVisibility > 0 || minTemp > 0;
   const activeFilterCount = (search ? 1 : 0) + (waterTypeFilter.length > 0 ? 1 : 0)
     + (countryFilter ? 1 : 0) + (continentFilter ? 1 : 0)
-    + (hasAdvancedFilters ? 1 : 0) + (savedOnly ? 1 : 0) + (userPos ? 1 : 0);
+    + (hasAdvancedFilters ? 1 : 0) + (savedOnly ? 1 : 0) + (userPos ? 1 : 0) + (verifiedOnly ? 1 : 0);
 
   // Country stats for banner
   const countryStats = useMemo(() => {
@@ -415,6 +418,21 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
                   }}
                 >
                   Saved{bookmarks.size > 0 ? ` (${bookmarks.size})` : ''}
+                </Button>
+
+                {/* Verified */}
+                <Button
+                  size="small"
+                  variant={verifiedOnly ? 'contained' : 'outlined'}
+                  startIcon={<VerifiedIcon sx={{ fontSize: '15px !important' }} />}
+                  onClick={() => { setVerifiedOnly((v) => !v); setVisibleCount(24); }}
+                  aria-pressed={verifiedOnly}
+                  sx={{
+                    borderRadius: 5, fontSize: '0.75rem', py: 0.4, px: 1.5,
+                    ...(verifiedOnly ? { bgcolor: '#0077be', '&:hover': { bgcolor: '#005f99' } } : {}),
+                  }}
+                >
+                  Verified
                 </Button>
 
                 {nearMeError && (

@@ -13,6 +13,8 @@ import {
 import { Pool, LocationOn, AccessTime, People, CalendarMonth } from '@mui/icons-material';
 import { getUpcomingSessions, type BookingSession } from '@/lib/bookingService';
 
+type SerializedSession = Omit<BookingSession, 'date'> & { date: string };
+
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const MONTHS = [
   'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
@@ -156,12 +158,19 @@ const monthLabel = (key: string): string => {
   return `${MONTHS[parseInt(month, 10) - 1]} ${year}`;
 };
 
-export default function SessionCalendar() {
-  const [sessions, setSessions] = useState<BookingSession[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [activeMonth, setActiveMonth] = useState<string | null>(null);
+export default function SessionCalendar({ initialSessions }: { initialSessions?: SerializedSession[] }) {
+  const [sessions, setSessions] = useState<BookingSession[]>(() =>
+    initialSessions ? initialSessions.map((s) => ({ ...s, date: new Date(s.date) })) : []
+  );
+  const [loading, setLoading] = useState(!initialSessions);
+  const [activeMonth, setActiveMonth] = useState<string | null>(() => {
+    if (!initialSessions || initialSessions.length === 0) return null;
+    const d = new Date(initialSessions[0].date);
+    return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+  });
 
   useEffect(() => {
+    if (initialSessions) return; // skip fetch — data came from server
     getUpcomingSessions().then((data) => {
       setSessions(data);
       if (data.length > 0) {

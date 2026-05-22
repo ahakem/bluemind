@@ -6,8 +6,7 @@ import {
   useMap, useMapsLibrary,
 } from '@vis.gl/react-google-maps';
 import type { MapMouseEvent } from '@vis.gl/react-google-maps';
-import { Box, Typography, TextField, InputAdornment, Paper } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import { Box, Typography, Paper } from '@mui/material';
 import MyLocationIcon from '@mui/icons-material/MyLocation';
 
 const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? '';
@@ -15,68 +14,59 @@ const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? '';
 interface LatLng { lat: number; lng: number }
 interface Props { position: LatLng; onChange: (pos: LatLng) => void }
 
-// Must be a child of APIProvider to use useMap / useMapsLibrary
-function MapContent({ position, onChange }: Props) {
+// Search box using the new Places API (PlaceAutocompleteElement web component)
+function PlacesSearch({ onChange }: { onChange: (pos: LatLng) => void }) {
   const map = useMap();
+  const containerRef = useRef<HTMLDivElement>(null);
   const placesLib = useMapsLibrary('places');
-  const inputRef = useRef<HTMLInputElement>(null);
-  const acRef = useRef<google.maps.places.Autocomplete | null>(null);
 
-  const hasPin = position.lat !== 0 || position.lng !== 0;
-
-  // Boot autocomplete as soon as the Places library is ready
   useEffect(() => {
-    if (!placesLib || !inputRef.current || acRef.current) return;
+    if (!placesLib || !containerRef.current) return;
 
-    acRef.current = new placesLib.Autocomplete(inputRef.current, {
-      fields: ['geometry.location', 'name'],
-    });
+    const el = new (placesLib as any).PlaceAutocompleteElement();
+    el.style.cssText = 'width:100%;';
 
-    const listener = acRef.current.addListener('place_changed', () => {
-      const place = acRef.current!.getPlace();
-      const loc = place.geometry?.location;
+    const handleSelect = async (e: any) => {
+      const place = e.placePrediction?.toPlace();
+      if (!place) return;
+      await place.fetchFields({ fields: ['location'] });
+      const loc = place.location;
       if (loc && map) {
         const pos = { lat: loc.lat(), lng: loc.lng() };
         map.panTo(pos);
         map.setZoom(14);
         onChange(pos);
       }
-    });
+    };
 
-    return () => google.maps.event.removeListener(listener);
+    el.addEventListener('gmp-select', handleSelect);
+    containerRef.current.appendChild(el);
+
+    return () => {
+      el.removeEventListener('gmp-select', handleSelect);
+      if (containerRef.current?.contains(el)) containerRef.current.removeChild(el);
+    };
   }, [placesLib, map, onChange]);
 
-  // Click anywhere on the map to place / move the pin
+  return <div ref={containerRef} style={{ width: '100%' }} />;
+}
+
+function MapContent({ position, onChange }: Props) {
+  const hasPin = position.lat !== 0 || position.lng !== 0;
+
   const handleMapClick = useCallback((e: MapMouseEvent) => {
     const ll = e.detail?.latLng;
     if (ll) onChange({ lat: ll.lat, lng: ll.lng });
   }, [onChange]);
 
-  // Drag existing pin to refine position
   const handleDragEnd = useCallback((e: google.maps.MapMouseEvent) => {
     if (e.latLng) onChange({ lat: e.latLng.lat(), lng: e.latLng.lng() });
   }, [onChange]);
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1, height: '100%' }}>
-
-      {/* Places search — autocomplete dropdown needs high z-index inside Dialog */}
-      <TextField
-        inputRef={inputRef}
-        placeholder="Search location, city, or country…"
-        size="small"
-        fullWidth
-        slotProps={{
-          input: {
-            startAdornment: (
-              <InputAdornment position="start">
-                <SearchIcon sx={{ color: 'text.secondary', fontSize: 20 }} />
-              </InputAdornment>
-            ),
-          },
-        }}
-        sx={{ bgcolor: 'white', borderRadius: 1 }}
-      />
+      {/* Places search — new API */}
+      <PlacesSearch onChange={onChange} />
 
       {/* Map */}
       <Box sx={{ flex: 1, borderRadius: 1, overflow: 'hidden', minHeight: 320, position: 'relative' }}>
@@ -88,7 +78,6 @@ function MapContent({ position, onChange }: Props) {
           style={{ width: '100%', height: '100%' }}
           gestureHandling="greedy"
           onClick={handleMapClick}
-          // Show pointer cursor so users know they can click
           clickableIcons={false}
         >
           {hasPin && (
@@ -100,7 +89,6 @@ function MapContent({ position, onChange }: Props) {
           )}
         </Map>
 
-        {/* Hint overlay before pin is placed */}
         {!hasPin && (
           <Box sx={{
             position: 'absolute', inset: 0, display: 'flex',
@@ -115,29 +103,21 @@ function MapContent({ position, onChange }: Props) {
       </Box>
 
       {/* Coordinates readout */}
-      {hasPin ? (
-        <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
-          📍 {position.lat.toFixed(5)}, {position.lng.toFixed(5)} — drag the pin to refine the exact spot
-        </Typography>
-      ) : (
-        <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
-          Click the map or use search to place your pin
-        </Typography>
-      )}
+      <Typography variant="caption" color="text.secondary" sx={{ textAlign: 'center' }}>
+        {hasPin
+          ? `📍 ${position.lat.toFixed(5)}, ${position.lng.toFixed(5)} — drag the pin to refine`
+          : 'Click the map or use search to place your pin'}
+      </Typography>
     </Box>
   );
 }
 
 export default function LocationPickerStep({ position, onChange }: Props) {
   return (
-    <>
-      {/* Fix autocomplete dropdown z-index inside MUI Dialog */}
-      <style>{`.pac-container { z-index: 9999 !important; }`}</style>
-      <APIProvider apiKey={API_KEY} libraries={['places']}>
-        <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
-          <MapContent position={position} onChange={onChange} />
-        </Box>
-      </APIProvider>
-    </>
+    <APIProvider apiKey={API_KEY} libraries={['places']}>
+      <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <MapContent position={position} onChange={onChange} />
+      </Box>
+    </APIProvider>
   );
 }

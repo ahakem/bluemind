@@ -59,6 +59,15 @@ const TEMP_BANDS = [
   { max: 99, color: '#ef6c00', label: '>18°C  Warm' },
 ];
 
+function toDDM(lat: number, lng: number): string {
+  const fmt = (v: number, pos: string, neg: string) => {
+    const d = Math.floor(Math.abs(v));
+    const m = ((Math.abs(v) - d) * 60).toFixed(3);
+    return `${d} ${m} ${v >= 0 ? pos : neg}`;
+  };
+  return `${fmt(lat, 'N', 'S')}  ${fmt(lng, 'E', 'W')}`;
+}
+
 function tempColor(t: number) {
   return TEMP_BANDS.find((b) => t <= b.max)?.color ?? '#ef6c00';
 }
@@ -1168,6 +1177,19 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                   <Typography variant="body2" color="text.secondary">Location</Typography>
                   <Typography variant="body2" fontWeight={600}>{site.location}</Typography>
                 </Stack>
+                {hasCoordinates && (
+                  <Stack direction="row" justifyContent="space-between" alignItems="flex-start">
+                    <Typography variant="body2" color="text.secondary" sx={{ flexShrink: 0, mr: 1 }}>Coordinates</Typography>
+                    <Box sx={{ textAlign: 'right' }}>
+                      <Typography variant="body2" fontWeight={600} sx={{ fontFamily: 'monospace', fontSize: '0.8rem' }}>
+                        {toDDM(lat, lng)}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'monospace' }}>
+                        {lat.toFixed(6)}, {lng.toFixed(6)}
+                      </Typography>
+                    </Box>
+                  </Stack>
+                )}
                 {site.googleRating && (
                   <Stack direction="row" justifyContent="space-between" alignItems="center">
                     <Typography variant="body2" color="text.secondary">Google rating</Typography>

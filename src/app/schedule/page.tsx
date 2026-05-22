@@ -1,5 +1,8 @@
 import type { Metadata } from 'next';
 import Calendar from '@/sections/Calendar';
+import { getUpcomingSessions } from '@/lib/bookingService';
+
+export const revalidate = 21600; // 6 hours
 
 export const metadata: Metadata = {
   title: 'Training Schedule | Blue Mind Freediving Amsterdam',
@@ -21,6 +24,8 @@ export const metadata: Metadata = {
   },
 };
 
-export default function SchedulePage() {
-  return <Calendar />;
+export default async function SchedulePage() {
+  const sessions = await getUpcomingSessions();
+  const initialSessions = sessions.map((s) => ({ ...s, date: s.date.toISOString() }));
+  return <Calendar initialSessions={initialSessions} />;
 }

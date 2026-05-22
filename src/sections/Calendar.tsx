@@ -1,13 +1,10 @@
-'use client';
-
 import { Box, Container, Typography, Paper } from "@mui/material";
-import dynamic from "next/dynamic";
+import SessionCalendar from "@/components/SessionCalendar";
+import type { BookingSession } from '@/lib/bookingService';
 
-const SessionCalendar = dynamic(() => import("@/components/SessionCalendar"), {
-  ssr: false,
-});
+type SerializedSession = Omit<BookingSession, 'date'> & { date: string };
 
-const Calendar = () => {
+const Calendar = ({ initialSessions }: { initialSessions?: SerializedSession[] }) => {
   return (
     <Box
       component="section"
@@ -68,7 +65,7 @@ const Calendar = () => {
         </Box>
 
         {/* Live Session Calendar */}
-        <SessionCalendar />
+        <SessionCalendar initialSessions={initialSessions} />
       </Container>
     </Box>
   );
