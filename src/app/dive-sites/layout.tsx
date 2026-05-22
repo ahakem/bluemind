@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import DiveSitesInstallBanner from '@/components/DiveSitesInstallBanner';
+import { AuthProvider } from '@/lib/AuthContext';
 
 export const viewport: Viewport = {
   themeColor: '#0077be',
@@ -46,11 +47,11 @@ export const metadata: Metadata = {
 
 export default function DiveSitesLayout({ children }: { children: React.ReactNode }) {
   return (
-    <>
+    <AuthProvider>
       {children}
       <DiveSWRegistrar />
       <DiveSitesInstallBanner />
-    </>
+    </AuthProvider>
   );
 }
 

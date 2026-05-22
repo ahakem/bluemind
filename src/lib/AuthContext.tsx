@@ -213,10 +213,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+const defaultAuthContext: AuthContextType = {
+  user: null,
+  adminUser: null,
+  loading: false,
+  isAdmin: false,
+  signIn: async () => {},
+  signInWithGoogle: async () => {},
+  signOut: async () => {},
+  createAdminUser: async () => {},
+  getAdminUsers: async () => [],
+  updateAdminUser: async () => {},
+  updateProfile: async () => {},
+  deleteAdminUser: async () => {},
+};
+
 export function useAuth() {
   const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  return context ?? defaultAuthContext;
 }

@@ -43,6 +43,7 @@ import { DiveSite, Thermocline } from '@/types/admin';
 import RequestCorrectionDialog from '@/components/RequestCorrectionDialog';
 import NotFreedivingFriendlyDialog from '@/components/NotFreedivingFriendlyDialog';
 import { submitVerification, submitDiveLog, submitRating, getSiteRatingsSummary } from '@/lib/diveSiteService';
+import { useAuth } from '@/lib/AuthContext';
 
 const WATER_TYPE_LABELS: Record<DiveSite['waterType'], string> = {
   lake: 'Lake',
@@ -586,6 +587,7 @@ function StreetViewPanel({ lat, lng, apiKey }: { lat: number; lng: number; apiKe
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
+  const { isAdmin, loading: authLoading } = useAuth();
   const apiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? '';
   const lat = site.coordinates?.lat ?? 0;
   const lng = site.coordinates?.lng ?? 0;
@@ -722,8 +724,59 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
     return () => observer.disconnect();
   }, []);
 
+  // Non-active site: wait for auth, then gate
+  if (site.status !== 'active') {
+    if (authLoading) return null;
+    if (!isAdmin) {
+      return (
+        <Box sx={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Box sx={{ textAlign: 'center', px: 3 }}>
+            <Typography variant="h5" fontWeight={700} mb={1}>Site not available</Typography>
+            <Typography variant="body2" color="text.secondary" mb={3}>
+              This dive site is not currently accessible.
+            </Typography>
+            <Button variant="outlined" component={Link} href="/dive-sites">
+              Browse all dive sites
+            </Button>
+          </Box>
+        </Box>
+      );
+    }
+  }
+
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
+
+      {/* Admin status banner for non-active sites */}
+      {site.status !== 'active' && isAdmin && (
+        <Box sx={{
+          bgcolor: site.status === 'pending' ? '#fff8e1' : '#fce4ec',
+          borderBottom: '2px solid',
+          borderColor: site.status === 'pending' ? '#f59e0b' : '#e53935',
+          px: 3, py: 1.25,
+          display: 'flex', alignItems: 'center', gap: 1.5,
+        }}>
+          <Chip
+            label={site.status.toUpperCase()}
+            size="small"
+            color={site.status === 'pending' ? 'warning' : 'error'}
+            sx={{ fontWeight: 700, fontSize: '0.7rem' }}
+          />
+          <Typography variant="body2" fontWeight={600}>
+            This site is <strong>{site.status}</strong> — only visible to admins.
+          </Typography>
+          <Button
+            size="small"
+            variant="outlined"
+            color={site.status === 'pending' ? 'warning' : 'error'}
+            component={Link}
+            href="/admin/dive-sites"
+            sx={{ ml: 'auto', fontSize: '0.75rem' }}
+          >
+            Manage in Admin
+          </Button>
+        </Box>
+      )}
 
       {/* Sticky bar — fixed below navbar, shown after hero scrolls off */}
       {showBar && (

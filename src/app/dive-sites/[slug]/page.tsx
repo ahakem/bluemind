@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
 export const revalidate = 3600; // regenerate at most once per hour
-import { getDiveSiteBySlug, getAllDiveSites } from '@/lib/diveSiteService';
+import { getDiveSiteBySlug, getActiveDiveSites } from '@/lib/diveSiteService';
 import DiveSiteDetailClient from './DiveSiteDetailClient';
 
 const BASE_URL = 'https://bluemindfreediving.nl';
@@ -13,14 +13,14 @@ interface Props {
 }
 
 export async function generateStaticParams() {
-  const sites = await getAllDiveSites();
+  const sites = await getActiveDiveSites();
   return sites.map((s) => ({ slug: s.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
   const site = await getDiveSiteBySlug(slug);
-  if (!site) return { title: 'Site Not Found' };
+  if (!site || site.status !== 'active') return { title: 'Site Not Found' };
 
   const locationParts = [site.location, site.country].filter(Boolean).join(', ');
   const pageTitle = `${site.name} Freediving Site${locationParts ? ` — ${locationParts}` : ''}`;
@@ -76,7 +76,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       images: [ogImage],
     },
     alternates: { canonical: url },
-    robots: { index: true, follow: true },
+    robots: site.status === 'active' ? { index: true, follow: true } : { index: false, follow: false },
   };
 }
 
