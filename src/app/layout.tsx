@@ -28,6 +28,14 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   manifest: '/manifest.json',
+  icons: {
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/android-chrome-192x192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/android-chrome-512x512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: '/apple-touch-icon.png',
+  },
   metadataBase: new URL('https://bluemindfreediving.nl'),
   title: {
     default: 'Freediving Amsterdam | Blue Mind Freediving Club - #1 Pool Training',
@@ -82,11 +90,11 @@ export const metadata: Metadata = {
     images: ['/images/og-image.jpg'],
   },
   robots: {
-    index: false,
-    follow: false,
+    index: true,
+    follow: true,
     googleBot: {
-      index: false,
-      follow: false,
+      index: true,
+      follow: true,
     },
   },
   alternates: {
@@ -109,11 +117,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={`${montserrat.variable} ${poppins.variable}`}>
       <head>
-        <link rel="icon" href="/favicon.ico" sizes="any" />
-        <link rel="icon" type="image/png" sizes="192x192" href="/android-chrome-192x192.png" />
-        <link rel="icon" type="image/png" sizes="512x512" href="/android-chrome-512x512.png" />
-        <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
-        {/* manifest is declared via Next.js metadata so child layouts (e.g. dive-sites) can override it */}
+        {/* icons and manifest are declared via Next.js metadata so child layouts (e.g. dive-sites) can override them */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}

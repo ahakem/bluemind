@@ -2,8 +2,8 @@
   "name": "BMF Dive Sites",
   "short_name": "BMF Dive Sites",
   "description": "Explore the world's best freediving sites — searchable by country, depth, visibility and season.",
-  "start_url": "/dive-sites",
-  "scope": "/dive-sites",
+  "start_url": "/dive-sites/",
+  "scope": "/dive-sites/",
   "display": "standalone",
   "orientation": "portrait-primary",
   "background_color": "#ffffff",
@@ -25,12 +25,12 @@
   "shortcuts": [
     {
       "name": "Sea Sites",
-      "url": "/dive-sites?waterType=sea",
+      "url": "/dive-sites/?waterType=sea",
       "icons": [{ "src": "/dive-pwa/icon-96.png", "sizes": "96x96" }]
     },
     {
       "name": "Lake Sites",
-      "url": "/dive-sites?waterType=lake",
+      "url": "/dive-sites/?waterType=lake",
       "icons": [{ "src": "/dive-pwa/icon-96.png", "sizes": "96x96" }]
     }
   ],
