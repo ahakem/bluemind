@@ -386,7 +386,7 @@ function RemovalRow({ req, adminUid, onRefresh }: { req: Record<string, unknown>
 
 // ── Main Component ─────────────────────────────────────────────────────────────
 export default function SubmissionsAdminClient() {
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [tab, setTab] = useState(0);
   const [submissions, setSubmissions] = useState<SiteSubmission[]>([]);
   const [corrections, setCorrections] = useState<SiteCorrection[]>([]);
@@ -410,7 +410,10 @@ export default function SubmissionsAdminClient() {
     }
   }, [filter]);
 
-  useEffect(() => { load(); }, [load]);
+  // Wait for auth to finish initialising before hitting Firestore
+  useEffect(() => {
+    if (!authLoading && user) load();
+  }, [authLoading, user, load]);
 
   const adminUid = user?.uid ?? '';
 
