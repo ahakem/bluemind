@@ -48,6 +48,10 @@ import { useAuth } from '@/lib/AuthContext';
 const WATER_TYPE_LABELS: Record<DiveSite['waterType'], string> = {
   lake: 'Lake',
   sea: 'Sea',
+  deep_tank: 'Deep Tank',
+};
+const WATER_TYPE_COLOR: Record<DiveSite['waterType'], string> = {
+  sea: '#0077be', lake: '#26a69a', deep_tank: '#5c6bc0',
 };
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];

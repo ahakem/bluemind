@@ -430,8 +430,9 @@ export default function AdminDiveSitesPage() {
                 <InputLabel>Type</InputLabel>
                 <Select label="Type" value={waterTypeFilterAdmin} onChange={(e) => setWaterTypeFilterAdmin(e.target.value)}>
                   <MenuItem value="all">All types</MenuItem>
-                  <MenuItem value="lake">Lake</MenuItem>
                   <MenuItem value="sea">Sea</MenuItem>
+                  <MenuItem value="lake">Lake</MenuItem>
+                  <MenuItem value="deep_tank">Deep Tank</MenuItem>
                 </Select>
               </FormControl>
             </Stack>
@@ -508,8 +509,9 @@ export default function AdminDiveSitesPage() {
                 <InputLabel>Water type</InputLabel>
                 <Select label="Water type" value={waterTypeFilterAdmin} onChange={(e) => setWaterTypeFilterAdmin(e.target.value)}>
                   <MenuItem value="all">All types</MenuItem>
-                  <MenuItem value="lake">Lake</MenuItem>
                   <MenuItem value="sea">Sea</MenuItem>
+                  <MenuItem value="lake">Lake</MenuItem>
+                  <MenuItem value="deep_tank">Deep Tank</MenuItem>
                 </Select>
               </FormControl>
             </Stack>
@@ -676,9 +678,9 @@ export default function AdminDiveSitesPage() {
                       <Chip label={site.country} size="small" variant="outlined" sx={{ fontSize: '0.7rem', height: 22 }} />
                     )}
                     <Chip
-                      label={site.waterType}
+                      label={site.waterType === 'deep_tank' ? 'Deep Tank' : site.waterType}
                       size="small"
-                      color={site.waterType === 'sea' ? 'info' : 'default'}
+                      color={site.waterType === 'sea' ? 'info' : site.waterType === 'deep_tank' ? 'secondary' : 'default'}
                       sx={{ textTransform: 'capitalize', fontSize: '0.7rem', height: 22 }}
                     />
                     {site.coordinatesOnShore ? (
@@ -992,8 +994,8 @@ export default function AdminDiveSitesPage() {
                 <InputLabel>Water Type</InputLabel>
                 <Select label="Water Type" value={draft.waterType}
                   onChange={(e) => setDraft((d) => ({ ...d, waterType: e.target.value as DiveSite['waterType'] }))}>
-                  {(['lake', 'sea'] as const).map((t) => (
-                    <MenuItem key={t} value={t} sx={{ textTransform: 'capitalize' }}>{t}</MenuItem>
+                  {([['sea', 'Sea'], ['lake', 'Lake'], ['deep_tank', 'Deep Tank']] as const).map(([val, label]) => (
+                    <MenuItem key={val} value={val}>{label}</MenuItem>
                   ))}
                 </Select>
               </FormControl>

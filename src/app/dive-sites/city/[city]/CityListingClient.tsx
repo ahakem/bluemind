@@ -24,7 +24,8 @@ const DiveSiteMap = dynamic(() => import('@/components/DiveSiteMap'), {
 });
 
 const MONTH_KEYS = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'] as const;
-const WATER_TYPE_LABELS: Record<DiveSite['waterType'], string> = { lake: 'Lake', sea: 'Sea' };
+const WATER_TYPE_LABELS: Record<DiveSite['waterType'], string> = { lake: 'Lake', sea: 'Sea', deep_tank: 'Deep Tank' };
+const WATER_TYPE_COLOR: Record<DiveSite['waterType'], string> = { sea: '#0077be', lake: '#26a69a', deep_tank: '#5c6bc0' };
 const PAGE_SIZE = 24;
 const MAP_WIDTH = 420;
 
@@ -59,7 +60,7 @@ interface Props {
 }
 
 type DepthFilter = 'all' | 'shallow' | 'mid' | 'deep';
-type TypeFilter  = 'all' | 'sea' | 'lake';
+type TypeFilter  = 'all' | 'sea' | 'lake' | 'deep_tank';
 
 export default function CityListingClient({ cityName, countryName, countryCode, countrySlug, continent, sites, nearbyCities }: Props) {
   const [search, setSearch] = useState('');
@@ -80,8 +81,7 @@ export default function CityListingClient({ cityName, countryName, countryCode, 
     if (depthFilter === 'shallow') result = result.filter((s) => s.maxDepth > 0 && s.maxDepth <= 20);
     else if (depthFilter === 'mid')  result = result.filter((s) => s.maxDepth > 20 && s.maxDepth <= 40);
     else if (depthFilter === 'deep') result = result.filter((s) => s.maxDepth > 40);
-    if (typeFilter === 'sea')        result = result.filter((s) => s.waterType === 'sea');
-    else if (typeFilter === 'lake')  result = result.filter((s) => s.waterType === 'lake');
+    if (typeFilter !== 'all') result = result.filter((s) => s.waterType === typeFilter);
     return result;
   }, [sites, search, depthFilter, typeFilter]);
 
@@ -390,9 +390,10 @@ const DEPTH_OPTIONS: { label: string; value: DepthFilter }[] = [
 ];
 
 const TYPE_OPTIONS: { label: string; value: TypeFilter }[] = [
-  { label: 'All', value: 'all' },
-  { label: 'Sea',  value: 'sea' },
-  { label: 'Lake', value: 'lake' },
+  { label: 'All',        value: 'all' },
+  { label: 'Sea',        value: 'sea' },
+  { label: 'Lake',       value: 'lake' },
+  { label: 'Deep Tank',  value: 'deep_tank' },
 ];
 
 function FilterChipsRow({

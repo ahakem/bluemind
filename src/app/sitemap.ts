@@ -44,7 +44,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   }));
 
   // Water type pages
-  const waterTypeEntries: MetadataRoute.Sitemap = ['sea', 'lake'].map((wt) => ({
+  const waterTypeEntries: MetadataRoute.Sitemap = ['sea', 'lake', 'deep_tank'].map((wt) => ({
     url: listingUrl({ waterType: wt }),
     lastModified: now,
     changeFrequency: 'weekly' as const,

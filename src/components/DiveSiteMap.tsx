@@ -11,11 +11,14 @@ import { DiveSite } from '@/types/admin';
 
 const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ?? '';
 
-const SEA_COLOR  = '#0062b1';
-const LAKE_COLOR = '#1a7f72';
+const SITE_COLOR: Record<DiveSite['waterType'], string> = {
+  sea:        '#0062b1',
+  lake:       '#1a7f72',
+  deep_tank:  '#5c35a8',
+};
 
 function siteColor(site: DiveSite) {
-  return site.waterType === 'sea' ? SEA_COLOR : LAKE_COLOR;
+  return SITE_COLOR[site.waterType] ?? SITE_COLOR.sea;
 }
 
 const MONTH_KEYS = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'] as const;
@@ -152,7 +155,7 @@ function PopupCard({ site, onClose }: { site: DiveSite; onClose: () => void }) {
             <Chip bg={`${color}14`} color={color}>↓ {site.maxDepth}m</Chip>
           )}
           <Chip bg={`${color}14`} color={color}>
-            {site.waterType === 'sea' ? 'Sea' : 'Lake'}
+            {site.waterType === 'deep_tank' ? 'Deep Tank' : site.waterType === 'sea' ? 'Sea' : 'Lake'}
           </Chip>
           {temp !== null && tempColor && (
             <Chip bg={`${tempColor}18`} color={tempColor}>{temp}°C</Chip>
@@ -210,7 +213,7 @@ function DepthPin({ site, isSelected }: { site: DiveSite; isSelected: boolean })
   const ariaLabel = [
     site.name,
     site.maxDepth > 0 ? `max depth ${site.maxDepth}m` : null,
-    site.waterType === 'sea' ? 'sea' : 'lake',
+    site.waterType === 'deep_tank' ? 'deep tank' : site.waterType,
   ].filter(Boolean).join(', ');
 
   return (

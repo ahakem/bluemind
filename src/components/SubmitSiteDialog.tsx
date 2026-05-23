@@ -163,8 +163,8 @@ export default function SubmitSiteDialog({ open, onClose }: { open: boolean; onC
                   <InputLabel>Water Type *</InputLabel>
                   <Select value={draft.waterType} label="Water Type *"
                     onChange={(e) => set('waterType', e.target.value)}>
-                    {['lake', 'sea'].map((t) => (
-                      <MenuItem key={t} value={t} sx={{ textTransform: 'capitalize' }}>{t}</MenuItem>
+                    {([['sea', 'Sea'], ['lake', 'Lake'], ['deep_tank', 'Deep Tank']] as const).map(([val, label]) => (
+                      <MenuItem key={val} value={val}>{label}</MenuItem>
                     ))}
                   </Select>
                 </FormControl>

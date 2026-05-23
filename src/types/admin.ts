@@ -76,7 +76,7 @@ export interface DiveSite {
   location: string;
   country: string;
   coordinates: { lat: number; lng: number };
-  waterType: 'lake' | 'sea';
+  waterType: 'lake' | 'sea' | 'deep_tank';
   maxDepth: number;
   description: string;
   highlights: string[];
@@ -110,7 +110,7 @@ export interface DiveSiteDraft {
   location: string;
   country: string;
   coordinates: { lat: number; lng: number };
-  waterType: 'lake' | 'sea';
+  waterType: 'lake' | 'sea' | 'deep_tank';
   maxDepth: number;
   description: string;
   highlights: string[];

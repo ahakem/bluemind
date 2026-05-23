@@ -59,7 +59,8 @@ const DiveSiteMap = dynamic(() => import('@/components/DiveSiteMap'), {
   ),
 });
 
-const WATER_TYPE_LABELS: Record<DiveSite['waterType'], string> = { lake: 'Lake', sea: 'Sea' };
+const WATER_TYPE_LABELS: Record<DiveSite['waterType'], string> = { lake: 'Lake', sea: 'Sea', deep_tank: 'Deep Tank' };
+const WATER_TYPE_COLOR: Record<DiveSite['waterType'], string> = { sea: '#0077be', lake: '#26a69a', deep_tank: '#5c6bc0' };
 const MONTH_KEYS = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'] as const;
 const BOOKMARKS_KEY = 'bm_saved_sites';
 
@@ -298,7 +299,8 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
       : null;
     const seaCount = countrySites.filter((s) => s.waterType === 'sea').length;
     const lakeCount = countrySites.filter((s) => s.waterType === 'lake').length;
-    return { total: countrySites.length, avgDepth, seaCount, lakeCount };
+    const tankCount = countrySites.filter((s) => s.waterType === 'deep_tank').length;
+    return { total: countrySites.length, avgDepth, seaCount, lakeCount, tankCount };
   }, [countryFilter, sites, loading]);
 
   if (loading) return <DiverLoader />;
@@ -391,8 +393,8 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
               <Stack direction="row" alignItems="center" spacing={1} sx={{ flexShrink: 0 }}>
                 <Typography variant="caption" fontWeight={600} color="text.secondary">WATER TYPE</Typography>
                 <ToggleButtonGroup value={waterTypeFilter} onChange={handleWaterType} size="small" aria-label="Filter by water type">
-                  {(['lake', 'sea'] as const).map((t) => (
-                    <ToggleButton key={t} value={t} sx={{ textTransform: 'capitalize', px: 1.5, py: 0.4 }}>
+                  {(['sea', 'lake', 'deep_tank'] as const).map((t) => (
+                    <ToggleButton key={t} value={t} sx={{ textTransform: 'none', px: 1.5, py: 0.4 }}>
                       {WATER_TYPE_LABELS[t]}
                     </ToggleButton>
                   ))}
@@ -575,9 +577,11 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
                 <Typography variant="body2" color="text.secondary" mt={0.25}>
                   {countryStats.total} sites
                   {countryStats.avgDepth ? ` · avg depth ${countryStats.avgDepth}m` : ''}
-                  {countryStats.seaCount > 0 && countryStats.lakeCount > 0
-                    ? ` · ${countryStats.seaCount} sea, ${countryStats.lakeCount} lake`
-                    : countryStats.seaCount > 0 ? ' · sea sites' : ' · lake sites'}
+                  {[
+                    countryStats.seaCount > 0 ? `${countryStats.seaCount} sea` : null,
+                    countryStats.lakeCount > 0 ? `${countryStats.lakeCount} lake` : null,
+                    countryStats.tankCount > 0 ? `${countryStats.tankCount} deep tank` : null,
+                  ].filter(Boolean).map((s) => ` · ${s}`).join('')}
                 </Typography>
               </Box>
               <Button size="small" onClick={() => handleCountryChange(null)} sx={{ flexShrink: 0 }}>
@@ -614,7 +618,7 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
                     '&:focus-visible': { outline: '2px solid #0077be', outlineOffset: '2px' },
                   }}
                 >
-                  <Box sx={{ height: 3, borderRadius: 1, mb: 0.75, bgcolor: site.waterType === 'sea' ? '#0077be' : '#26a69a' }} />
+                  <Box sx={{ height: 3, borderRadius: 1, mb: 0.75, bgcolor: WATER_TYPE_COLOR[site.waterType] }} />
                   <Typography variant="body2" fontWeight={700} noWrap sx={{ fontSize: '0.82rem', color: 'text.primary' }}>
                     {site.name}
                   </Typography>
@@ -684,7 +688,7 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
                   </IconButton>
 
                   <CardActionArea component={Link} href={`/dive-sites/${site.slug}`} sx={{ flexGrow: 1 }}>
-                    <Box sx={{ height: 6, background: site.waterType === 'sea' ? 'linear-gradient(90deg, #0077be, #4fc3f7)' : 'linear-gradient(90deg, #26a69a, #80cbc4)' }} />
+                    <Box sx={{ height: 6, bgcolor: WATER_TYPE_COLOR[site.waterType] }} />
                     <CardContent sx={{ p: 2.5, pr: 5 }}>
                       <Stack direction="row" justifyContent="space-between" alignItems="flex-start" mb={0.5}>
                         <Typography variant="h6" fontWeight={700} sx={{ fontSize: '1.05rem', lineHeight: 1.3 }}>

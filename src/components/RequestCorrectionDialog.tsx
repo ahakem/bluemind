@@ -23,7 +23,7 @@ const CORRECTABLE_FIELDS: { key: keyof DiveSite | 'coordinates'; label: string; 
   { key: 'location',    label: 'City / Region' },
   { key: 'country',     label: 'Country' },
   { key: 'maxDepth',    label: 'Max Depth',      hint: 'Enter depth in metres, e.g. 40' },
-  { key: 'waterType',   label: 'Water Type',     hint: 'sea or lake' },
+  { key: 'waterType',   label: 'Water Type',     hint: 'sea, lake, or deep_tank' },
   { key: 'activities',  label: 'Activity Type',  hint: 'Line Diving, Snorkeling, or both' },
   { key: 'description', label: 'Description' },
   { key: 'coordinates', label: 'Map Location',   hint: 'Pin the correct location on the map' },

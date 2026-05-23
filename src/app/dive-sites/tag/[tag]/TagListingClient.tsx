@@ -14,7 +14,8 @@ import Link from 'next/link';
 import { DiveSite } from '@/types/admin';
 
 const MONTH_KEYS = ['jan','feb','mar','apr','may','jun','jul','aug','sep','oct','nov','dec'] as const;
-const WATER_TYPE_LABELS: Record<DiveSite['waterType'], string> = { lake: 'Lake', sea: 'Sea' };
+const WATER_TYPE_LABELS: Record<DiveSite['waterType'], string> = { lake: 'Lake', sea: 'Sea', deep_tank: 'Deep Tank' };
+const WATER_TYPE_COLOR: Record<DiveSite['waterType'], string> = { sea: '#0077be', lake: '#26a69a', deep_tank: '#5c6bc0' };
 const PAGE_SIZE = 24;
 
 function currentMonthTemp(site: DiveSite): number | null {
@@ -148,7 +149,7 @@ export default function TagListingClient({ tag, tagLabel, sites }: Props) {
                       '&:hover': { transform: 'translateY(-4px)', boxShadow: 6 },
                     }}>
                       <CardActionArea component={Link} href={`/dive-sites/${site.slug}`} sx={{ height: '100%' }}>
-                        <Box sx={{ height: 6, background: site.waterType === 'sea' ? 'linear-gradient(90deg, #0077be, #4fc3f7)' : 'linear-gradient(90deg, #26a69a, #80cbc4)' }} />
+                        <Box sx={{ height: 6, bgcolor: WATER_TYPE_COLOR[site.waterType] }} />
                         <CardContent sx={{ p: 2.5 }}>
                           <Typography variant="h6" fontWeight={700} sx={{ fontSize: '1.05rem', lineHeight: 1.3, mb: 0.5 }}>
                             {site.name}
