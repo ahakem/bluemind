@@ -9,6 +9,7 @@ import BackToTop from '@/components/BackToTop';
 import SkipLinks from '@/components/SkipLinks';
 import CookieConsent from '@/components/CookieConsent';
 import { SiteSettingsProvider } from '@/contexts/SiteSettingsContext';
+import { DiveSiteNavProvider } from '@/contexts/DiveSiteNavContext';
 
 export default function LayoutContent({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -28,16 +29,18 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
 
   return (
     <SiteSettingsProvider>
-      <SkipLinks />
-      {isDiveSiteDetail ? <DiveSiteNavbar /> : <Navbar />}
-      <main id="main-content" role="main" tabIndex={-1}>
-        {children}
-      </main>
-      <footer id="footer" role="contentinfo">
-        <Footer />
-      </footer>
-      <BackToTop />
-      <CookieConsent />
+      <DiveSiteNavProvider>
+        <SkipLinks />
+        {isDiveSiteDetail ? <DiveSiteNavbar /> : <Navbar />}
+        <main id="main-content" role="main" tabIndex={-1}>
+          {children}
+        </main>
+        <footer id="footer" role="contentinfo">
+          <Footer />
+        </footer>
+        <BackToTop />
+        <CookieConsent />
+      </DiveSiteNavProvider>
     </SiteSettingsProvider>
   );
 }

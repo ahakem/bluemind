@@ -28,7 +28,6 @@ import {
 } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import PlaceIcon from '@mui/icons-material/Place';
-import WaterIcon from '@mui/icons-material/Water';
 import PoolIcon from '@mui/icons-material/Pool';
 import CloseIcon from '@mui/icons-material/Close';
 import InfoOutlinedIcon from '@mui/icons-material/InfoOutlined';
@@ -48,9 +47,9 @@ import StarIcon from '@mui/icons-material/Star';
 import ScubaDivingIcon from '@mui/icons-material/ScubaDiving';
 import { getActiveDiveSites, getDiveLogCounts, getAverageRatings } from '@/lib/diveSiteService';
 import { DiveSite } from '@/types/admin';
-import SubmitSiteButton from '@/components/SubmitSiteButton';
 import ExploreByCountry from '@/components/ExploreByCountry';
 import DiverLoader from '@/components/DiverLoader';
+import { useDiveSiteNav } from '@/contexts/DiveSiteNavContext';
 
 const DiveSiteMap = dynamic(() => import('@/components/DiveSiteMap'), {
   ssr: false,
@@ -93,9 +92,15 @@ function TempBadge({ temp }: { temp: number }) {
 function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { setSiteCount } = useDiveSiteNav();
 
   const [sites, setSites] = useState<DiveSite[]>(initialSites ?? []);
   const [loading, setLoading] = useState(!initialSites);
+
+  // Push count to navbar as soon as sites are available
+  useEffect(() => {
+    if (initialSites?.length) setSiteCount(initialSites.length);
+  }, [initialSites]);
   const [highlightedId, setHighlightedId] = useState<string | null>(null);
   const [visibleCount, setVisibleCount] = useState(24);
   const [disclaimerVisible, setDisclaimerVisible] = useState(false);
@@ -127,11 +132,6 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
   const [bookmarks, setBookmarks] = useState<Set<string>>(new Set());
   const [savedOnly, setSavedOnly] = useState(false);
   const [verifiedOnly, setVerifiedOnly] = useState(false);
-
-  // ── Activity filter ────────────────────────────────────────────────────────
-  // Default: line diving shown, snorkeling + uncharted hidden
-  const [activityFilter, setActivityFilter] = useState<('line_diving' | 'snorkeling')[]>(['line_diving']);
-  const [showUncharted, setShowUncharted] = useState(false);
 
   const toggleBookmark = useCallback((id: string) => {
     setBookmarks((prev) => {
@@ -180,6 +180,7 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
 
     loadSites.then((data) => {
       if (!initialSites) setSites(data);
+      setSiteCount(data.length);
       const countryParam = searchParams.get('country');
       if (countryParam) {
         const found = data.find((s) => s.country.toLowerCase() === countryParam.toLowerCase());
@@ -233,12 +234,6 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
       }
       if (savedOnly && !bookmarks.has(site.id)) return false;
       if (verifiedOnly && !site.verified) return false;
-      // Activity filter
-      if (activityFilter.length > 0 || showUncharted) {
-        const isUncharted = !(site.activities?.length);
-        const matchesActivity = !isUncharted && site.activities!.some((a) => activityFilter.includes(a));
-        if (!matchesActivity && !(showUncharted && isUncharted)) return false;
-      }
       return true;
     });
 
@@ -252,7 +247,7 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
     }
 
     return result;
-  }, [sites, search, waterTypeFilter, countryFilter, continentFilter, minDepth, minVisibility, minTemp, savedOnly, bookmarks, userPos, verifiedOnly, activityFilter, showUncharted]);
+  }, [sites, search, waterTypeFilter, countryFilter, continentFilter, minDepth, minVisibility, minTemp, savedOnly, bookmarks, userPos, verifiedOnly]);
 
   // ── Handler helpers ───────────────────────────────────────────────────────
   const handleWaterType = (_: React.MouseEvent<HTMLElement>, values: string[]) => {
@@ -284,9 +279,7 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
   const hasAdvancedFilters = minDepth > 0 || minVisibility > 0 || minTemp > 0;
   const activeFilterCount = (search ? 1 : 0) + (waterTypeFilter.length > 0 ? 1 : 0)
     + (countryFilter ? 1 : 0) + (continentFilter ? 1 : 0)
-    + (hasAdvancedFilters ? 1 : 0) + (savedOnly ? 1 : 0) + (userPos ? 1 : 0) + (verifiedOnly ? 1 : 0)
-    + (activityFilter.length !== 1 || activityFilter[0] !== 'line_diving' ? 1 : 0)
-    + (showUncharted ? 1 : 0);
+    + (hasAdvancedFilters ? 1 : 0) + (savedOnly ? 1 : 0) + (userPos ? 1 : 0) + (verifiedOnly ? 1 : 0);
 
   // Country stats for banner
   const countryStats = useMemo(() => {
@@ -307,30 +300,89 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
 
   return (
     <Box sx={{ minHeight: '100vh', bgcolor: 'background.default' }}>
-      {/* Compact header bar */}
-      <Box sx={{ background: 'linear-gradient(135deg, #001f3f 0%, #003d7a 60%, #0077be 100%)', color: 'white' }}>
-        <Container maxWidth="lg">
-          <Stack direction="row" alignItems="center" justifyContent="space-between" py={1.5}>
-            <Stack direction="row" alignItems="center" spacing={1}>
-              <WaterIcon sx={{ fontSize: 20, color: '#4fc3f7' }} />
-              <Typography fontWeight={800} sx={{ fontSize: '1.05rem', letterSpacing: '-0.3px' }}>
-                Dive Sites
-              </Typography>
-              {!loading && (
-                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.55)', ml: 0.5 }}>
-                  {sites.length.toLocaleString()} locations worldwide
-                </Typography>
-              )}
-            </Stack>
-            <SubmitSiteButton />
-          </Stack>
-        </Container>
+      {/* Map + curation panel */}
+      <Box sx={{ display: { xs: 'block', md: 'flex' }, width: '100%', height: { xs: 'auto', md: 460 } }}>
 
-        {/* Full-width map — the real hero */}
-        <Box sx={{ width: '100%', height: { xs: 340, sm: 420, md: 520 }, position: 'relative' }}>
+        {/* Map */}
+        <Box sx={{ flex: '0 0 62%', height: { xs: 240, sm: 300, md: '100%' }, position: 'relative' }}>
           <DiveSiteMap sites={filtered.length > 0 ? filtered : sites} onSelect={handleMapSelect} />
-          <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 48, background: 'linear-gradient(to bottom, transparent, #f5f5f5)', pointerEvents: 'none', zIndex: 1000 }} />
+          <Box sx={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 40, background: 'linear-gradient(to bottom, transparent, rgba(245,245,245,0.8))', pointerEvents: 'none', zIndex: 1000, display: { md: 'none' } }} />
         </Box>
+
+        {/* Curation panel — desktop side panel */}
+        <Box
+          sx={{
+            display: { xs: 'none', md: 'flex' },
+            flex: '0 0 38%',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            background: 'linear-gradient(160deg, #001a36 0%, #003166 50%, #004f99 100%)',
+            color: 'white',
+            p: 4,
+            position: 'relative',
+            overflow: 'hidden',
+          }}
+        >
+          <Box sx={{ position: 'absolute', top: -60, right: -60, width: 220, height: 220, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
+          <Box sx={{ position: 'absolute', bottom: -40, left: -40, width: 160, height: 160, borderRadius: '50%', bgcolor: 'rgba(0,180,255,0.05)', pointerEvents: 'none' }} />
+
+          <Typography fontWeight={900} sx={{ fontSize: '1.25rem', letterSpacing: '-0.3px', lineHeight: 1.3, mb: 0.75 }}>
+            Help us verify this directory
+          </Typography>
+          <Typography sx={{ fontSize: '0.83rem', color: 'rgba(255,255,255,0.62)', lineHeight: 1.65, mb: 3 }}>
+            We&apos;re actively reviewing every listing. Open any site card to take action — no account needed.
+          </Typography>
+
+          <Stack spacing={1.25}>
+            {[
+              { symbol: '✓', label: "Verify it's accurate", sub: 'Confirm depth, type & location', color: '#4ade80', bg: 'rgba(74,222,128,0.1)', border: 'rgba(74,222,128,0.25)' },
+              { symbol: '✏', label: 'Suggest a correction', sub: 'Fix wrong name, coords or data', color: '#60a5fa', bg: 'rgba(96,165,250,0.1)', border: 'rgba(96,165,250,0.25)' },
+              { symbol: '✕', label: 'Flag for removal', sub: "Not freediving-friendly?", color: '#f87171', bg: 'rgba(248,113,113,0.1)', border: 'rgba(248,113,113,0.25)' },
+            ].map(({ symbol, label, sub, color, bg, border }) => (
+              <Stack key={label} direction="row" alignItems="center" spacing={1.5}
+                sx={{ bgcolor: bg, border: `1px solid ${border}`, borderRadius: 2.5, px: 2, py: 1.25 }}
+              >
+                <Box sx={{ width: 30, height: 30, borderRadius: '50%', bgcolor: border, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Typography fontWeight={900} sx={{ fontSize: '0.88rem', color, lineHeight: 1 }}>{symbol}</Typography>
+                </Box>
+                <Box>
+                  <Typography fontWeight={700} sx={{ fontSize: '0.83rem', color, lineHeight: 1.2 }}>{label}</Typography>
+                  <Typography sx={{ fontSize: '0.73rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.3 }}>{sub}</Typography>
+                </Box>
+              </Stack>
+            ))}
+          </Stack>
+        </Box>
+
+        {/* Curation strip — mobile only */}
+        <Box
+          sx={{
+            display: { xs: 'flex', md: 'none' },
+            background: 'linear-gradient(90deg, #001a36 0%, #003d7a 60%, #0060a8 100%)',
+            px: 2, py: 1.5,
+            gap: 1,
+            overflowX: 'auto',
+            scrollbarWidth: 'none',
+            '&::-webkit-scrollbar': { display: 'none' },
+          }}
+        >
+          <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)', alignSelf: 'center', flexShrink: 0, mr: 0.5, fontStyle: 'italic' }}>
+            Open any site to:
+          </Typography>
+          {[
+            { symbol: '✓', label: 'Verify', color: '#4ade80', border: 'rgba(74,222,128,0.3)' },
+            { symbol: '✏', label: 'Correct', color: '#60a5fa', border: 'rgba(96,165,250,0.3)' },
+            { symbol: '✕', label: 'Flag removal', color: '#f87171', border: 'rgba(248,113,113,0.3)' },
+          ].map(({ symbol, label, color, border }) => (
+            <Stack key={label} direction="row" alignItems="center" spacing={0.5}
+              sx={{ flexShrink: 0, px: 1.25, py: 0.6, borderRadius: 10, bgcolor: 'rgba(255,255,255,0.07)', border: `1px solid ${border}` }}
+            >
+              <Typography fontWeight={800} sx={{ fontSize: '0.75rem', color, lineHeight: 1 }}>{symbol}</Typography>
+              <Typography fontWeight={600} sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.8)' }}>{label}</Typography>
+            </Stack>
+          ))}
+        </Box>
+
       </Box>
 
       {/* Disclaimer */}
@@ -402,57 +454,7 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
               </Stack>
             </Stack>
 
-            {/* Row 3: activity type group */}
-            <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap" useFlexGap
-              sx={{ px: 1.5, py: 1, bgcolor: '#f8fafc', borderRadius: 2, border: '1px solid', borderColor: 'divider' }}
-            >
-              <Typography variant="caption" fontWeight={700} color="text.secondary" sx={{ flexShrink: 0 }}>
-                ACTIVITY
-              </Typography>
-              {([
-                { val: 'line_diving' as const, label: 'Line Diving', activeColor: '#0077be', hoverColor: '#005f99' },
-                { val: 'snorkeling' as const, label: 'Snorkeling', activeColor: '#00897b', hoverColor: '#00695c' },
-              ] as const).map(({ val, label, activeColor, hoverColor }) => {
-                const on = activityFilter.includes(val);
-                return (
-                  <Button
-                    key={val}
-                    size="small"
-                    variant={on ? 'contained' : 'outlined'}
-                    onClick={() => {
-                      setActivityFilter((prev) =>
-                        prev.includes(val) ? prev.filter((a) => a !== val) : [...prev, val]
-                      );
-                      setVisibleCount(24);
-                    }}
-                    aria-pressed={on}
-                    sx={{
-                      borderRadius: 5, fontSize: '0.75rem', py: 0.4, px: 1.5,
-                      ...(on ? { bgcolor: activeColor, '&:hover': { bgcolor: hoverColor } } : { borderColor: activeColor, color: activeColor }),
-                    }}
-                  >
-                    {label}
-                  </Button>
-                );
-              })}
-              <Button
-                size="small"
-                variant={showUncharted ? 'contained' : 'outlined'}
-                startIcon={<ExploreIcon sx={{ fontSize: '15px !important' }} />}
-                onClick={() => { setShowUncharted((v) => !v); setVisibleCount(24); }}
-                aria-pressed={showUncharted}
-                sx={{
-                  borderRadius: 5, fontSize: '0.75rem', py: 0.4, px: 1.5,
-                  ...(showUncharted
-                    ? { bgcolor: '#b45309', '&:hover': { bgcolor: '#92400e' } }
-                    : { borderColor: '#d97706', color: '#92400e' }),
-                }}
-              >
-                Uncharted
-              </Button>
-            </Stack>
-
-            {/* Row 4: near me + saved + verified + more filters */}
+            {/* Row 3: near me + saved + verified + more filters */}
             <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
               <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                 {/* Near me */}
@@ -521,7 +523,7 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
               </Button>
             </Stack>
 
-            {/* Row 4: advanced filters (collapsible) */}
+            {/* Row 4 (collapsible): advanced filters */}
             <Collapse in={moreOpen} id="advanced-filters">
               <Stack direction={{ xs: 'column', sm: 'row' }} spacing={1.5} pt={0.5}>
                 <FormControl size="small" sx={{ minWidth: 140 }}>
@@ -798,6 +800,52 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
             </Typography>
           </Box>
         )}
+
+        {/* Community curation callout */}
+        <Box mt={8} mb={2}>
+          <Box
+            sx={{
+              background: 'linear-gradient(135deg, #001f3f 0%, #003d7a 55%, #0077be 100%)',
+              borderRadius: 4,
+              p: { xs: 3, md: 4 },
+              color: 'white',
+              position: 'relative',
+              overflow: 'hidden',
+            }}
+          >
+            <Box sx={{ position: 'absolute', top: -60, right: -60, width: 240, height: 240, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
+            <Box sx={{ position: 'absolute', bottom: -40, left: 60, width: 140, height: 140, borderRadius: '50%', bgcolor: 'rgba(0,200,255,0.05)', pointerEvents: 'none' }} />
+            <Stack direction={{ xs: 'column', lg: 'row' }} alignItems={{ lg: 'center' }} justifyContent="space-between" spacing={{ xs: 3, lg: 4 }}>
+              <Box sx={{ maxWidth: 520 }}>
+                <Typography fontWeight={900} sx={{ fontSize: { xs: '1.15rem', md: '1.35rem' }, letterSpacing: '-0.3px', lineHeight: 1.25, mb: 1 }}>
+                  Help us build the world&apos;s most accurate freediving directory
+                </Typography>
+                <Typography sx={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.72)', lineHeight: 1.6 }}>
+                  Every site in this list is being reviewed. Open any site card and you&apos;ll find three ways to contribute — no account needed.
+                </Typography>
+              </Box>
+              <Stack direction={{ xs: 'column', sm: 'row', lg: 'column' }} spacing={1.25} sx={{ flexShrink: 0 }}>
+                {[
+                  { symbol: '✓', label: "Verify it's accurate", sub: 'Confirm depth, type & location', bg: 'rgba(74,222,128,0.12)', border: 'rgba(74,222,128,0.3)', color: '#4ade80' },
+                  { symbol: '✏', label: 'Suggest a correction', sub: 'Fix wrong name, coords, or data', bg: 'rgba(96,165,250,0.12)', border: 'rgba(96,165,250,0.3)', color: '#60a5fa' },
+                  { symbol: '✕', label: 'Flag for removal', sub: 'Not freediving-friendly?', bg: 'rgba(248,113,113,0.12)', border: 'rgba(248,113,113,0.3)', color: '#f87171' },
+                ].map(({ symbol, label, sub, bg, border, color }) => (
+                  <Stack key={label} direction="row" alignItems="center" spacing={1.25}
+                    sx={{ bgcolor: bg, border: `1px solid ${border}`, borderRadius: 2.5, px: 2, py: 1.25, minWidth: 220 }}
+                  >
+                    <Box sx={{ width: 28, height: 28, borderRadius: '50%', bgcolor: border, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Typography fontWeight={800} sx={{ fontSize: '0.9rem', color, lineHeight: 1 }}>{symbol}</Typography>
+                    </Box>
+                    <Box>
+                      <Typography fontWeight={700} sx={{ fontSize: '0.82rem', color, lineHeight: 1.2 }}>{label}</Typography>
+                      <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.3 }}>{sub}</Typography>
+                    </Box>
+                  </Stack>
+                ))}
+              </Stack>
+            </Stack>
+          </Box>
+        </Box>
 
       </Container>
     </Box>

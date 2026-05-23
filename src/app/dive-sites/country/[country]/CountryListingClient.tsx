@@ -116,59 +116,107 @@ export default function CountryListingClient({ countryName, countryCode, contine
         {/* Left column */}
         <Box sx={{ flex: 1, minWidth: 0 }}>
 
-          {/* Hero header — desktop: scrolls with content, generous height */}
-          <Box sx={{
-            background: heroGradient,
-            color: 'white',
-            px: { xs: 2.5, sm: 4, md: 5 },
-            pt: { xs: 3, md: 5 },
-            pb: { xs: 3, md: 4.5 },
-          }}>
-            {/* Breadcrumb */}
-            <Stack direction="row" alignItems="center" spacing={0.5} mb={{ xs: 2, md: 3 }}>
-              <Typography
-                component={Link}
-                href="/dive-sites"
-                sx={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.75rem', textDecoration: 'none', '&:hover': { color: 'rgba(255,255,255,0.8)' }, transition: 'color 0.15s' }}
-              >
-                Dive Sites
-              </Typography>
-              <Typography sx={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.75rem' }}>/</Typography>
-              <Typography sx={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.75rem', fontWeight: 500 }}>{countryName}</Typography>
-            </Stack>
+          {/* Hero header */}
+          <Box sx={{ background: heroGradient, color: 'white', position: 'relative', overflow: 'hidden' }}>
+            <Box sx={{ position: 'absolute', top: -60, right: -60, width: 260, height: 260, borderRadius: '50%', bgcolor: 'rgba(255,255,255,0.04)', pointerEvents: 'none' }} />
+            <Box sx={{ position: 'absolute', bottom: -40, left: '40%', width: 180, height: 180, borderRadius: '50%', bgcolor: 'rgba(0,180,255,0.05)', pointerEvents: 'none' }} />
 
-            {/* Title block */}
-            <Stack direction="row" alignItems="flex-start" spacing={{ xs: 2, md: 2.5 }}>
-              <Typography sx={{ fontSize: { xs: '2.4rem', md: '3rem' }, lineHeight: 1, mt: 0.25, flexShrink: 0 }}>
-                {flag}
-              </Typography>
-              <Box>
-                <Typography sx={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.78rem', fontWeight: 500, letterSpacing: '0.04em', mb: 0.5 }}>
-                  {continent}
-                </Typography>
-                <Typography
-                  component="h1"
-                  fontWeight={800}
-                  sx={{ fontSize: { xs: '1.6rem', sm: '1.85rem', md: '2.1rem' }, lineHeight: 1.1, letterSpacing: '-0.01em' }}
-                >
-                  Freediving in {countryName}
-                </Typography>
+            <Stack direction={{ xs: 'column', md: 'row' }} sx={{ position: 'relative' }}>
+
+              {/* Left: identity + stats */}
+              <Box sx={{ flex: 1, minWidth: 0, px: { xs: 2.5, sm: 4, md: 5 }, pt: { xs: 3, md: 5 }, pb: { xs: 3, md: 5 } }}>
+                {/* Breadcrumb */}
+                <Stack direction="row" alignItems="center" spacing={0.5} mb={{ xs: 2, md: 3 }}>
+                  <Typography component={Link} href="/dive-sites"
+                    sx={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.75rem', textDecoration: 'none', '&:hover': { color: 'rgba(255,255,255,0.8)' }, transition: 'color 0.15s' }}>
+                    Dive Sites
+                  </Typography>
+                  <Typography sx={{ color: 'rgba(255,255,255,0.25)', fontSize: '0.75rem' }}>/</Typography>
+                  <Typography sx={{ color: 'rgba(255,255,255,0.75)', fontSize: '0.75rem', fontWeight: 500 }}>{countryName}</Typography>
+                </Stack>
+
+                {/* Flag + title */}
+                <Stack direction="row" alignItems="flex-start" spacing={{ xs: 2, md: 2.5 }}>
+                  <Typography sx={{ fontSize: { xs: '2.4rem', md: '3rem' }, lineHeight: 1, mt: 0.25, flexShrink: 0 }}>{flag}</Typography>
+                  <Box>
+                    <Typography sx={{ color: 'rgba(255,255,255,0.45)', fontSize: '0.78rem', fontWeight: 500, letterSpacing: '0.04em', mb: 0.5 }}>
+                      {continent}
+                    </Typography>
+                    <Typography component="h1" fontWeight={800}
+                      sx={{ fontSize: { xs: '1.6rem', sm: '1.85rem', md: '2.1rem' }, lineHeight: 1.1, letterSpacing: '-0.01em' }}>
+                      Freediving in {countryName}
+                    </Typography>
+                  </Box>
+                </Stack>
+
+                {/* Stats */}
+                <Stack direction="row" flexWrap="wrap" alignItems="center" useFlexGap
+                  sx={{ mt: { xs: 2.5, md: 3 }, gap: { xs: '6px 16px', md: '6px 24px' } }}>
+                  <StatItem value={`${sites.length}`} label="sites" />
+                  {maxDepth && <StatItem value={`${maxDepth}m`} label="max depth" />}
+                  <StatItem value={waterLabel} />
+                  {warm.length > 0 && <StatItem value={warm.slice(0, 3).join(' · ')} label="best months" />}
+                </Stack>
+
+                {/* Mobile-only curation strip */}
+                <Stack direction="row" alignItems="center" flexWrap="wrap" useFlexGap
+                  sx={{ display: { xs: 'flex', md: 'none' }, mt: 2.5, gap: 0.75,
+                    bgcolor: 'rgba(255,255,255,0.06)', border: '1px solid rgba(255,255,255,0.12)',
+                    borderRadius: 2.5, px: 2, py: 1.25 }}>
+                  <Typography sx={{ fontSize: '0.73rem', color: 'rgba(255,255,255,0.5)', fontStyle: 'italic', flexShrink: 0 }}>
+                    Open any site to:
+                  </Typography>
+                  {[
+                    { symbol: '✓', label: 'Verify', color: '#4ade80', border: 'rgba(74,222,128,0.3)' },
+                    { symbol: '✏', label: 'Correct', color: '#60a5fa', border: 'rgba(96,165,250,0.3)' },
+                    { symbol: '✕', label: 'Flag', color: '#f87171', border: 'rgba(248,113,113,0.3)' },
+                  ].map(({ symbol, label, color, border }) => (
+                    <Stack key={label} direction="row" alignItems="center" spacing={0.5}
+                      sx={{ px: 1, py: 0.4, borderRadius: 10, bgcolor: 'rgba(255,255,255,0.05)', border: `1px solid ${border}` }}>
+                      <Typography fontWeight={800} sx={{ fontSize: '0.77rem', color, lineHeight: 1 }}>{symbol}</Typography>
+                      <Typography fontWeight={600} sx={{ fontSize: '0.73rem', color: 'rgba(255,255,255,0.78)' }}>{label}</Typography>
+                    </Stack>
+                  ))}
+                </Stack>
               </Box>
-            </Stack>
 
-            {/* Stats row */}
-            <Stack
-              direction="row"
-              flexWrap="wrap"
-              alignItems="center"
-              spacing={0}
-              useFlexGap
-              sx={{ mt: { xs: 2.5, md: 3 }, gap: { xs: '6px 16px', md: '6px 24px' } }}
-            >
-              <StatItem value={`${sites.length}`} label="sites" />
-              {maxDepth && <StatItem value={`${maxDepth}m`} label="max depth" />}
-              <StatItem value={waterLabel} />
-              {warm.length > 0 && <StatItem value={warm.slice(0, 3).join(' · ')} label="best months" />}
+              {/* Right: curation panel — desktop only */}
+              <Box sx={{
+                display: { xs: 'none', md: 'flex' },
+                flexDirection: 'column',
+                justifyContent: 'center',
+                flexShrink: 0,
+                width: 280,
+                borderLeft: '1px solid rgba(255,255,255,0.1)',
+                bgcolor: 'rgba(0,0,0,0.18)',
+                px: 3.5,
+                py: 5,
+                gap: 1.25,
+              }}>
+                <Typography fontWeight={800} sx={{ fontSize: '0.88rem', color: 'white', mb: 0.5, lineHeight: 1.3 }}>
+                  Help us get this right
+                </Typography>
+                <Typography sx={{ fontSize: '0.75rem', color: 'rgba(255,255,255,0.55)', mb: 1.5, lineHeight: 1.6 }}>
+                  Open any site listing to take one of these actions:
+                </Typography>
+                {[
+                  { symbol: '✓', label: 'Verify accuracy', sub: 'Confirm depth, type & location', color: '#4ade80', bg: 'rgba(74,222,128,0.1)', border: 'rgba(74,222,128,0.25)' },
+                  { symbol: '✏', label: 'Suggest correction', sub: 'Fix wrong name, coords or data', color: '#60a5fa', bg: 'rgba(96,165,250,0.1)', border: 'rgba(96,165,250,0.25)' },
+                  { symbol: '✕', label: 'Flag for removal', sub: "Not freediving-friendly?", color: '#f87171', bg: 'rgba(248,113,113,0.1)', border: 'rgba(248,113,113,0.25)' },
+                ].map(({ symbol, label, sub, color, bg, border }) => (
+                  <Stack key={label} direction="row" alignItems="center" spacing={1.25}
+                    sx={{ bgcolor: bg, border: `1px solid ${border}`, borderRadius: 2, px: 1.5, py: 1 }}>
+                    <Box sx={{ width: 26, height: 26, borderRadius: '50%', bgcolor: border, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Typography fontWeight={900} sx={{ fontSize: '0.82rem', color, lineHeight: 1 }}>{symbol}</Typography>
+                    </Box>
+                    <Box>
+                      <Typography fontWeight={700} sx={{ fontSize: '0.78rem', color, lineHeight: 1.2 }}>{label}</Typography>
+                      <Typography sx={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.45)', lineHeight: 1.3 }}>{sub}</Typography>
+                    </Box>
+                  </Stack>
+                ))}
+              </Box>
+
             </Stack>
           </Box>
 
@@ -340,19 +388,21 @@ export default function CountryListingClient({ countryName, countryCode, contine
           </Box>
         </Box>
 
-        {/* Right: map panel — outer clips for layout, inner keeps full width so map never resets */}
+        {/* Right: map panel — sticky on the outer box so overflow:hidden doesn't break stickiness */}
         <Box sx={{
           display: { xs: 'none', md: 'block' },
           flexShrink: 0,
           width: mapOpen ? MAP_WIDTH : 0,
           overflow: 'hidden',
           transition: 'width 0.25s ease',
+          position: 'sticky',
+          top: 0,
+          alignSelf: 'flex-start',
+          height: '100vh',
         }}>
           <Box sx={{
             width: MAP_WIDTH,
-            position: 'sticky',
-            top: 0,
-            height: '100vh',
+            height: '100%',
             borderLeft: '1px solid',
             borderColor: 'divider',
           }}>

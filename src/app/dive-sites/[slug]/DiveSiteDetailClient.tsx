@@ -1121,6 +1121,124 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
               </Grid>
             </Grid>
 
+            {/* Community curation card */}
+            <Box
+              sx={{
+                mb: 3,
+                borderRadius: 3,
+                overflow: 'hidden',
+                border: '1px solid #e5e0d6',
+                boxShadow: '0 1px 4px rgba(0,0,0,0.06)',
+              }}
+            >
+              {/* Top accent strip */}
+              <Box sx={{ height: 4, background: 'linear-gradient(90deg, #d97706 0%, #f59e0b 50%, #10b981 100%)' }} />
+
+              <Box sx={{ bgcolor: '#fdfcf8', px: { xs: 2, sm: 3 }, pt: 2.25, pb: 2.5 }}>
+                <Typography fontWeight={800} sx={{ fontSize: '0.88rem', color: '#1c1917', mb: 0.4, letterSpacing: '-0.01em' }}>
+                  Know this site? Help keep the data accurate.
+                </Typography>
+                <Typography sx={{ fontSize: '0.77rem', color: '#78716c', mb: 2, lineHeight: 1.55 }}>
+                  This listing is community-verified. Choose an action below — no account needed.
+                </Typography>
+
+                <Stack spacing={1}>
+                  {/* Verify */}
+                  <Box
+                    component="button"
+                    onClick={handleVerify}
+                    disabled={hasVerified || verifying || site.verified}
+                    sx={{
+                      all: 'unset',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1.5,
+                      cursor: hasVerified || site.verified ? 'default' : 'pointer',
+                      bgcolor: hasVerified || site.verified ? '#f0fdf4' : '#f0fdf4',
+                      border: '1px solid',
+                      borderColor: hasVerified || site.verified ? '#86efac' : '#bbf7d0',
+                      borderRadius: 2,
+                      px: 2, py: 1.25,
+                      transition: 'all 0.15s',
+                      opacity: verifying ? 0.6 : 1,
+                      '&:hover:not(:disabled)': hasVerified || site.verified ? {} : { borderColor: '#4ade80', bgcolor: '#dcfce7' },
+                    }}
+                  >
+                    <Box sx={{ width: 30, height: 30, borderRadius: '50%', bgcolor: hasVerified || site.verified ? '#4ade80' : '#bbf7d0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Typography fontWeight={900} sx={{ fontSize: '0.9rem', color: '#15803d', lineHeight: 1 }}>✓</Typography>
+                    </Box>
+                    <Box sx={{ flex: 1 }}>
+                      <Typography fontWeight={700} sx={{ fontSize: '0.82rem', color: '#15803d', lineHeight: 1.2 }}>
+                        {site.verified ? 'Verified by Blue Mind team' : hasVerified ? 'You verified this — thank you!' : verifying ? 'Saving…' : 'Data looks correct'}
+                      </Typography>
+                      {!site.verified && !hasVerified && (
+                        <Typography sx={{ fontSize: '0.72rem', color: '#16a34a', opacity: 0.7, lineHeight: 1.3 }}>
+                          Confirm depth, location & water type are accurate
+                        </Typography>
+                      )}
+                    </Box>
+                    {(site.verified || hasVerified) && (
+                      <Typography sx={{ fontSize: '0.72rem', color: '#4ade80', fontWeight: 700 }}>✓</Typography>
+                    )}
+                  </Box>
+
+                  {/* Correct */}
+                  <Box
+                    component="button"
+                    onClick={() => setCorrectionOpen(true)}
+                    sx={{
+                      all: 'unset',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1.5,
+                      cursor: 'pointer',
+                      bgcolor: '#fffbeb',
+                      border: '1px solid #fde68a',
+                      borderRadius: 2,
+                      px: 2, py: 1.25,
+                      transition: 'all 0.15s',
+                      '&:hover': { borderColor: '#f59e0b', bgcolor: '#fef3c7' },
+                    }}
+                  >
+                    <Box sx={{ width: 30, height: 30, borderRadius: '50%', bgcolor: '#fde68a', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Typography fontWeight={900} sx={{ fontSize: '0.88rem', color: '#92400e', lineHeight: 1 }}>✏</Typography>
+                    </Box>
+                    <Box>
+                      <Typography fontWeight={700} sx={{ fontSize: '0.82rem', color: '#92400e', lineHeight: 1.2 }}>Suggest a correction</Typography>
+                      <Typography sx={{ fontSize: '0.72rem', color: '#b45309', opacity: 0.8, lineHeight: 1.3 }}>Fix wrong name, coordinates, depth or type</Typography>
+                    </Box>
+                  </Box>
+
+                  {/* Flag removal */}
+                  <Box
+                    component="button"
+                    onClick={() => setRemovalOpen(true)}
+                    sx={{
+                      all: 'unset',
+                      display: 'flex',
+                      alignItems: 'center',
+                      gap: 1.5,
+                      cursor: 'pointer',
+                      bgcolor: '#fff1f2',
+                      border: '1px solid #fecdd3',
+                      borderRadius: 2,
+                      px: 2, py: 1.25,
+                      transition: 'all 0.15s',
+                      '&:hover': { borderColor: '#f87171', bgcolor: '#ffe4e6' },
+                    }}
+                  >
+                    <Box sx={{ width: 30, height: 30, borderRadius: '50%', bgcolor: '#fecdd3', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Typography fontWeight={900} sx={{ fontSize: '0.88rem', color: '#be123c', lineHeight: 1 }}>✕</Typography>
+                    </Box>
+                    <Box>
+                      <Typography fontWeight={700} sx={{ fontSize: '0.82rem', color: '#be123c', lineHeight: 1.2 }}>Flag for removal</Typography>
+                      <Typography sx={{ fontSize: '0.72rem', color: '#e11d48', opacity: 0.75, lineHeight: 1.3 }}>Not freediving-friendly or inaccessible?</Typography>
+                    </Box>
+                  </Box>
+                </Stack>
+              </Box>
+            </Box>
+
             {/* Description */}
             <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, mb: 3 }}>
               <Typography variant="h6" fontWeight={700} mb={1.5}>About This Site</Typography>
