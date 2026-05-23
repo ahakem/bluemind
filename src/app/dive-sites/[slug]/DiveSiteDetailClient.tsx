@@ -1135,10 +1135,10 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
               <Box sx={{ height: 4, background: 'linear-gradient(90deg, #d97706 0%, #f59e0b 50%, #10b981 100%)' }} />
 
               <Box sx={{ bgcolor: '#fdfcf8', px: { xs: 2, sm: 3 }, pt: 2.25, pb: 2.5 }}>
-                <Typography fontWeight={800} sx={{ fontSize: '0.88rem', color: '#1c1917', mb: 0.4, letterSpacing: '-0.01em' }}>
+                <Typography fontWeight={800} sx={{ fontSize: '1rem', color: '#1c1917', mb: 0.5, letterSpacing: '-0.01em' }}>
                   Know this site? Help keep the data accurate.
                 </Typography>
-                <Typography sx={{ fontSize: '0.77rem', color: '#78716c', mb: 2, lineHeight: 1.55 }}>
+                <Typography sx={{ fontSize: '0.88rem', color: '#78716c', mb: 2, lineHeight: 1.55 }}>
                   This listing is community-verified. Choose an action below — no account needed.
                 </Typography>
 
@@ -1168,17 +1168,17 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                       <Typography fontWeight={900} sx={{ fontSize: '0.9rem', color: '#15803d', lineHeight: 1 }}>✓</Typography>
                     </Box>
                     <Box sx={{ flex: 1 }}>
-                      <Typography fontWeight={700} sx={{ fontSize: '0.82rem', color: '#15803d', lineHeight: 1.2 }}>
+                      <Typography fontWeight={700} sx={{ fontSize: '0.92rem', color: '#15803d', lineHeight: 1.2 }}>
                         {site.verified ? 'Verified by Blue Mind team' : hasVerified ? 'You verified this — thank you!' : verifying ? 'Saving…' : 'Data looks correct'}
                       </Typography>
                       {!site.verified && !hasVerified && (
-                        <Typography sx={{ fontSize: '0.72rem', color: '#16a34a', opacity: 0.7, lineHeight: 1.3 }}>
+                        <Typography sx={{ fontSize: '0.82rem', color: '#16a34a', opacity: 0.8, lineHeight: 1.3 }}>
                           Confirm depth, location & water type are accurate
                         </Typography>
                       )}
                     </Box>
                     {(site.verified || hasVerified) && (
-                      <Typography sx={{ fontSize: '0.72rem', color: '#4ade80', fontWeight: 700 }}>✓</Typography>
+                      <Typography sx={{ fontSize: '0.85rem', color: '#4ade80', fontWeight: 700 }}>✓</Typography>
                     )}
                   </Box>
 
@@ -1204,8 +1204,8 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                       <Typography fontWeight={900} sx={{ fontSize: '0.88rem', color: '#92400e', lineHeight: 1 }}>✏</Typography>
                     </Box>
                     <Box>
-                      <Typography fontWeight={700} sx={{ fontSize: '0.82rem', color: '#92400e', lineHeight: 1.2 }}>Suggest a correction</Typography>
-                      <Typography sx={{ fontSize: '0.72rem', color: '#b45309', opacity: 0.8, lineHeight: 1.3 }}>Fix wrong name, coordinates, depth or type</Typography>
+                      <Typography fontWeight={700} sx={{ fontSize: '0.92rem', color: '#92400e', lineHeight: 1.2 }}>Suggest a correction</Typography>
+                      <Typography sx={{ fontSize: '0.82rem', color: '#b45309', opacity: 0.85, lineHeight: 1.3 }}>Fix wrong name, coordinates, depth or type</Typography>
                     </Box>
                   </Box>
 
@@ -1231,8 +1231,8 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                       <Typography fontWeight={900} sx={{ fontSize: '0.88rem', color: '#be123c', lineHeight: 1 }}>✕</Typography>
                     </Box>
                     <Box>
-                      <Typography fontWeight={700} sx={{ fontSize: '0.82rem', color: '#be123c', lineHeight: 1.2 }}>Flag for removal</Typography>
-                      <Typography sx={{ fontSize: '0.72rem', color: '#e11d48', opacity: 0.75, lineHeight: 1.3 }}>Not freediving-friendly or inaccessible?</Typography>
+                      <Typography fontWeight={700} sx={{ fontSize: '0.92rem', color: '#be123c', lineHeight: 1.2 }}>Flag for removal</Typography>
+                      <Typography sx={{ fontSize: '0.82rem', color: '#e11d48', opacity: 0.8, lineHeight: 1.3 }}>Not freediving-friendly or inaccessible?</Typography>
                     </Box>
                   </Box>
                 </Stack>

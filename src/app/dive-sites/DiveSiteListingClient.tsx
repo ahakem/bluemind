@@ -117,6 +117,9 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
   const [waterTypeFilter, setWaterTypeFilter] = useState<string[]>(
     searchParams.get('waterType') ? searchParams.get('waterType')!.split(',') : []
   );
+  const [activityFilter, setActivityFilter] = useState<string[]>(
+    searchParams.get('activity') ? searchParams.get('activity')!.split(',') : []
+  );
   const [countryFilter, setCountryFilter] = useState<CountryType | null>(null);
   const [continentFilter, setContinentFilter] = useState<Continent | null>(
     (searchParams.get('continent') as Continent) ?? null
@@ -221,6 +224,14 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
         && !site.location.toLowerCase().includes(search.toLowerCase())
         && !site.country.toLowerCase().includes(search.toLowerCase())) return false;
       if (waterTypeFilter.length > 0 && !waterTypeFilter.includes(site.waterType)) return false;
+      if (activityFilter.length > 0) {
+        const wantsUncharted = activityFilter.includes('uncharted');
+        const wantsTagged = activityFilter.filter((a) => a !== 'uncharted');
+        const isUncharted = (site.activities?.length ?? 0) === 0;
+        const matchUncharted = wantsUncharted && isUncharted;
+        const matchTagged = wantsTagged.length > 0 && wantsTagged.some((a) => site.activities?.includes(a as 'line_diving' | 'snorkeling'));
+        if (!matchUncharted && !matchTagged) return false;
+      }
       if (countryFilter && site.country !== countryFilter.label) return false;
       if (continentFilter) {
         const c = lookupCountry(site.country);
@@ -247,12 +258,16 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
     }
 
     return result;
-  }, [sites, search, waterTypeFilter, countryFilter, continentFilter, minDepth, minVisibility, minTemp, savedOnly, bookmarks, userPos, verifiedOnly]);
+  }, [sites, search, waterTypeFilter, activityFilter, countryFilter, continentFilter, minDepth, minVisibility, minTemp, savedOnly, bookmarks, userPos, verifiedOnly]);
 
   // ── Handler helpers ───────────────────────────────────────────────────────
   const handleWaterType = (_: React.MouseEvent<HTMLElement>, values: string[]) => {
     setWaterTypeFilter(values); setVisibleCount(24);
     updateUrl({ waterType: values.length ? values.join(',') : null });
+  };
+  const handleActivityFilter = (_: React.MouseEvent<HTMLElement>, values: string[]) => {
+    setActivityFilter(values); setVisibleCount(24);
+    updateUrl({ activity: values.length ? values.join(',') : null });
   };
   const handleCountryChange = (c: CountryType | null) => {
     setCountryFilter(c); if (c) setContinentFilter(null);
@@ -278,6 +293,7 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
 
   const hasAdvancedFilters = minDepth > 0 || minVisibility > 0 || minTemp > 0;
   const activeFilterCount = (search ? 1 : 0) + (waterTypeFilter.length > 0 ? 1 : 0)
+    + (activityFilter.length > 0 ? 1 : 0)
     + (countryFilter ? 1 : 0) + (continentFilter ? 1 : 0)
     + (hasAdvancedFilters ? 1 : 0) + (savedOnly ? 1 : 0) + (userPos ? 1 : 0) + (verifiedOnly ? 1 : 0);
 
@@ -329,7 +345,7 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
           <Typography fontWeight={900} sx={{ fontSize: '1.25rem', letterSpacing: '-0.3px', lineHeight: 1.3, mb: 0.75 }}>
             Help us verify this directory
           </Typography>
-          <Typography sx={{ fontSize: '0.83rem', color: 'rgba(255,255,255,0.62)', lineHeight: 1.65, mb: 3 }}>
+          <Typography sx={{ fontSize: '0.92rem', color: 'rgba(255,255,255,0.7)', lineHeight: 1.65, mb: 3 }}>
             We&apos;re actively reviewing every listing. Open any site card to take action — no account needed.
           </Typography>
 
@@ -342,12 +358,12 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
               <Stack key={label} direction="row" alignItems="center" spacing={1.5}
                 sx={{ bgcolor: bg, border: `1px solid ${border}`, borderRadius: 2.5, px: 2, py: 1.25 }}
               >
-                <Box sx={{ width: 30, height: 30, borderRadius: '50%', bgcolor: border, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <Typography fontWeight={900} sx={{ fontSize: '0.88rem', color, lineHeight: 1 }}>{symbol}</Typography>
+                <Box sx={{ width: 32, height: 32, borderRadius: '50%', bgcolor: border, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                  <Typography fontWeight={900} sx={{ fontSize: '0.95rem', color, lineHeight: 1 }}>{symbol}</Typography>
                 </Box>
                 <Box>
-                  <Typography fontWeight={700} sx={{ fontSize: '0.83rem', color, lineHeight: 1.2 }}>{label}</Typography>
-                  <Typography sx={{ fontSize: '0.73rem', color: 'rgba(255,255,255,0.5)', lineHeight: 1.3 }}>{sub}</Typography>
+                  <Typography fontWeight={700} sx={{ fontSize: '0.92rem', color, lineHeight: 1.2 }}>{label}</Typography>
+                  <Typography sx={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)', lineHeight: 1.3 }}>{sub}</Typography>
                 </Box>
               </Stack>
             ))}
@@ -366,7 +382,7 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
             '&::-webkit-scrollbar': { display: 'none' },
           }}
         >
-          <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.5)', alignSelf: 'center', flexShrink: 0, mr: 0.5, fontStyle: 'italic' }}>
+          <Typography sx={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.55)', alignSelf: 'center', flexShrink: 0, mr: 0.5, fontStyle: 'italic' }}>
             Open any site to:
           </Typography>
           {[
@@ -375,10 +391,10 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
             { symbol: '✕', label: 'Flag removal', color: '#f87171', border: 'rgba(248,113,113,0.3)' },
           ].map(({ symbol, label, color, border }) => (
             <Stack key={label} direction="row" alignItems="center" spacing={0.5}
-              sx={{ flexShrink: 0, px: 1.25, py: 0.6, borderRadius: 10, bgcolor: 'rgba(255,255,255,0.07)', border: `1px solid ${border}` }}
+              sx={{ flexShrink: 0, px: 1.5, py: 0.75, borderRadius: 10, bgcolor: 'rgba(255,255,255,0.07)', border: `1px solid ${border}` }}
             >
-              <Typography fontWeight={800} sx={{ fontSize: '0.75rem', color, lineHeight: 1 }}>{symbol}</Typography>
-              <Typography fontWeight={600} sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.8)' }}>{label}</Typography>
+              <Typography fontWeight={800} sx={{ fontSize: '0.85rem', color, lineHeight: 1 }}>{symbol}</Typography>
+              <Typography fontWeight={600} sx={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.85)' }}>{label}</Typography>
             </Stack>
           ))}
         </Box>
@@ -452,6 +468,16 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
                   ))}
                 </ToggleButtonGroup>
               </Stack>
+            </Stack>
+
+            {/* Row 2b: activity type */}
+            <Stack direction="row" alignItems="center" spacing={1} flexWrap="wrap" useFlexGap>
+              <Typography variant="caption" fontWeight={600} color="text.secondary" sx={{ mr: 0.5 }}>ACTIVITY</Typography>
+              <ToggleButtonGroup value={activityFilter} onChange={handleActivityFilter} size="small" aria-label="Filter by activity type">
+                <ToggleButton value="line_diving" sx={{ textTransform: 'none', px: 1.5, py: 0.4 }}>Line Diving</ToggleButton>
+                <ToggleButton value="snorkeling" sx={{ textTransform: 'none', px: 1.5, py: 0.4 }}>Snorkeling</ToggleButton>
+                <ToggleButton value="uncharted" sx={{ textTransform: 'none', px: 1.5, py: 0.4 }}>Uncharted</ToggleButton>
+              </ToggleButtonGroup>
             </Stack>
 
             {/* Row 3: near me + saved + verified + more filters */}
@@ -820,7 +846,7 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
                 <Typography fontWeight={900} sx={{ fontSize: { xs: '1.15rem', md: '1.35rem' }, letterSpacing: '-0.3px', lineHeight: 1.25, mb: 1 }}>
                   Help us build the world&apos;s most accurate freediving directory
                 </Typography>
-                <Typography sx={{ fontSize: '0.88rem', color: 'rgba(255,255,255,0.72)', lineHeight: 1.6 }}>
+                <Typography sx={{ fontSize: '0.95rem', color: 'rgba(255,255,255,0.75)', lineHeight: 1.6 }}>
                   Every site in this list is being reviewed. Open any site card and you&apos;ll find three ways to contribute — no account needed.
                 </Typography>
               </Box>
@@ -831,14 +857,14 @@ function DiveSitesPageInner({ initialSites }: { initialSites?: DiveSite[] }) {
                   { symbol: '✕', label: 'Flag for removal', sub: 'Not freediving-friendly?', bg: 'rgba(248,113,113,0.12)', border: 'rgba(248,113,113,0.3)', color: '#f87171' },
                 ].map(({ symbol, label, sub, bg, border, color }) => (
                   <Stack key={label} direction="row" alignItems="center" spacing={1.25}
-                    sx={{ bgcolor: bg, border: `1px solid ${border}`, borderRadius: 2.5, px: 2, py: 1.25, minWidth: 220 }}
+                    sx={{ bgcolor: bg, border: `1px solid ${border}`, borderRadius: 2.5, px: 2, py: 1.25, minWidth: 230 }}
                   >
-                    <Box sx={{ width: 28, height: 28, borderRadius: '50%', bgcolor: border, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                      <Typography fontWeight={800} sx={{ fontSize: '0.9rem', color, lineHeight: 1 }}>{symbol}</Typography>
+                    <Box sx={{ width: 32, height: 32, borderRadius: '50%', bgcolor: border, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                      <Typography fontWeight={800} sx={{ fontSize: '0.95rem', color, lineHeight: 1 }}>{symbol}</Typography>
                     </Box>
                     <Box>
-                      <Typography fontWeight={700} sx={{ fontSize: '0.82rem', color, lineHeight: 1.2 }}>{label}</Typography>
-                      <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.55)', lineHeight: 1.3 }}>{sub}</Typography>
+                      <Typography fontWeight={700} sx={{ fontSize: '0.92rem', color, lineHeight: 1.2 }}>{label}</Typography>
+                      <Typography sx={{ fontSize: '0.82rem', color: 'rgba(255,255,255,0.6)', lineHeight: 1.3 }}>{sub}</Typography>
                     </Box>
                   </Stack>
                 ))}
