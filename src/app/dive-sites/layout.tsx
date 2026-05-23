@@ -1,5 +1,4 @@
 import type { Metadata, Viewport } from 'next';
-import DiveSitesInstallBanner from '@/components/DiveSitesInstallBanner';
 import { AuthProvider } from '@/lib/AuthContext';
 
 export const viewport: Viewport = {
@@ -50,7 +49,6 @@ export default function DiveSitesLayout({ children }: { children: React.ReactNod
     <AuthProvider>
       {children}
       <DiveSWRegistrar />
-      <DiveSitesInstallBanner />
     </AuthProvider>
   );
 }
