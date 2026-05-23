@@ -2,6 +2,7 @@ import {
   collection,
   addDoc,
   updateDoc,
+  deleteDoc,
   doc,
   getDocs,
   getDoc,
@@ -328,6 +329,21 @@ export async function resolveRemovalRequest(id: string, status: 'approved' | 're
   if (!db) throw new Error('Firebase not initialized');
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   await updateDoc(doc(db, REMOVAL_COL, id), { status, reviewedBy: adminUid, reviewedAt: serverTimestamp() as any });
+}
+
+export async function deleteSubmission(id: string): Promise<void> {
+  if (!db) throw new Error('Firebase not initialized');
+  await deleteDoc(doc(db, SUB_COL, id));
+}
+
+export async function deleteCorrection(id: string): Promise<void> {
+  if (!db) throw new Error('Firebase not initialized');
+  await deleteDoc(doc(db, COR_COL, id));
+}
+
+export async function deleteRemovalRequest(id: string): Promise<void> {
+  if (!db) throw new Error('Firebase not initialized');
+  await deleteDoc(doc(db, REMOVAL_COL, id));
 }
 
 export async function submitRemovalRequest(data: {

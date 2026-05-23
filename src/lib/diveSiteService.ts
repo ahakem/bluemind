@@ -110,6 +110,15 @@ export const getActiveDiveSites = async (): Promise<DiveSite[]> => {
   return SEED_DIVE_SITES.filter((s) => s.status === 'active');
 };
 
+export const getDiveSiteVerified = async (id: string): Promise<boolean> => {
+  try {
+    const firestore = validateDb();
+    const snap = await getDoc(doc(firestore, COLLECTION, id));
+    if (snap.exists()) return !!(snap.data() as Record<string, unknown>).verified;
+  } catch {}
+  return false;
+};
+
 export const getDiveSiteBySlug = async (slug: string): Promise<DiveSite | null> => {
   try {
     const firestore = validateDb();

@@ -1,6 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
+import { useSearchParams } from 'next/navigation';
 import dynamic from 'next/dynamic';
 import { useTheme } from '@mui/material/styles';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -179,6 +180,8 @@ function CoordPills({ lat, lng, active = false, onClick }: {
 export default function AdminDiveSitesPage() {
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
+  const searchParams = useSearchParams();
+  const autoEditHandled = useRef(false);
 
   const [sites, setSites] = useState<DiveSite[]>([]);
   const [verificationCounts, setVerificationCounts] = useState<Map<string, number>>(new Map());
@@ -274,6 +277,14 @@ export default function AdminDiveSitesPage() {
   };
 
   useEffect(() => { load(); }, []);
+
+  // Auto-open edit dialog when ?edit=<siteId> is in the URL
+  useEffect(() => {
+    const editId = searchParams.get('edit');
+    if (!editId || autoEditHandled.current || sites.length === 0) return;
+    const site = sites.find((s) => s.id === editId);
+    if (site) { autoEditHandled.current = true; openEdit(site); }
+  }, [sites, searchParams]);
 
   // Selection helpers
   const allSelected = filtered.length > 0 && filtered.every((s) => selected.has(s.id));
