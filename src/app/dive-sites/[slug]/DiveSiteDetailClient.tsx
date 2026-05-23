@@ -732,17 +732,264 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
   if (site.status !== 'active') {
     if (authLoading) return null;
     if (!isAdmin) {
+      const isPending = site.status === 'pending';
+      const accentColor    = isPending ? '#fde047' : '#94a3b8';
+      const accentGlow     = isPending ? 'rgba(253,224,71,0.6)' : 'rgba(148,163,184,0.3)';
+      const cardBg         = isPending ? '#ca8a04' : '#1e293b';
+      const cardBgGrad     = isPending ? '#fde047' : '#334155';
+      const cardShadow     = isPending
+        ? '0 0 50px rgba(253,224,71,0.55), 0 0 110px rgba(253,224,71,0.2), 0 24px 60px rgba(0,0,0,0.7)'
+        : '0 0 40px rgba(100,116,139,0.4), 0 24px 60px rgba(0,0,0,0.7)';
+      const cardText       = isPending ? 'HOLD' : 'CLOSED';
+      const badgeText      = isPending ? 'SURFACE INTERVAL' : 'SITE ARCHIVED';
+      const headline       = isPending ? 'This site is on surface interval.' : 'This site has been pulled from the line.';
+      const subText        = isPending
+        ? "We're reviewing this listing before it goes live. Check back soon — every great site starts here."
+        : "This dive site is no longer listed. It may have been archived or is no longer accessible to freedivers.";
+      const statusRows = isPending
+        ? [
+            { label: 'STATUS',   value: 'PENDING',  color: '#fde047' },
+            { label: 'CLEARED',  value: 'NO',       color: '#f87171' },
+            { label: 'REVIEW',   value: 'IN QUEUE', color: 'rgba(255,255,255,0.5)' },
+            { label: 'ETA',      value: 'UNKNOWN',  color: 'rgba(255,255,255,0.5)' },
+          ]
+        : [
+            { label: 'STATUS',   value: 'ARCHIVED', color: '#94a3b8' },
+            { label: 'ACCESS',   value: 'CLOSED',   color: '#f87171' },
+            { label: 'DIVES',    value: '— —',      color: 'rgba(255,255,255,0.4)' },
+            { label: 'DEPTH',    value: '— m',      color: 'rgba(255,255,255,0.4)' },
+          ];
+      const SI_MARKS = ['0:00', '0:30', '1:00', '1:30', '2:00', '3:00', '5:00', '10:00', '∞'];
+
+      const BUBBLES = [
+        { left: '6%',  size: 7,  delay: '0s',   dur: '7s'  },
+        { left: '16%', size: 11, delay: '1.2s', dur: '9s'  },
+        { left: '29%', size: 5,  delay: '0.4s', dur: '6s'  },
+        { left: '44%', size: 15, delay: '2.1s', dur: '11s' },
+        { left: '58%', size: 8,  delay: '0.8s', dur: '8s'  },
+        { left: '71%', size: 10, delay: '1.7s', dur: '10s' },
+        { left: '83%', size: 6,  delay: '0.3s', dur: '7s'  },
+        { left: '93%', size: 12, delay: '2.5s', dur: '9s'  },
+      ];
+
       return (
-        <Box sx={{ minHeight: '60vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Box sx={{ textAlign: 'center', px: 3 }}>
-            <Typography variant="h5" fontWeight={700} mb={1}>Site not available</Typography>
-            <Typography variant="body2" color="text.secondary" mb={3}>
-              This dive site is not currently accessible.
-            </Typography>
-            <Button variant="outlined" component={Link} href="/dive-sites">
-              Browse all dive sites
-            </Button>
+        <Box
+          sx={{
+            minHeight: '100vh',
+            background: 'linear-gradient(180deg, #05050e 0%, #010c1c 50%, #000814 100%)',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            position: 'relative',
+            overflow: 'hidden',
+            px: 2,
+            '@keyframes rise': {
+              '0%':   { transform: 'translateY(0) scale(1)',        opacity: 1 },
+              '100%': { transform: 'translateY(-110vh) scale(1.3)', opacity: 0 },
+            },
+            '@keyframes cardDrop': {
+              '0%':   { transform: 'translateY(-90px) rotate(-8deg)',  opacity: 0 },
+              '60%':  { transform: 'translateY(10px)  rotate(2deg)',   opacity: 1 },
+              '78%':  { transform: 'translateY(-5px)  rotate(-1deg)' },
+              '100%': { transform: 'translateY(0)     rotate(0deg)',   opacity: 1 },
+            },
+            '@keyframes blink': {
+              '0%, 49%, 51%, 100%': { opacity: 1 },
+              '50%': { opacity: 0 },
+            },
+            '@keyframes float': {
+              '0%, 100%': { transform: 'translateY(0) rotate(-5deg)' },
+              '50%':      { transform: 'translateY(-10px) rotate(5deg)' },
+            },
+            '@keyframes siScroll': {
+              '0%':   { transform: 'translateY(0)' },
+              '100%': { transform: 'translateY(-55%)' },
+            },
+            '@keyframes pulse': {
+              '0%, 100%': { opacity: 1 },
+              '50%':      { opacity: 0.55 },
+            },
+          }}
+        >
+          {/* Depth glow */}
+          <Box sx={{ position: 'absolute', inset: 0, background: 'radial-gradient(ellipse 80% 45% at 50% 90%, rgba(0,50,110,0.28) 0%, transparent 70%)', pointerEvents: 'none' }} />
+
+          {/* Accent halo behind card */}
+          <Box sx={{
+            position: 'absolute', top: '50%', left: '50%',
+            transform: 'translate(-50%, -65%)',
+            width: 260, height: 260, borderRadius: '50%',
+            background: `radial-gradient(circle, ${accentGlow} 0%, transparent 70%)`,
+            pointerEvents: 'none',
+          }} />
+
+          {/* ── SI timer (left, desktop) ─────────────────────────── */}
+          <Box sx={{
+            position: 'absolute', left: { xs: 12, md: 32 }, top: 0, bottom: 0,
+            width: 56, overflow: 'hidden',
+            display: { xs: 'none', sm: 'block' },
+          }}>
+            <Box sx={{ position: 'absolute', left: 6, top: 0, bottom: 0, width: 1.5, background: 'linear-gradient(180deg, rgba(255,255,255,0.18) 0%, rgba(255,255,255,0.04) 80%, transparent 100%)' }} />
+            <Box sx={{ position: 'absolute', top: 8, left: 10 }}>
+              <Typography sx={{ fontSize: '0.5rem', color: 'rgba(255,255,255,0.3)', fontFamily: 'monospace', textTransform: 'uppercase', letterSpacing: '0.1em' }}>SI</Typography>
+            </Box>
+            <Box sx={{ animation: 'siScroll 14s linear infinite', pt: 6 }}>
+              {[...SI_MARKS, ...SI_MARKS].map((t, i) => (
+                <Box key={i} sx={{ display: 'flex', alignItems: 'center', mb: '26px' }}>
+                  <Box sx={{ width: 10, height: 1, bgcolor: 'rgba(255,255,255,0.22)', mr: 0.5 }} />
+                  <Typography sx={{ fontSize: '0.52rem', color: 'rgba(255,255,255,0.28)', fontFamily: 'monospace', lineHeight: 1 }}>{t}</Typography>
+                </Box>
+              ))}
+            </Box>
           </Box>
+
+          {/* ── Status widget (top-right) ─────────────────────────── */}
+          <Box sx={{
+            position: 'absolute', top: { xs: 16, md: 28 }, right: { xs: 12, md: 28 },
+            bgcolor: 'rgba(0,0,0,0.7)', border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: 2, px: 2, py: 1.5, backdropFilter: 'blur(8px)', minWidth: 160,
+          }}>
+            <Typography sx={{ fontSize: '0.68rem', color: 'rgba(255,255,255,0.45)', letterSpacing: '0.12em', textTransform: 'uppercase', mb: 1, fontFamily: 'monospace' }}>
+              Dive Status
+            </Typography>
+            {statusRows.map(({ label, value, color }) => (
+              <Stack key={label} direction="row" justifyContent="space-between" alignItems="center" mb={0.6} gap={2}>
+                <Typography sx={{ fontSize: '0.72rem', color: 'rgba(255,255,255,0.45)', fontFamily: 'monospace', letterSpacing: '0.08em' }}>{label}</Typography>
+                <Typography sx={{ fontSize: '0.85rem', color, fontFamily: 'monospace', fontWeight: 800 }}>{value}</Typography>
+              </Stack>
+            ))}
+            <Stack direction="row" alignItems="center" spacing={0.5} mt={1} pt={1} sx={{ borderTop: '1px solid rgba(255,255,255,0.1)' }}>
+              <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: accentColor, animation: 'blink 1.4s step-end infinite' }} />
+              <Typography sx={{ fontSize: '0.68rem', color: accentColor, fontFamily: 'monospace', letterSpacing: '0.1em', fontWeight: 700 }}>
+                {isPending ? 'HOLD' : 'OFFLINE'}
+              </Typography>
+            </Stack>
+          </Box>
+
+          {/* ── Bubbles ─────────────────────────────────────────────── */}
+          {BUBBLES.map((b, i) => (
+            <Box key={i} sx={{
+              position: 'absolute', bottom: '-5%', left: b.left,
+              width: b.size, height: b.size, borderRadius: '50%',
+              border: '1.5px solid rgba(140,220,255,0.55)',
+              bgcolor: 'rgba(140,220,255,0.12)',
+              boxShadow: '0 0 6px rgba(100,200,255,0.25)',
+              animation: `rise ${b.dur} ${b.delay} ease-in infinite`,
+              pointerEvents: 'none',
+            }} />
+          ))}
+
+          {/* ── Floating diver silhouette ─────────────────────────── */}
+          <Box sx={{
+            position: 'absolute', bottom: 52, right: { xs: 20, md: 80 },
+            opacity: 0.2, animation: 'float 4s ease-in-out infinite',
+          }}>
+            <svg width="52" height="28" viewBox="0 0 52 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+              {/* Surface line */}
+              <line x1="0" y1="10" x2="52" y2="10" stroke="rgba(140,220,255,0.5)" strokeWidth="1" />
+              {/* Head (above surface) */}
+              <circle cx="12" cy="6" r="4.5" fill="white" />
+              {/* Tank */}
+              <rect x="9" y="10" width="5" height="3" rx="1" fill="white" />
+              {/* Body (horizontal, at surface) */}
+              <rect x="12" y="11" width="18" height="7" rx="3" fill="white" />
+              {/* Arm stretched forward */}
+              <line x1="30" y1="14" x2="42" y2="12" stroke="white" strokeWidth="2" strokeLinecap="round" />
+              {/* Legs back */}
+              <line x1="12" y1="15" x2="2" y2="18" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+              <line x1="12" y1="16" x2="2" y2="22" stroke="white" strokeWidth="2.5" strokeLinecap="round" />
+              {/* Fins */}
+              <ellipse cx="1" cy="18" rx="5" ry="1.8" fill="white" transform="rotate(-10 1 18)" />
+              <ellipse cx="1" cy="22" rx="5" ry="1.8" fill="white" transform="rotate(10 1 22)" />
+            </svg>
+          </Box>
+
+          {/* ── HOLD / CLOSED card ──────────────────────────────────── */}
+          <Box sx={{
+            width: { xs: 158, sm: 196 }, height: { xs: 216, sm: 272 },
+            background: `linear-gradient(160deg, ${cardBg} 0%, ${cardBgGrad} 100%)`,
+            borderRadius: 3,
+            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+            mb: 4,
+            boxShadow: cardShadow,
+            animation: 'cardDrop 0.75s cubic-bezier(0.22,1,0.36,1) both',
+            position: 'relative', overflow: 'hidden',
+          }}>
+            {/* sheen */}
+            <Box sx={{ position: 'absolute', top: 0, left: '-50%', width: '45%', height: '100%', background: 'linear-gradient(108deg, transparent 38%, rgba(255,255,255,0.07) 50%, transparent 62%)', pointerEvents: 'none' }} />
+            {/* scanline */}
+            <Box sx={{ position: 'absolute', left: 0, right: 0, height: 2, bgcolor: 'rgba(255,255,255,0.05)', top: '40%', pointerEvents: 'none' }} />
+
+            <Typography sx={{
+              fontSize: { xs: isPending ? '3.2rem' : '2.8rem', sm: isPending ? '4rem' : '3.5rem' },
+              fontWeight: 900, color: 'white', lineHeight: 1,
+              letterSpacing: isPending ? '-2px' : '-1px',
+              fontFamily: 'Poppins, sans-serif',
+              animation: 'pulse 3s ease-in-out infinite',
+              textShadow: '0 2px 24px rgba(0,0,0,0.5)',
+            }}>
+              {cardText}
+            </Typography>
+
+            <Box sx={{ width: 44, height: 2, bgcolor: 'rgba(255,255,255,0.25)', borderRadius: 1, my: 1.5 }} />
+
+            <Typography sx={{ fontSize: '0.68rem', fontWeight: 800, color: 'rgba(255,255,255,0.6)', letterSpacing: '0.2em', textTransform: 'uppercase' }}>
+              {isPending ? 'Not Cleared' : 'Dive Site'}
+            </Typography>
+          </Box>
+
+          {/* ── Badge ───────────────────────────────────────────────── */}
+          <Box sx={{
+            display: 'inline-flex', alignItems: 'center', gap: 1,
+            bgcolor: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
+            borderRadius: 10, px: 2, py: 0.6, mb: 2.5,
+          }}>
+            <Box sx={{ width: 6, height: 6, borderRadius: '50%', bgcolor: accentColor }} />
+            <Typography sx={{ fontSize: '0.7rem', fontWeight: 700, color: 'rgba(255,255,255,0.45)', letterSpacing: '0.15em', textTransform: 'uppercase', fontFamily: 'monospace' }}>
+              {badgeText}
+            </Typography>
+          </Box>
+
+          {/* Headline */}
+          <Typography sx={{
+            fontSize: { xs: '1.55rem', sm: '1.9rem' },
+            fontWeight: 900, color: 'white',
+            letterSpacing: '-0.5px', textAlign: 'center', lineHeight: 1.2,
+            mb: 1.25, fontFamily: 'Poppins, sans-serif',
+            textShadow: `0 2px 20px ${accentGlow}`,
+          }}>
+            {headline}
+          </Typography>
+
+          <Typography sx={{
+            fontSize: { xs: '0.87rem', sm: '0.95rem' },
+            color: 'rgba(255,255,255,0.35)',
+            textAlign: 'center', maxWidth: 340,
+            lineHeight: 1.8, mb: 4.5,
+          }}>
+            {subText}
+          </Typography>
+
+          {/* Button */}
+          <Button component={Link} href="/dive-sites" variant="contained" size="large" sx={{
+            bgcolor: 'white', color: '#07070f', fontWeight: 800,
+            borderRadius: 10, px: 3.5, py: 1.25, fontSize: '0.9rem', textTransform: 'none',
+            boxShadow: '0 4px 24px rgba(255,255,255,0.1)',
+            '&:hover': { bgcolor: '#f0f0f0', transform: 'translateY(-2px)', boxShadow: '0 8px 32px rgba(255,255,255,0.18)' },
+            transition: 'all 0.2s',
+          }}>
+            ↑ Surface
+          </Button>
+
+          {/* Footer */}
+          <Typography sx={{
+            position: 'absolute', bottom: 18,
+            fontSize: '0.62rem', color: 'rgba(255,255,255,0.1)',
+            letterSpacing: '0.14em', textTransform: 'uppercase', fontFamily: 'monospace',
+          }}>
+            {isPending ? 'status: pending · cleared: no · eta: unknown' : 'status: archived · access: closed'}
+          </Typography>
         </Box>
       );
     }
