@@ -128,12 +128,13 @@ export default function GoogleVerificationPage() {
 
   // Bulk update statusTag
   const applyBulkTag = async () => {
-    if (!db) return;
+    const firestore = db;
+    if (!firestore) return;
     setBulkWorking(true);
     try {
       await Promise.all(
         [...selected].map((id) =>
-          updateDoc(doc(db, 'diveSites', id), {
+          updateDoc(doc(firestore, 'diveSites', id), {
             'verification.statusTag': bulkTag,
             'verification.reviewedAt': new Date().toISOString(),
           })
