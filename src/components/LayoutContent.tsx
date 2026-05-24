@@ -23,7 +23,7 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
     setIsDiveSiteDetail(isDiveDetail);
   }, [pathname]);
 
-  if (isAdminRoute) {
+  if (isAdminRoute || pathname === '/welcome') {
     return <>{children}</>;
   }
 

@@ -112,8 +112,6 @@ export default function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID || '';
-  
   return (
     <html lang="en" className={`${montserrat.variable} ${poppins.variable}`}>
       <head>
@@ -124,37 +122,22 @@ export default function RootLayout({
         />
       </head>
       <body>
-        {/* Google Analytics - Load first */}
-        {GA_MEASUREMENT_ID && GA_MEASUREMENT_ID !== 'G-XXXXXXXXXX' && (
-          <>
-            <Script
-              strategy="afterInteractive"
-              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
-            />
-            <Script id="google-analytics" strategy="afterInteractive">
-              {`
-                window.dataLayer = window.dataLayer || [];
-                function gtag(){dataLayer.push(arguments);}
-                gtag('js', new Date());
-                
-                // Check consent
-                const consent = localStorage.getItem('cookie-consent');
-                if (consent === 'accepted') {
-                  gtag('consent', 'update', {
-                    analytics_storage: 'granted'
-                  });
-                  gtag('config', '${GA_MEASUREMENT_ID}', {
-                    page_path: window.location.pathname,
-                  });
-                } else {
-                  gtag('consent', 'default', {
-                    analytics_storage: 'denied'
-                  });
-                }
-              `}
-            </Script>
-          </>
-        )}
+        {/* Google Tag Manager — manages GA4, Ads conversions, and any future tags */}
+        <Script id="gtm" strategy="afterInteractive">
+          {`(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+})(window,document,'script','dataLayer','GTM-PDZ7L4PW');`}
+        </Script>
+        {/* GTM noscript fallback */}
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-PDZ7L4PW"
+            height="0" width="0"
+            style={{ display: 'none', visibility: 'hidden' }}
+          />
+        </noscript>
         
         <Analytics />
         <ThemeRegistry>
