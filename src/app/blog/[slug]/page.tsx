@@ -3,6 +3,7 @@
  */
 
 import React from 'react';
+import Image from 'next/image';
 import { Container, Box, Typography, Chip, Avatar, Button, IconButton, Tooltip } from '@mui/material';
 import {
   ArrowBack,
@@ -156,18 +157,16 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
 
         {/* Featured Image */}
         {post.image && (
-          <Box
-            component="img"
-            src={post.image}
-            alt={post.title}
-            sx={{
-              width: '100%',
-              height: 400,
-              objectFit: 'cover',
-              borderRadius: 2,
-              mb: 4,
-            }}
-          />
+          <Box sx={{ position: 'relative', width: '100%', height: { xs: 240, sm: 340, md: 400 }, borderRadius: 2, overflow: 'hidden', mb: 4 }}>
+            <Image
+              src={post.image}
+              alt={post.title}
+              fill
+              priority
+              sizes="(max-width: 960px) 100vw, 860px"
+              style={{ objectFit: 'cover' }}
+            />
+          </Box>
         )}
 
         {/* Title - h1 for SEO */}

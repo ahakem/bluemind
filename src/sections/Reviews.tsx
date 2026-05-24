@@ -49,7 +49,7 @@ function ReviewCard({ review }: { review: Review }) {
             {review.author_name.charAt(0)}
           </Avatar>
           <Box sx={{ flex: 1, minWidth: 0 }}>
-            <Typography variant="subtitle2" fontWeight={700} fontFamily="Poppins" noWrap>
+            <Typography variant="subtitle2" fontWeight={700} fontFamily="var(--font-poppins), Helvetica Neue, sans-serif" noWrap>
               {review.author_name}
             </Typography>
             <Typography variant="caption" color="text.secondary">
@@ -75,7 +75,7 @@ function ReviewCard({ review }: { review: Review }) {
               <Typography
                 variant="body2"
                 color="text.secondary"
-                fontFamily="Montserrat"
+                fontFamily="var(--font-montserrat), Helvetica Neue, sans-serif"
                 lineHeight={1.7}
                 sx={{ pl: 1 }}
               >
@@ -119,10 +119,10 @@ export default function ReviewsSection({ reviews, totalReviewCount, averageRatin
     <Box component="section" sx={{ py: { xs: 8, md: 12 }, bgcolor: '#f8f9fa', minHeight: '60vh' }}>
       <Container maxWidth="lg">
         <Box sx={{ textAlign: 'center', mb: 8 }}>
-          <Typography variant="subtitle1" fontFamily="Montserrat" color="primary" mb={1}>
+          <Typography variant="subtitle1" fontFamily="var(--font-montserrat), Helvetica Neue, sans-serif" color="primary" mb={1}>
             What Our Members Say
           </Typography>
-          <Typography variant="h2" component="h1" fontFamily="Poppins" fontWeight={700} mb={2}>
+          <Typography variant="h2" component="h1" fontFamily="var(--font-poppins), Helvetica Neue, sans-serif" fontWeight={700} mb={2}>
             Community Reviews
           </Typography>
           <Box sx={{ width: 80, height: 3, bgcolor: 'accent.main', mx: 'auto', mb: 3 }} />

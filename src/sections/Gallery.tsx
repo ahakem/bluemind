@@ -45,7 +45,7 @@ const Gallery = ({ showAll = false, enableModal = true }: GalleryProps) => {
           <Typography
             variant="subtitle1"
             component="p"
-            fontFamily="Montserrat"
+            fontFamily="var(--font-montserrat), Helvetica Neue, sans-serif"
             color="primary"
             mb={1}
           >
@@ -55,7 +55,7 @@ const Gallery = ({ showAll = false, enableModal = true }: GalleryProps) => {
             id="gallery-heading"
             variant="h2"
             component="h1"
-            fontFamily="Poppins"
+            fontFamily="var(--font-poppins), Helvetica Neue, sans-serif"
             fontWeight={700}
           >
             Training Environment

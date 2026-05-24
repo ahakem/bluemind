@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import Script from 'next/script';
 import Hero from '@/sections/Hero';
 import About from '@/sections/About';
+import ConditionalDiveSitesPromo from '@/components/ConditionalDiveSitesPromo';
 import Gallery from '@/sections/Gallery';
 
 export const metadata: Metadata = {
@@ -57,6 +58,7 @@ export default function HomePage() {
       />
       <Hero />
       <About showCTA />
+      <ConditionalDiveSitesPromo />
       <Gallery enableModal={false} />
     </>
   );

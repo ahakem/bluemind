@@ -10,7 +10,11 @@
     "lint": "next lint",
     "export": "next build && next export",
     "deploy": "npm run build && firebase deploy --only hosting",
-    "deploy:preview": "npm run build && firebase hosting:channel:deploy preview"
+    "deploy:preview": "npm run build && firebase hosting:channel:deploy preview",
+    "scrape": "cd scraper && npm run scrape",
+    "scrape:dry": "cd scraper && npm run scrape:dry",
+    "scrape:limit": "cd scraper && npm run scrape:limit",
+    "scraper:install": "cd scraper && npm install"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
@@ -21,11 +25,15 @@
     "@mui/material": "^7.1.0",
     "@mui/material-nextjs": "^7.1.0",
     "@mui/material-pigment-css": "^7.3.7",
+    "@types/leaflet": "^1.9.21",
+    "@vis.gl/react-google-maps": "^1.8.3",
     "firebase": "^12.9.0",
-    "next": "^16.1.6",
+    "leaflet": "^1.9.4",
+    "next": "^15.5.18",
     "react": "^19.2.4",
     "react-dom": "^19.2.4",
     "react-image-crop": "^11.0.10",
+    "react-leaflet": "^5.0.0",
     "react-quill": "^2.0.0",
     "uuid": "^13.0.0"
   },
@@ -35,8 +43,11 @@
     "@types/react": "^19.2.13",
     "@types/react-dom": "^19.2.3",
     "@types/uuid": "^11.0.0",
+    "dotenv": "^17.4.2",
     "eslint": "^9.39.2",
     "eslint-config-next": "^16.1.6",
+    "firebase-admin": "^13.10.0",
+    "tsx": "^4.22.3",
     "typescript": "5.6.3"
   }
 }

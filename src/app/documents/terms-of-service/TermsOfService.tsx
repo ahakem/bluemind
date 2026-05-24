@@ -28,6 +28,8 @@ import {
   Email,
   HealthAndSafety,
   CameraAlt,
+  Storage,
+  SmartToy,
 } from '@mui/icons-material';
 
 const TermsOfService: React.FC = () => {
@@ -61,7 +63,7 @@ const TermsOfService: React.FC = () => {
               Terms of Service
             </Typography>
             <Box sx={{ display: 'flex', gap: 1, mt: 1, flexWrap: 'wrap' }}>
-              <Chip label="Effective: April 2026" size="small" color="primary" variant="outlined" />
+              <Chip label="Effective: May 2026" size="small" color="primary" variant="outlined" />
             </Box>
           </Box>
 
@@ -224,11 +226,89 @@ const TermsOfService: React.FC = () => {
 
           <Divider sx={{ my: 4 }} />
 
-          {/* Section 7 */}
+          {/* Section 7 — Dive Sites Database */}
+          <Box sx={sectionHeaderStyle}>
+            <Storage color="primary" fontSize="large" />
+            <Typography variant="h5" fontWeight="bold">
+              7. Dive Sites Database & Intellectual Property
+            </Typography>
+          </Box>
+          <Typography paragraph sx={{ textAlign: 'left', lineHeight: 1.8 }}>
+            The Blue Mind Freediving dive sites database — including all site names, descriptions,
+            coordinates, depth data, conditions, tags, and curated metadata — is the intellectual
+            property of Blue Mind Freediving and its contributors. This database is made available
+            for personal, non-commercial use only.
+          </Typography>
+          <List sx={{ bgcolor: 'grey.50', borderRadius: 2, mb: 3 }}>
+            <ListItem>
+              <ListItemIcon><CheckCircle color="primary" fontSize="small" /></ListItemIcon>
+              <ListItemText primary="You may use individual site information for personal trip planning and reference." />
+            </ListItem>
+            <ListItem>
+              <ListItemIcon><Cancel color="error" fontSize="small" /></ListItemIcon>
+              <ListItemText
+                primary="Reproduction, redistribution, or republication of the database in whole or in part — on any platform, app, or dataset — is strictly prohibited without prior written permission."
+              />
+            </ListItem>
+            <ListItem>
+              <ListItemIcon><Cancel color="error" fontSize="small" /></ListItemIcon>
+              <ListItemText
+                primary="You may not use the database to train, fine-tune, or augment machine learning or AI models, including large language models, without explicit written consent."
+              />
+            </ListItem>
+            <ListItem>
+              <ListItemIcon><CheckCircle color="primary" fontSize="small" /></ListItemIcon>
+              <ListItemText primary="Organisations wishing to licence or collaborate on the data are welcome to contact us at info@bluemindfreediving.nl." />
+            </ListItem>
+          </List>
+
+          <Divider sx={{ my: 4 }} />
+
+          {/* Section 8 — Automated Access */}
+          <Box sx={sectionHeaderStyle}>
+            <SmartToy color="primary" fontSize="large" />
+            <Typography variant="h5" fontWeight="bold">
+              8. Automated Access & Scraping
+            </Typography>
+          </Box>
+          <Typography paragraph sx={{ textAlign: 'left', lineHeight: 1.8 }}>
+            Access to bluemindfreediving.nl by automated means — including web scrapers, crawlers,
+            bots, spiders, and data-extraction scripts — is subject to the following conditions:
+          </Typography>
+          <List sx={{ bgcolor: 'grey.50', borderRadius: 2, mb: 3 }}>
+            <ListItem>
+              <ListItemIcon><CheckCircle color="primary" fontSize="small" /></ListItemIcon>
+              <ListItemText primary="Search engine crawlers (Googlebot, Bingbot) are permitted to index publicly accessible pages in accordance with our robots.txt file." />
+            </ListItem>
+            <ListItem>
+              <ListItemIcon><Cancel color="error" fontSize="small" /></ListItemIcon>
+              <ListItemText
+                primary="Bulk automated extraction of dive site data, coordinates, descriptions, or any structured content from this website is prohibited, regardless of the technical method used."
+              />
+            </ListItem>
+            <ListItem>
+              <ListItemIcon><Cancel color="error" fontSize="small" /></ListItemIcon>
+              <ListItemText
+                primary="AI training crawlers and data-aggregation bots are prohibited from accessing the /dive-sites/ section of this website, as stated in our robots.txt."
+              />
+            </ListItem>
+            <ListItem>
+              <ListItemIcon><CheckCircle color="primary" fontSize="small" /></ListItemIcon>
+              <ListItemText primary="We reserve the right to block, throttle, or take legal action against any automated access that violates these terms or overloads our infrastructure." />
+            </ListItem>
+            <ListItem>
+              <ListItemIcon><CheckCircle color="primary" fontSize="small" /></ListItemIcon>
+              <ListItemText primary="Violations may constitute unauthorised computer access under Dutch and EU law (Cybercrime Directive 2013/40/EU) and may result in legal proceedings." />
+            </ListItem>
+          </List>
+
+          <Divider sx={{ my: 4 }} />
+
+          {/* Section 9 */}
           <Box sx={sectionHeaderStyle}>
             <Security color="primary" fontSize="large" />
             <Typography variant="h5" fontWeight="bold">
-              7. Changes to These Terms
+              9. Changes to These Terms
             </Typography>
           </Box>
           <Typography paragraph sx={{ textAlign: 'left', lineHeight: 1.8 }}>
@@ -241,7 +321,7 @@ const TermsOfService: React.FC = () => {
           <Box sx={sectionHeaderStyle}>
             <Email color="primary" fontSize="large" />
             <Typography variant="h5" fontWeight="bold">
-              8. Contact
+              10. Contact
             </Typography>
           </Box>
           <Typography paragraph sx={{ textAlign: 'left', lineHeight: 1.8 }}>

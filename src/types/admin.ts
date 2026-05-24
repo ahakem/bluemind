@@ -56,6 +56,140 @@ export interface BlogPost {
   reviewedAt?: Date;
 }
 
+export interface WaterTempByMonth {
+  jan?: number; feb?: number; mar?: number; apr?: number;
+  may?: number; jun?: number; jul?: number; aug?: number;
+  sep?: number; oct?: number; nov?: number; dec?: number;
+}
+
+export interface Thermocline {
+  depth: number;       // approx depth in meters where thermocline starts
+  tempDrop: number;    // degrees C drop below the thermocline
+  seasons?: string[];  // e.g. ['Summer', 'Autumn']
+  notes?: string;
+}
+
+export interface DiveSite {
+  id: string;
+  slug: string;
+  name: string;
+  location: string;
+  country: string;
+  coordinates: { lat: number; lng: number };
+  waterType: 'lake' | 'sea' | 'deep_tank';
+  maxDepth: number;
+  description: string;
+  highlights: string[];
+  facilities: string[];
+  tags: string[];
+  waterTemp: WaterTempByMonth;
+  visibility: { min: number; max: number };
+  bestSeasons: string[];
+  photos: string[];
+  thermocline?: Thermocline;
+  status: 'active' | 'pending' | 'archived';
+  createdAt: Date;
+  updatedAt: Date;
+  // Enrichment flags (set by score-sites.ts)
+  freediverScore?: number;
+  needsReview?: boolean;
+  scubaOnly?: boolean;
+  depthUnknown?: boolean;
+  scubaFlags?: string[];
+  coordinatesOnShore?: boolean;
+  googleRating?: number;
+  googleRatingsTotal?: number;
+  googlePlaceId?: string;
+  verified?: boolean;
+  activities?: ('line_diving' | 'snorkeling')[];
+  verification?: {
+    statusTag: 'KEEP' | 'REVIEW_NEGATIVE' | 'NO_DATA';
+    reviewedAt: string;
+    positiveMatchCount: number;
+    negativeMatchCount: number;
+    matchedPlaceId: string | null;
+  };
+}
+
+export interface DiveSiteDraft {
+  slug?: string;
+  name: string;
+  location: string;
+  country: string;
+  coordinates: { lat: number; lng: number };
+  waterType: 'lake' | 'sea' | 'deep_tank';
+  maxDepth: number;
+  description: string;
+  highlights: string[];
+  facilities: string[];
+  tags: string[];
+  waterTemp: WaterTempByMonth;
+  visibility: { min: number; max: number };
+  bestSeasons: string[];
+  photos: string[];
+  thermocline?: Thermocline;
+  status: 'active' | 'pending' | 'archived';
+  activities?: ('line_diving' | 'snorkeling')[];
+}
+
+export interface SiteSubmission {
+  id: string;
+  name: string;
+  location: string;
+  country: string;
+  coordinates: { lat: number; lng: number };
+  waterType: DiveSite['waterType'];
+  tags: string[];
+  maxDepth: number;
+  description: string;
+  highlights: string[];
+  facilities: string[];
+  visibility: { min: number; max: number };
+  bestSeasons: string[];
+  submitterEmail: string;
+  submitterNote: string;
+  status: 'pending' | 'approved' | 'rejected';
+  reviewedBy: string | null;
+  reviewedAt: Date | null;
+  rejectionReason: string | null;
+  createdSiteId: string | null;
+  submittedAt: Date;
+  _hp: string;
+  ipFingerprint: string;
+}
+
+export type SiteSubmissionDraft = Omit<SiteSubmission,
+  'id' | 'status' | 'reviewedBy' | 'reviewedAt' | 'rejectionReason' | 'createdSiteId' | 'submittedAt'
+>;
+
+export interface SiteCorrection {
+  id: string;
+  siteId: string;
+  siteSlug: string;
+  siteName: string;
+  fields: Record<string, { current: unknown; suggested: unknown }>;
+  submitterEmail: string;
+  correctionNote: string;
+  status: 'pending' | 'approved' | 'rejected';
+  reviewedBy: string | null;
+  reviewedAt: Date | null;
+  rejectionReason: string | null;
+  submittedAt: Date;
+  _hp: string;
+}
+
+export type SiteCorrectionDraft = Omit<SiteCorrection,
+  'id' | 'status' | 'reviewedBy' | 'reviewedAt' | 'rejectionReason' | 'submittedAt'
+>;
+
+export interface SiteVerification {
+  id: string;
+  siteId: string;
+  siteSlug: string;
+  siteName: string;
+  submittedAt: Date;
+}
+
 export interface BlogDraft {
   title: string;
   slug?: string;

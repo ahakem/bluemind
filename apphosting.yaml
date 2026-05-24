@@ -1,0 +1,125 @@
+runConfig:
+  runtime: nodejs22
+  cpu: 1
+  memoryMiB: 512
+  concurrency: 80
+  maxInstances: 3
+
+env:
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    secret: NEXT_PUBLIC_FIREBASE_API_KEY
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    secret: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    secret: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    secret: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    secret: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    secret: NEXT_PUBLIC_FIREBASE_APP_ID
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_GA_MEASUREMENT_ID
+    secret: NEXT_PUBLIC_GA_MEASUREMENT_ID
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+    secret: NEXT_PUBLIC_GOOGLE_MAPS_API_KEY
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_ADMIN_EMAILS
+    secret: NEXT_PUBLIC_ADMIN_EMAILS
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_EMAILJS_SERVICE_ID
+    secret: NEXT_PUBLIC_EMAILJS_SERVICE_ID
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_EMAILJS_TEMPLATE_ID
+    secret: NEXT_PUBLIC_EMAILJS_TEMPLATE_ID
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+    secret: NEXT_PUBLIC_EMAILJS_PUBLIC_KEY
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: GOOGLE_PLACES_API_KEY
+    secret: GOOGLE_PLACES_API_KEY
+    availability:
+      - RUNTIME
+
+  - variable: GOOGLE_PLACE_ID
+    secret: GOOGLE_PLACE_ID
+    availability:
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_BOOKING_FIREBASE_API_KEY
+    secret: NEXT_PUBLIC_BOOKING_FIREBASE_API_KEY
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_BOOKING_FIREBASE_AUTH_DOMAIN
+    secret: NEXT_PUBLIC_BOOKING_FIREBASE_AUTH_DOMAIN
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_BOOKING_FIREBASE_PROJECT_ID
+    secret: NEXT_PUBLIC_BOOKING_FIREBASE_PROJECT_ID
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_BOOKING_FIREBASE_STORAGE_BUCKET
+    secret: NEXT_PUBLIC_BOOKING_FIREBASE_STORAGE_BUCKET
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_BOOKING_FIREBASE_MESSAGING_SENDER_ID
+    secret: NEXT_PUBLIC_BOOKING_FIREBASE_MESSAGING_SENDER_ID
+    availability:
+      - BUILD
+      - RUNTIME
+
+  - variable: NEXT_PUBLIC_BOOKING_FIREBASE_APP_ID
+    secret: NEXT_PUBLIC_BOOKING_FIREBASE_APP_ID
+    availability:
+      - BUILD
+      - RUNTIME

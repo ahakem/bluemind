@@ -1,4 +1,4 @@
-'use client';
+
 
 import { Box, Container, Typography, Button, Grid, Stack } from "@mui/material";
 import Image from "next/image";
@@ -79,7 +79,7 @@ const Hero = () => {
             <Typography
               variant="h1"
               component="h1"
-              fontFamily="Poppins"
+              fontFamily="var(--font-poppins), Helvetica Neue, sans-serif"
               fontWeight={700}
               mb={3}
               sx={{
@@ -97,7 +97,7 @@ const Hero = () => {
             <Typography
               variant="h6"
               component="p"
-              fontFamily="Roboto"
+              fontFamily="var(--font-poppins), Helvetica Neue, sans-serif"
               fontWeight={400}
               sx={{
                 opacity: 0.9,
@@ -124,7 +124,7 @@ const Hero = () => {
                   borderRadius: "50px",
                   px: 4,
                   py: 1.5,
-                  fontFamily: "Poppins",
+                  fontFamily: "var(--font-poppins), Helvetica Neue, sans-serif",
                   textTransform: "none",
                   bgcolor: "white",
                   color: "primary.main",
@@ -144,7 +144,7 @@ const Hero = () => {
                   borderRadius: "50px",
                   px: 4,
                   py: 1.5,
-                  fontFamily: "Poppins",
+                  fontFamily: "var(--font-poppins), Helvetica Neue, sans-serif",
                   textTransform: "none",
                   color: "white",
                   borderColor: "white",

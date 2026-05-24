@@ -32,10 +32,11 @@ import {
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 import { useAuth, AdminUser } from '@/lib/AuthContext';
 
 export default function UsersManagement() {
-  const { adminUser, createAdminUser, getAdminUsers, deleteAdminUser } = useAuth();
+  const { adminUser, createAdminUser, getAdminUsers, updateAdminUser, deleteAdminUser } = useAuth();
   const [users, setUsers] = useState<AdminUser[]>([]);
   const [loading, setLoading] = useState(true);
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -54,6 +55,10 @@ export default function UsersManagement() {
     displayName: '',
     role: 'editor' as 'admin' | 'editor' | 'author',
   });
+
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [editUser, setEditUser] = useState<AdminUser | null>(null);
+  const [editRole, setEditRole] = useState<'admin' | 'editor' | 'author'>('editor');
 
   useEffect(() => {
     fetchUsers();
@@ -140,6 +145,27 @@ export default function UsersManagement() {
   const openDeleteDialog = (user: AdminUser) => {
     setSelectedUser(user);
     setDeleteDialogOpen(true);
+  };
+
+  const openEditDialog = (user: AdminUser) => {
+    setEditUser(user);
+    setEditRole(user.role);
+    setEditDialogOpen(true);
+  };
+
+  const handleEditSave = async () => {
+    if (!editUser) return;
+    setSaving(true);
+    try {
+      await updateAdminUser(editUser.uid, { role: editRole });
+      showSnackbar('Role updated successfully', 'success');
+      setEditDialogOpen(false);
+      fetchUsers();
+    } catch (error) {
+      showSnackbar(error instanceof Error ? error.message : 'Failed to update role', 'error');
+    } finally {
+      setSaving(false);
+    }
   };
 
   // Only admins can manage users
@@ -253,6 +279,9 @@ export default function UsersManagement() {
                         </Typography>
                       </TableCell>
                       <TableCell sx={{ textAlign: 'right' }}>
+                        <IconButton onClick={() => openEditDialog(user)} color="primary">
+                          <EditIcon />
+                        </IconButton>
                         <IconButton
                           onClick={() => openDeleteDialog(user)}
                           color="error"
@@ -324,6 +353,43 @@ export default function UsersManagement() {
             sx={{ bgcolor: '#0077be', '&:hover': { bgcolor: '#005a8c' } }}
           >
             {saving ? <CircularProgress size={24} /> : 'Create User'}
+          </Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* Edit Role Dialog */}
+      <Dialog open={editDialogOpen} onClose={() => setEditDialogOpen(false)} maxWidth="xs" fullWidth>
+        <DialogTitle>Edit User Role</DialogTitle>
+        <DialogContent>
+          <Box sx={{ mt: 2 }}>
+            <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+              {editUser?.displayName || editUser?.email}
+            </Typography>
+            <FormControl fullWidth>
+              <InputLabel>Role</InputLabel>
+              <Select
+                value={editRole}
+                label="Role"
+                onChange={(e) => setEditRole(e.target.value as 'admin' | 'editor' | 'author')}
+              >
+                <MenuItem value="author">Author - Can create & edit own draft posts</MenuItem>
+                <MenuItem value="editor">Editor - Can manage partners, instructors & blog</MenuItem>
+                <MenuItem value="admin">Admin - Full access including user management</MenuItem>
+              </Select>
+            </FormControl>
+          </Box>
+        </DialogContent>
+        <DialogActions sx={{ p: 2 }}>
+          <Button onClick={() => setEditDialogOpen(false)} disabled={saving}>
+            Cancel
+          </Button>
+          <Button
+            onClick={handleEditSave}
+            variant="contained"
+            disabled={saving}
+            sx={{ bgcolor: '#0077be', '&:hover': { bgcolor: '#005a8c' } }}
+          >
+            {saving ? <CircularProgress size={24} /> : 'Save'}
           </Button>
         </DialogActions>
       </Dialog>

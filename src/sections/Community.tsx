@@ -63,7 +63,7 @@ const Community = () => {
           <Typography
             variant="subtitle1"
             component="p"
-            fontFamily="Montserrat"
+            fontFamily="var(--font-montserrat), Helvetica Neue, sans-serif"
             sx={{ 
               color: accentBlue, 
               letterSpacing: 2,
@@ -77,7 +77,7 @@ const Community = () => {
             id="community-heading"
             variant="h2"
             component="h1"
-            fontFamily="Poppins"
+            fontFamily="var(--font-poppins), Helvetica Neue, sans-serif"
             fontWeight={700}
             sx={{ 
               mb: 4,
@@ -118,7 +118,7 @@ const Community = () => {
           <Box sx={{ textAlign: "center", mb: 8 }}>
             <Typography
               variant="subtitle1"
-              fontFamily="Montserrat"
+              fontFamily="var(--font-montserrat), Helvetica Neue, sans-serif"
               sx={{ 
                 color: accentBlue, 
                 letterSpacing: 2,
@@ -131,7 +131,7 @@ const Community = () => {
             <Typography
               variant="h3"
               component="h2"
-              fontFamily="Poppins"
+              fontFamily="var(--font-poppins), Helvetica Neue, sans-serif"
               fontWeight={700}
               sx={{ color: white }}
             >
@@ -209,7 +209,7 @@ const Community = () => {
                   
                   <Typography
                     variant="h6"
-                    fontFamily="Poppins"
+                    fontFamily="var(--font-poppins), Helvetica Neue, sans-serif"
                     fontWeight={600}
                     sx={{ color: white, mb: 2 }}
                   >
@@ -287,7 +287,7 @@ const Community = () => {
           <Box sx={{ textAlign: "center", mb: 8 }}>
             <Typography
               variant="subtitle1"
-              fontFamily="Montserrat"
+              fontFamily="var(--font-montserrat), Helvetica Neue, sans-serif"
               sx={{ 
                 color: accentBlue, 
                 letterSpacing: 2,
@@ -300,7 +300,7 @@ const Community = () => {
             <Typography
               variant="h3"
               component="h2"
-              fontFamily="Poppins"
+              fontFamily="var(--font-poppins), Helvetica Neue, sans-serif"
               fontWeight={700}
               sx={{ color: white }}
             >
@@ -407,7 +407,7 @@ const Community = () => {
                 <CardContent sx={{ p: 4, pt: 5, textAlign: "center" }}>
                   <Typography
                     variant="h5"
-                    fontFamily="Poppins"
+                    fontFamily="var(--font-poppins), Helvetica Neue, sans-serif"
                     fontWeight={600}
                     sx={{ color: white, mb: 1 }}
                   >
@@ -476,7 +476,7 @@ const Community = () => {
         <Container maxWidth="sm">
           <Typography
             variant="h4"
-            fontFamily="Poppins"
+            fontFamily="var(--font-poppins), Helvetica Neue, sans-serif"
             fontWeight={600}
             sx={{ color: white, mb: 2 }}
           >

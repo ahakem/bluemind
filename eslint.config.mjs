@@ -10,6 +10,7 @@ const compat = new FlatCompat({
 });
 
 const eslintConfig = [
+  { ignores: ["scraper/**"] },
   ...compat.extends("next/core-web-vitals"),
 ];
 
