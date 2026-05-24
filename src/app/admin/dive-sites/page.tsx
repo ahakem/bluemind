@@ -216,6 +216,7 @@ export default function AdminDiveSitesPage() {
   const [waterTypeFilterAdmin, setWaterTypeFilterAdmin] = useState<string>('all');
   const [relevanceFilter, setRelevanceFilter] = useState<string>('all');
   const [verifiedFilter, setVerifiedFilter] = useState<'verified' | 'unverified' | null>(null);
+  const [googleVerifFilter, setGoogleVerifFilter] = useState<'KEEP' | 'REVIEW_NEGATIVE' | 'NO_DATA' | 'unverified' | 'all'>('all');
 
   const filtered = sites.filter((s) => {
     if (search && !s.name.toLowerCase().includes(search.toLowerCase()) && !s.location.toLowerCase().includes(search.toLowerCase())) return false;
@@ -231,11 +232,13 @@ export default function AdminDiveSitesPage() {
     if (relevanceFilter === 'has-votes' && !verificationCounts.get(s.id)) return false;
     if (verifiedFilter === 'verified' && !s.verified) return false;
     if (verifiedFilter === 'unverified' && s.verified) return false;
+    if (googleVerifFilter === 'unverified' && s.verification) return false;
+    if (googleVerifFilter !== 'all' && googleVerifFilter !== 'unverified' && s.verification?.statusTag !== googleVerifFilter) return false;
     return true;
   });
 
   const presentCountries = [...new Set(sites.map((s) => s.country).filter(Boolean))].sort();
-  const hasFilters = search || statusFilter !== 'all' || countryFilterAdmin || waterTypeFilterAdmin !== 'all' || relevanceFilter !== 'all' || verifiedFilter !== null;
+  const hasFilters = search || statusFilter !== 'all' || countryFilterAdmin || waterTypeFilterAdmin !== 'all' || relevanceFilter !== 'all' || verifiedFilter !== null || googleVerifFilter !== 'all';
 
   const clearFilters = () => {
     setSearch('');
@@ -244,6 +247,7 @@ export default function AdminDiveSitesPage() {
     setWaterTypeFilterAdmin('all');
     setRelevanceFilter('all');
     setVerifiedFilter(null);
+    setGoogleVerifFilter('all');
     setPage(0);
   };
 
@@ -495,6 +499,16 @@ export default function AdminDiveSitesPage() {
                 </IconButton>
               )}
             </Stack>
+            <FormControl size="small" fullWidth>
+              <InputLabel>Google Verification</InputLabel>
+              <Select label="Google Verification" value={googleVerifFilter} onChange={(e) => setGoogleVerifFilter(e.target.value as typeof googleVerifFilter)}>
+                <MenuItem value="all">All</MenuItem>
+                <MenuItem value="KEEP">✅ Keep</MenuItem>
+                <MenuItem value="REVIEW_NEGATIVE">⚠️ Review Negative</MenuItem>
+                <MenuItem value="NO_DATA">❔ No Data</MenuItem>
+                <MenuItem value="unverified">Not run yet</MenuItem>
+              </Select>
+            </FormControl>
           </Stack>
         ) : (
           <Stack spacing={1.5}>
@@ -593,6 +607,16 @@ export default function AdminDiveSitesPage() {
                 variant={verifiedFilter === 'unverified' ? 'filled' : 'outlined'}
                 onClick={() => setVerifiedFilter((v) => v === 'unverified' ? null : 'unverified')}
               />
+              <FormControl size="small" sx={{ minWidth: 160 }}>
+                <InputLabel>Google Verification</InputLabel>
+                <Select label="Google Verification" value={googleVerifFilter} onChange={(e) => setGoogleVerifFilter(e.target.value as typeof googleVerifFilter)}>
+                  <MenuItem value="all">All</MenuItem>
+                  <MenuItem value="KEEP">✅ Keep</MenuItem>
+                  <MenuItem value="REVIEW_NEGATIVE">⚠️ Review Negative</MenuItem>
+                  <MenuItem value="NO_DATA">❔ No Data</MenuItem>
+                  <MenuItem value="unverified">Not run yet</MenuItem>
+                </Select>
+              </FormControl>
               {hasFilters && (
                 <Tooltip title="Clear all filters">
                   <Button size="small" startIcon={<FilterListOffIcon />} onClick={clearFilters} color="inherit">Clear</Button>
@@ -830,6 +854,17 @@ export default function AdminDiveSitesPage() {
                           )}
                           {(site.activities ?? []).includes('snorkeling') && (
                             <Chip label="Snorkeling" size="small" sx={{ fontSize: '0.65rem', height: 18, bgcolor: '#e0f2f1', color: '#00897b', fontWeight: 700 }} />
+                          )}
+                          {site.verification && (
+                            <Chip
+                              label={site.verification.statusTag === 'KEEP' ? '✅ Keep' : site.verification.statusTag === 'REVIEW_NEGATIVE' ? '⚠️ Review' : '❔ No Data'}
+                              size="small"
+                              sx={{
+                                fontSize: '0.65rem', height: 18, fontWeight: 700,
+                                bgcolor: site.verification.statusTag === 'KEEP' ? '#dcfce7' : site.verification.statusTag === 'REVIEW_NEGATIVE' ? '#fef9c3' : '#f1f5f9',
+                                color: site.verification.statusTag === 'KEEP' ? '#166534' : site.verification.statusTag === 'REVIEW_NEGATIVE' ? '#854d0e' : '#475569',
+                              }}
+                            />
                           )}
                         </Stack>
                       </TableCell>

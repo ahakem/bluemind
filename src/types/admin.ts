@@ -102,6 +102,13 @@ export interface DiveSite {
   googlePlaceId?: string;
   verified?: boolean;
   activities?: ('line_diving' | 'snorkeling')[];
+  verification?: {
+    statusTag: 'KEEP' | 'REVIEW_NEGATIVE' | 'NO_DATA';
+    reviewedAt: string;
+    positiveMatchCount: number;
+    negativeMatchCount: number;
+    matchedPlaceId: string | null;
+  };
 }
 
 export interface DiveSiteDraft {
