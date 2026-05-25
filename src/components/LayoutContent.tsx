@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { usePathname } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import DiveSiteNavbar from '@/components/DiveSiteNavbar';
+import DiveSitesTeaser from '@/sections/DiveSitesTeaser';
 import Footer from '@/components/Footer';
 import BackToTop from '@/components/BackToTop';
 import SkipLinks from '@/components/SkipLinks';
@@ -32,6 +33,7 @@ export default function LayoutContent({ children }: { children: React.ReactNode 
       <DiveSiteNavProvider>
         <SkipLinks />
         {isDiveSiteDetail ? <DiveSiteNavbar /> : <Navbar />}
+        {!isDiveSiteDetail && <DiveSitesTeaser />}
         <main id="main-content" role="main" tabIndex={-1}>
           {children}
         </main>

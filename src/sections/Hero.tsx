@@ -13,8 +13,8 @@ const Hero = () => {
       aria-label="Blue Mind Freediving Amsterdam - Welcome section"
       sx={{
         position: "relative",
-        height: "90vh",
-        minHeight: 600,
+        height: "82vh",
+        minHeight: 540,
         display: "flex",
         alignItems: "center",
         overflow: "hidden",

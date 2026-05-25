@@ -198,6 +198,18 @@ export type SiteCorrectionDraft = Omit<SiteCorrection,
   'id' | 'status' | 'reviewedBy' | 'reviewedAt' | 'rejectionReason' | 'submittedAt'
 >;
 
+export interface ReviewQueueItem {
+  id: string;
+  flag: 'insufficient_data' | 'parse_failed' | 'quality_check_failed';
+  originalData: { name?: string; location?: string; country?: string; slug?: string };
+  rawResponse?: string;
+  attemptedEnhancement?: Record<string, unknown>;
+  validationScore?: number;
+  issues?: string[];
+  searchQueriesUsed?: string[];
+  timestamp: string;
+}
+
 export interface SiteVerification {
   id: string;
   siteId: string;

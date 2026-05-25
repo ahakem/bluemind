@@ -14,7 +14,7 @@ import {
   deleteField,
 } from 'firebase/firestore';
 import { db } from './firebase';
-import { DiveSite, DiveSiteDraft } from '@/types/admin';
+import { DiveSite, DiveSiteDraft, ReviewQueueItem } from '@/types/admin';
 import { SEED_DIVE_SITES } from '@/data/diveSites';
 
 const COLLECTION = 'diveSites';
@@ -303,4 +303,31 @@ export const getSiteRatingsSummary = async (siteId: string): Promise<{ avg: numb
   if (snap.empty) return null;
   const sum = snap.docs.reduce((a, d) => a + (d.data().rating as number), 0);
   return { avg: Math.round((sum / snap.docs.length) * 10) / 10, count: snap.docs.length };
+};
+
+// ── Review queue (_needsReview collection) ────────────────────────────────────
+
+const REVIEW_QUEUE_COLLECTION = '_needsReview';
+
+export const getReviewQueue = async (
+  flag?: 'insufficient_data' | 'parse_failed' | 'quality_check_failed'
+): Promise<ReviewQueueItem[]> => {
+  const firestore = validateDb();
+  const constraints = flag ? [where('flag', '==', flag)] : [];
+  const q = query(collection(firestore, REVIEW_QUEUE_COLLECTION), ...constraints);
+  const snap = await getDocs(q);
+  return snap.docs.map((d) => {
+    const data = d.data() as Record<string, unknown>;
+    return {
+      id: d.id,
+      flag: data.flag as ReviewQueueItem['flag'],
+      originalData: (data.originalData as ReviewQueueItem['originalData']) ?? {},
+      rawResponse: data.rawResponse as string | undefined,
+      attemptedEnhancement: data.attemptedEnhancement as Record<string, unknown> | undefined,
+      validationScore: data.validationScore as number | undefined,
+      issues: data.issues as string[] | undefined,
+      searchQueriesUsed: data.searchQueriesUsed as string[] | undefined,
+      timestamp: (data.timestamp as string) ?? '',
+    };
+  });
 };

@@ -1,36 +1,20 @@
-
-
 import {
   Box,
   Container,
   Typography,
   Button,
   Stack,
-  Grid,
-  Paper,
+  Chip,
 } from '@mui/material';
 import Link from 'next/link';
-import PlaceIcon from '@mui/icons-material/Place';
-import PeopleIcon from '@mui/icons-material/People';
-import ExploreIcon from '@mui/icons-material/Explore';
+import WaterIcon from '@mui/icons-material/Water';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import FavoriteIcon from '@mui/icons-material/Favorite';
 
-const FEATURES = [
-  {
-    icon: <PlaceIcon sx={{ fontSize: 32, color: '#0077be' }} />,
-    title: 'Dive Sites Worldwide',
-    body: 'Hundreds of freediving-friendly locations with depth, visibility, water temperature, and seasonal info — all in one place.',
-  },
-  {
-    icon: <ExploreIcon sx={{ fontSize: 32, color: '#0077be' }} />,
-    title: 'Interactive Map',
-    body: 'Browse sites on a live map. Filter by country, water type, or difficulty level to find your next spot.',
-  },
-  {
-    icon: <PeopleIcon sx={{ fontSize: 32, color: '#0077be' }} />,
-    title: 'Built for the Community',
-    body: 'This directory is our gift to the global freediving community — free to use, always growing, no account needed.',
-  },
+const STATS = [
+  { value: '100+', label: 'Countries' },
+  { value: 'All', label: 'Levels' },
+  { value: 'Free', label: 'Always' },
 ];
 
 export default function DiveSitesPromo() {
@@ -38,120 +22,145 @@ export default function DiveSitesPromo() {
     <Box
       component="section"
       sx={{
-        py: { xs: 8, md: 12 },
-        background: 'linear-gradient(160deg, #001f3f 0%, #003366 60%, #005fa3 100%)',
-        color: 'white',
         position: 'relative',
         overflow: 'hidden',
+        background: 'linear-gradient(160deg, #001228 0%, #002855 55%, #0060a0 100%)',
+        color: 'white',
+        py: { xs: 8, md: 10 },
       }}
     >
-      {/* Background texture circles */}
-      <Box sx={{
-        position: 'absolute', top: -80, right: -80, width: 400, height: 400,
-        borderRadius: '50%', background: 'rgba(255,255,255,0.04)', pointerEvents: 'none',
-      }} />
-      <Box sx={{
-        position: 'absolute', bottom: -120, left: -60, width: 500, height: 500,
-        borderRadius: '50%', background: 'rgba(255,255,255,0.03)', pointerEvents: 'none',
-      }} />
+      {/* Decorative wave rings */}
+      {[0.04, 0.025, 0.015].map((opacity, i) => (
+        <Box
+          key={i}
+          sx={{
+            position: 'absolute',
+            borderRadius: '50%',
+            border: `1px solid rgba(79,195,247,${opacity * 6})`,
+            background: `rgba(0,119,190,${opacity})`,
+            width: { xs: 280 + i * 160, md: 400 + i * 220 },
+            height: { xs: 280 + i * 160, md: 400 + i * 220 },
+            right: { xs: -100 - i * 80, md: -60 - i * 110 },
+            top: '50%',
+            transform: 'translateY(-50%)',
+            pointerEvents: 'none',
+          }}
+        />
+      ))}
 
       <Container maxWidth="lg" sx={{ position: 'relative' }}>
-        <Grid container spacing={{ xs: 6, md: 10 }} alignItems="center">
-
+        <Stack
+          direction={{ xs: 'column', md: 'row' }}
+          alignItems={{ xs: 'flex-start', md: 'center' }}
+          justifyContent="space-between"
+          spacing={{ xs: 5, md: 8 }}
+        >
           {/* Left — copy */}
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Typography
-              variant="overline"
-              sx={{ color: '#4fc3f7', fontWeight: 700, letterSpacing: 2, mb: 1, display: 'block' }}
-            >
-              Free Community Resource
-            </Typography>
+          <Box sx={{ maxWidth: { md: 580 } }}>
+            <Chip
+              icon={<FavoriteIcon sx={{ fontSize: '14px !important', color: '#f87171 !important' }} />}
+              label="For the love of the community"
+              size="small"
+              sx={{
+                mb: 2.5,
+                bgcolor: 'rgba(248,113,113,0.12)',
+                color: '#fca5a5',
+                border: '1px solid rgba(248,113,113,0.25)',
+                fontWeight: 600,
+                fontSize: '0.75rem',
+              }}
+            />
+
             <Typography
               variant="h2"
               fontWeight={800}
-              sx={{ fontSize: { xs: '2rem', md: '2.75rem' }, lineHeight: 1.15, mb: 3 }}
+              sx={{
+                fontSize: { xs: '2rem', sm: '2.4rem', md: '2.8rem' },
+                lineHeight: 1.15,
+                mb: 2,
+                letterSpacing: '-0.5px',
+              }}
             >
-              Explore Freediving Spots Around the World
+              The world&apos;s freediving sites,{' '}
+              <Box component="span" sx={{ color: '#4fc3f7' }}>
+                open to everyone
+              </Box>
             </Typography>
+
             <Typography
-              variant="body1"
-              sx={{ color: 'rgba(255,255,255,0.75)', mb: 4, fontSize: '1.05rem', lineHeight: 1.8 }}
+              sx={{
+                color: 'rgba(255,255,255,0.7)',
+                fontSize: { xs: '1rem', md: '1.08rem' },
+                lineHeight: 1.8,
+                mb: 4,
+                maxWidth: 500,
+              }}
             >
-              We built a global dive sites directory and we&apos;re giving it away — completely free.
-              Find sites near you, check conditions, plan your next open water session, and help
-              fellow freedivers discover new locations.
+              We built this dive sites directory and give it away — completely free, no account
+              needed. Depth, visibility, marine life, seasonal conditions. Shared by freedivers,
+              for freedivers.
             </Typography>
-            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+
+            <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems={{ sm: 'center' }}>
               <Button
                 component={Link}
                 href="/dive-sites"
                 variant="contained"
                 size="large"
+                startIcon={<WaterIcon />}
                 endIcon={<ArrowForwardIcon />}
                 sx={{
                   bgcolor: '#0077be',
-                  '&:hover': { bgcolor: '#005fa3' },
-                  borderRadius: 2,
-                  px: 4,
-                  py: 1.5,
+                  '&:hover': { bgcolor: '#005fa3', boxShadow: '0 6px 20px rgba(0,119,190,0.5)' },
+                  borderRadius: '50px',
+                  px: 3.5,
+                  py: 1.4,
                   fontWeight: 700,
                   fontSize: '1rem',
+                  boxShadow: '0 4px 14px rgba(0,119,190,0.35)',
+                  transition: 'all 0.2s',
                 }}
               >
                 Explore Dive Sites
               </Button>
-              <Button
-                component={Link}
-                href="/membership"
-                variant="outlined"
-                size="large"
+            </Stack>
+          </Box>
+
+          {/* Right — stat pills */}
+          <Stack
+            direction={{ xs: 'row', md: 'column' }}
+            spacing={{ xs: 2, md: 2.5 }}
+            flexShrink={0}
+            flexWrap="wrap"
+            useFlexGap
+          >
+            {STATS.map((s) => (
+              <Box
+                key={s.label}
                 sx={{
-                  borderColor: 'rgba(255,255,255,0.4)',
-                  color: 'white',
-                  '&:hover': { borderColor: 'white', bgcolor: 'rgba(255,255,255,0.08)' },
-                  borderRadius: 2,
-                  px: 4,
-                  py: 1.5,
-                  fontWeight: 600,
+                  px: { xs: 2.5, md: 4 },
+                  py: { xs: 1.5, md: 2.5 },
+                  borderRadius: 3,
+                  bgcolor: 'rgba(255,255,255,0.07)',
+                  border: '1px solid rgba(79,195,247,0.18)',
+                  backdropFilter: 'blur(10px)',
+                  textAlign: 'center',
+                  minWidth: { xs: 90, md: 140 },
                 }}
               >
-                Join the Club
-              </Button>
-            </Stack>
-          </Grid>
-
-          {/* Right — feature cards */}
-          <Grid size={{ xs: 12, md: 6 }}>
-            <Stack spacing={2.5}>
-              {FEATURES.map((f) => (
-                <Paper
-                  key={f.title}
-                  sx={{
-                    p: 3,
-                    borderRadius: 3,
-                    bgcolor: 'rgba(255,255,255,0.07)',
-                    backdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(255,255,255,0.1)',
-                    display: 'flex',
-                    gap: 2.5,
-                    alignItems: 'flex-start',
-                  }}
+                <Typography
+                  fontWeight={800}
+                  sx={{ fontSize: { xs: '1.6rem', md: '2.2rem' }, color: '#4fc3f7', lineHeight: 1 }}
                 >
-                  <Box sx={{ flexShrink: 0, mt: 0.25 }}>{f.icon}</Box>
-                  <Box>
-                    <Typography fontWeight={700} mb={0.5} sx={{ color: 'white' }}>
-                      {f.title}
-                    </Typography>
-                    <Typography variant="body2" sx={{ color: 'rgba(255,255,255,0.65)', lineHeight: 1.7 }}>
-                      {f.body}
-                    </Typography>
-                  </Box>
-                </Paper>
-              ))}
-            </Stack>
-          </Grid>
-
-        </Grid>
+                  {s.value}
+                </Typography>
+                <Typography variant="caption" sx={{ color: 'rgba(255,255,255,0.55)', fontWeight: 500 }}>
+                  {s.label}
+                </Typography>
+              </Box>
+            ))}
+          </Stack>
+        </Stack>
       </Container>
     </Box>
   );

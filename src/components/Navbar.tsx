@@ -16,6 +16,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { useSiteFeatures } from "@/contexts/SiteSettingsContext";
+import WaterIcon from "@mui/icons-material/Water";
 
 const ALL_NAV_ITEMS = [
   { name: "Home", href: "/", feature: null },
@@ -120,26 +121,36 @@ const Navbar = () => {
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: "block", md: "none" } }}
             >
-              {navItems.map((item) => (
-                <MenuItem 
-                  key={item.name} 
-                  onClick={handleCloseNavMenu}
-                  component={Link}
-                  href={item.href}
-                  selected={isActive(item.href)}
-                >
-                  <Typography 
-                    textAlign="center" 
-                    sx={{ 
-                      color: isActive(item.href) ? "primary.main" : "text.primary", 
-                      textDecoration: "none", 
-                      fontWeight: isActive(item.href) ? 600 : 500 
-                    }}
+              {navItems.map((item) => {
+                const isDiveSites = item.href === '/dive-sites';
+                const active = isActive(item.href);
+                return (
+                  <MenuItem
+                    key={item.name}
+                    onClick={handleCloseNavMenu}
+                    component={Link}
+                    href={item.href}
+                    selected={active}
+                    sx={isDiveSites ? {
+                      mx: 1, my: 0.5, borderRadius: 2,
+                      background: 'linear-gradient(135deg, #001f3f 0%, #003d7a 100%)',
+                      '&:hover': { background: 'linear-gradient(135deg, #0077be 0%, #005fa3 100%)' },
+                    } : {}}
                   >
-                    {item.name}
-                  </Typography>
-                </MenuItem>
-              ))}
+                    {isDiveSites && <WaterIcon sx={{ fontSize: 16, color: '#4fc3f7', mr: 1 }} />}
+                    <Typography
+                      textAlign="center"
+                      sx={{
+                        color: isDiveSites ? 'white' : active ? "primary.main" : "text.primary",
+                        textDecoration: "none",
+                        fontWeight: isDiveSites ? 700 : active ? 600 : 500,
+                      }}
+                    >
+                      {item.name}
+                    </Typography>
+                  </MenuItem>
+                );
+              })}
             </Menu>
           </Box>
           
@@ -156,32 +167,69 @@ const Navbar = () => {
             </Box>
           </Link>
 
-          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, justifyContent: "center" }}>
-            {navItems.map((item) => (
-              <Button
-                key={item.name}
-                component={Link}
-                href={item.href}
-                sx={{
-                  my: 2,
-                  mx: 0.25,
-                  px: 1,
-                  display: "block",
-                  whiteSpace: 'nowrap',
-                  color: isActive(item.href) ? "primary.main" : "text.primary",
-                  textTransform: "none",
-                  fontWeight: isActive(item.href) ? 600 : 500,
-                  fontSize: '0.85rem',
-                  borderBottom: isActive(item.href) ? '2px solid' : 'none',
-                  borderColor: 'primary.main',
-                  borderRadius: 0,
-                  "&:hover": { color: "primary.main", background: "transparent" }
-                }}
-              >
-                {item.name}
-              </Button>
-            ))}
-
+          <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, justifyContent: "center", alignItems: "center" }}>
+            {navItems.map((item) => {
+              const isDiveSites = item.href === '/dive-sites';
+              const active = isActive(item.href);
+              if (isDiveSites) {
+                return (
+                  <Button
+                    key={item.name}
+                    component={Link}
+                    href={item.href}
+                    startIcon={<WaterIcon sx={{ fontSize: '16px !important' }} />}
+                    sx={{
+                      mx: 0.5,
+                      px: 1.75,
+                      py: 0.55,
+                      whiteSpace: 'nowrap',
+                      textTransform: 'none',
+                      fontWeight: 700,
+                      fontSize: '0.85rem',
+                      borderRadius: '50px',
+                      background: active
+                        ? 'linear-gradient(135deg, #0077be 0%, #005fa3 100%)'
+                        : 'linear-gradient(135deg, #001f3f 0%, #003d7a 100%)',
+                      color: 'white',
+                      border: '1.5px solid',
+                      borderColor: active ? '#0077be' : 'rgba(0,119,190,0.5)',
+                      boxShadow: '0 2px 8px rgba(0,119,190,0.25)',
+                      '&:hover': {
+                        background: 'linear-gradient(135deg, #0077be 0%, #005fa3 100%)',
+                        borderColor: '#0077be',
+                        boxShadow: '0 4px 14px rgba(0,119,190,0.4)',
+                      },
+                    }}
+                  >
+                    {item.name}
+                  </Button>
+                );
+              }
+              return (
+                <Button
+                  key={item.name}
+                  component={Link}
+                  href={item.href}
+                  sx={{
+                    my: 2,
+                    mx: 0.25,
+                    px: 1,
+                    display: "block",
+                    whiteSpace: 'nowrap',
+                    color: active ? "primary.main" : "text.primary",
+                    textTransform: "none",
+                    fontWeight: active ? 600 : 500,
+                    fontSize: '0.85rem',
+                    borderBottom: active ? '2px solid' : 'none',
+                    borderColor: 'primary.main',
+                    borderRadius: 0,
+                    "&:hover": { color: "primary.main", background: "transparent" }
+                  }}
+                >
+                  {item.name}
+                </Button>
+              );
+            })}
           </Box>
 
           <Box sx={{ display: { xs: "none", md: "flex" } }}>
