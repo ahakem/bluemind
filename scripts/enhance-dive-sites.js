@@ -207,6 +207,8 @@ If you cannot find SPECIFIC factual information, return:
 
 DO NOT generate plausible-sounding content to fill gaps. Gaps = insufficient_data.
 
+For "waterType": classify as "sea" (ocean/sea/saltwater), "lake" (freshwater lake, quarry, reservoir), or "deep_tank" (purpose-built dive tank). Only update if you are certain — if unsure, omit the field.
+
 === OUTPUT FORMAT — return ONLY valid JSON ===
 
 {
@@ -270,6 +272,7 @@ DO NOT generate plausible-sounding content to fill gaps. Gaps = insufficient_dat
     ],
     "specialSightings": ["Resident turtle near mooring buoy", "Spanish dancers during night dives"]
   },
+  "waterType": "sea",
   "sources": ["https://...", "https://..."],
   "confidence": "high"
 }`;
@@ -519,6 +522,9 @@ async function enhanceSite(model, db, siteId, siteData, costTracker, attempt = 0
     freediverAccess:       parsed.freediverAccess,
     freediverConditions:   parsed.freediverConditions,
     facilitiesEnhanced:    parsed.facilities           ?? {},
+    ...((['sea', 'lake', 'deep_tank'].includes(parsed.waterType) && parsed.waterType !== siteData.waterType)
+      ? { waterType: parsed.waterType, waterTypeCorrectedBy: 'gemini' }
+      : {}),
     marineLife:            parsed.marineLife           ?? {},
     sources:               allSources,
     confidence:            parsed.confidence,
@@ -614,7 +620,8 @@ async function main() {
         }
         successful++;
         qualityScores.push(result.qualityScore);
-        console.log(`   ✅ Enhanced — Quality: ${result.qualityScore}/100  Sources: ${(result.sources || []).length}  [${result.enhancedBy}]`);
+        const typeNote = result.waterTypeCorrectedBy ? `  💧 waterType → ${result.waterType}` : '';
+        console.log(`   ✅ Enhanced — Quality: ${result.qualityScore}/100  Sources: ${(result.sources || []).length}  [${result.enhancedBy}]${typeNote}`);
       }
 
       // Rate limiting between requests

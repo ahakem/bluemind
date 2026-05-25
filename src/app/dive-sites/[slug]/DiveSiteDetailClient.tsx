@@ -47,7 +47,7 @@ import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { DiveSite, Thermocline } from '@/types/admin';
 import RequestCorrectionDialog from '@/components/RequestCorrectionDialog';
 import NotFreedivingFriendlyDialog from '@/components/NotFreedivingFriendlyDialog';
-import { submitVerification, submitDiveLog, submitRating, getSiteRatingsSummary } from '@/lib/diveSiteService';
+import { submitVerification, submitDiveLog, submitRating, getSiteRatingsSummary, getSiteDiveCount } from '@/lib/diveSiteService';
 import { useAuth } from '@/lib/AuthContext';
 
 const WATER_TYPE_LABELS: Record<DiveSite['waterType'], string> = {
@@ -649,8 +649,9 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
       const ids: string[] = stored ? JSON.parse(stored) : [];
       localStorage.setItem('bm_recently_viewed', JSON.stringify([site.id, ...ids.filter((x) => x !== site.id)].slice(0, 12)));
     } catch {}
-    // Fetch rating summary
+    // Fetch rating summary and dive count from Firestore
     getSiteRatingsSummary(site.id).then(setRatingSummary).catch(() => {});
+    getSiteDiveCount(site.id).then((count) => { if (count > 0) setDiveCount(count); }).catch(() => {});
   }, [localKey, site.id]);
 
   const toggleBookmark = () => {

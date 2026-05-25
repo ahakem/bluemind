@@ -113,6 +113,7 @@ Return ONLY valid JSON with this structure:
     "specialSightings": []
   },
   "sources": ["url1", "url2"],
+  "waterType": "sea|lake|deep_tank",
   "confidence": "high|medium|low"
 }`;
 }
