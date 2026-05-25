@@ -217,6 +217,8 @@ export default function AdminDiveSitesPage() {
   const [relevanceFilter, setRelevanceFilter] = useState<string>('all');
   const [verifiedFilter, setVerifiedFilter] = useState<'verified' | 'unverified' | null>(null);
   const [googleVerifFilter, setGoogleVerifFilter] = useState<'KEEP' | 'REVIEW_NEGATIVE' | 'NO_DATA' | 'unverified' | 'all'>('all');
+  const [enhancementFilter, setEnhancementFilter] = useState<'all' | 'enhanced' | 'not-enhanced'>('all');
+  const [moreFiltersAnchor, setMoreFiltersAnchor] = useState<HTMLElement | null>(null);
 
   const filtered = sites.filter((s) => {
     if (search && !s.name.toLowerCase().includes(search.toLowerCase()) && !s.location.toLowerCase().includes(search.toLowerCase())) return false;
@@ -234,11 +236,17 @@ export default function AdminDiveSitesPage() {
     if (verifiedFilter === 'unverified' && s.verified) return false;
     if (googleVerifFilter === 'unverified' && s.verification) return false;
     if (googleVerifFilter !== 'all' && googleVerifFilter !== 'unverified' && s.verification?.statusTag !== googleVerifFilter) return false;
+    if (enhancementFilter === 'enhanced' && !s.enhancedAt) return false;
+    if (enhancementFilter === 'not-enhanced' && s.enhancedAt) return false;
     return true;
   });
 
   const presentCountries = [...new Set(sites.map((s) => s.country).filter(Boolean))].sort();
-  const hasFilters = search || statusFilter !== 'all' || countryFilterAdmin || waterTypeFilterAdmin !== 'all' || relevanceFilter !== 'all' || verifiedFilter !== null || googleVerifFilter !== 'all';
+  const secondaryFilterCount = [
+    countryFilterAdmin, waterTypeFilterAdmin !== 'all', relevanceFilter !== 'all',
+    verifiedFilter !== null, googleVerifFilter !== 'all',
+  ].filter(Boolean).length;
+  const hasFilters = !!(search || statusFilter !== 'all' || enhancementFilter !== 'all' || secondaryFilterCount > 0);
 
   const clearFilters = () => {
     setSearch('');
@@ -248,6 +256,7 @@ export default function AdminDiveSitesPage() {
     setRelevanceFilter('all');
     setVerifiedFilter(null);
     setGoogleVerifFilter('all');
+    setEnhancementFilter('all');
     setPage(0);
   };
 
@@ -419,197 +428,87 @@ export default function AdminDiveSitesPage() {
 
       {/* Filter bar */}
       <Paper sx={{ p: 1.5, mb: 2, borderRadius: 2 }}>
-        {isMobile ? (
-          <Stack spacing={1}>
-            {/* Search */}
-            <TextField
-              size="small"
-              placeholder="Search name or location…"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              fullWidth
-              slotProps={{ input: { startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment> } }}
-            />
-            {/* Status + Type row */}
-            <Stack direction="row" spacing={1}>
-              <FormControl size="small" sx={{ flex: 1 }}>
-                <InputLabel>Status</InputLabel>
-                <Select label="Status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-                  <MenuItem value="all">All</MenuItem>
-                  <MenuItem value="active">Active</MenuItem>
-                  <MenuItem value="pending">Pending</MenuItem>
-                  <MenuItem value="archived">Archived</MenuItem>
-                </Select>
-              </FormControl>
-              <FormControl size="small" sx={{ flex: 1 }}>
-                <InputLabel>Type</InputLabel>
-                <Select label="Type" value={waterTypeFilterAdmin} onChange={(e) => setWaterTypeFilterAdmin(e.target.value)}>
+        <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap alignItems="center">
+          {/* Search */}
+          <TextField
+            size="small"
+            placeholder="Search name or location…"
+            value={search}
+            onChange={(e) => { setSearch(e.target.value); setPage(0); }}
+            sx={{ flex: 1, minWidth: isMobile ? '100%' : 200 }}
+            slotProps={{ input: { startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment> } }}
+          />
+
+          {/* Status */}
+          <FormControl size="small" sx={{ minWidth: 120 }}>
+            <InputLabel>Status</InputLabel>
+            <Select label="Status" value={statusFilter} onChange={(e) => { setStatusFilter(e.target.value); setPage(0); }}>
+              <MenuItem value="all">All</MenuItem>
+              <MenuItem value="active">Active</MenuItem>
+              <MenuItem value="pending">Pending</MenuItem>
+              <MenuItem value="archived">Archived</MenuItem>
+            </Select>
+          </FormControl>
+
+          {/* Enhancement */}
+          <FormControl size="small" sx={{ minWidth: 150 }}>
+            <InputLabel>Enhancement</InputLabel>
+            <Select label="Enhancement" value={enhancementFilter} onChange={(e) => { setEnhancementFilter(e.target.value as typeof enhancementFilter); setPage(0); }}>
+              <MenuItem value="all">All</MenuItem>
+              <MenuItem value="enhanced">✅ Enhanced</MenuItem>
+              <MenuItem value="not-enhanced">⬜ Not enhanced</MenuItem>
+            </Select>
+          </FormControl>
+
+          {/* More filters popover */}
+          <Button
+            size="small"
+            variant={secondaryFilterCount > 0 ? 'contained' : 'outlined'}
+            onClick={(e) => setMoreFiltersAnchor(e.currentTarget)}
+            sx={{ whiteSpace: 'nowrap', minWidth: 90 }}
+          >
+            Filters{secondaryFilterCount > 0 ? ` (${secondaryFilterCount})` : ''}
+          </Button>
+          <Popover
+            open={Boolean(moreFiltersAnchor)}
+            anchorEl={moreFiltersAnchor}
+            onClose={() => setMoreFiltersAnchor(null)}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+            transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+          >
+            <Stack spacing={2} sx={{ p: 2.5, minWidth: 240 }}>
+              <Typography variant="subtitle2" fontWeight={700}>More Filters</Typography>
+              <CountryAutocomplete
+                value={countryFilterAdmin}
+                onChange={(c) => { setCountryFilterAdmin(c); setPage(0); }}
+                label="Country"
+                size="small"
+                limitToLabels={presentCountries}
+              />
+              <FormControl size="small" fullWidth>
+                <InputLabel>Water Type</InputLabel>
+                <Select label="Water Type" value={waterTypeFilterAdmin} onChange={(e) => { setWaterTypeFilterAdmin(e.target.value); setPage(0); }}>
                   <MenuItem value="all">All types</MenuItem>
                   <MenuItem value="sea">Sea</MenuItem>
                   <MenuItem value="lake">Lake</MenuItem>
                   <MenuItem value="deep_tank">Deep Tank</MenuItem>
                 </Select>
               </FormControl>
-            </Stack>
-            {/* Country */}
-            <CountryAutocomplete
-              value={countryFilterAdmin}
-              onChange={(c) => setCountryFilterAdmin(c)}
-              label="Country"
-              size="small"
-              limitToLabels={presentCountries}
-            />
-            {/* Relevance + count + clear */}
-            <Stack direction="row" spacing={1} alignItems="center">
-              <FormControl size="small" sx={{ flex: 1 }}>
+              <FormControl size="small" fullWidth>
                 <InputLabel>Relevance</InputLabel>
-                <Select label="Relevance" value={relevanceFilter} onChange={(e) => setRelevanceFilter(e.target.value)}>
-                  <MenuItem value="all">All sites</MenuItem>
-                  <MenuItem value="needs-review">Needs review</MenuItem>
-                  <MenuItem value="scuba-only">Scuba only</MenuItem>
-                  <MenuItem value="depth-unknown">Depth unknown</MenuItem>
-                  <MenuItem value="not-scored">Not scored</MenuItem>
-                  <MenuItem value="on-shore">On shore</MenuItem>
-                  <MenuItem value="has-votes">Has votes</MenuItem>
-                </Select>
-              </FormControl>
-              <Chip
-                icon={<VerifiedIcon sx={{ fontSize: '14px !important' }} />}
-                label="Verified"
-                size="small"
-                clickable
-                color={verifiedFilter === 'verified' ? 'success' : 'default'}
-                variant={verifiedFilter === 'verified' ? 'filled' : 'outlined'}
-                onClick={() => setVerifiedFilter((v) => v === 'verified' ? null : 'verified')}
-              />
-              <Chip
-                label="Not verified"
-                size="small"
-                clickable
-                color={verifiedFilter === 'unverified' ? 'warning' : 'default'}
-                variant={verifiedFilter === 'unverified' ? 'filled' : 'outlined'}
-                onClick={() => setVerifiedFilter((v) => v === 'unverified' ? null : 'unverified')}
-              />
-              <Typography variant="caption" color="text.secondary" sx={{ whiteSpace: 'nowrap' }}>
-                {filtered.length}/{sites.length}
-              </Typography>
-              {hasFilters && (
-                <IconButton size="small" onClick={clearFilters} color="default">
-                  <FilterListOffIcon fontSize="small" />
-                </IconButton>
-              )}
-            </Stack>
-            <FormControl size="small" fullWidth>
-              <InputLabel>Google Verification</InputLabel>
-              <Select label="Google Verification" value={googleVerifFilter} onChange={(e) => setGoogleVerifFilter(e.target.value as typeof googleVerifFilter)}>
-                <MenuItem value="all">All</MenuItem>
-                <MenuItem value="KEEP">✅ Keep</MenuItem>
-                <MenuItem value="REVIEW_NEGATIVE">⚠️ Review Negative</MenuItem>
-                <MenuItem value="NO_DATA">❔ No Data</MenuItem>
-                <MenuItem value="unverified">Not run yet</MenuItem>
-              </Select>
-            </FormControl>
-          </Stack>
-        ) : (
-          <Stack spacing={1.5}>
-            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap alignItems="center">
-              <TextField
-                size="small"
-                placeholder="Search name or location…"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                sx={{ flex: 1, minWidth: 180 }}
-                slotProps={{ input: { startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment> } }}
-              />
-              <FormControl size="small" sx={{ minWidth: 120 }}>
-                <InputLabel>Status</InputLabel>
-                <Select label="Status" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-                  <MenuItem value="all">All</MenuItem>
-                  <MenuItem value="active">Active</MenuItem>
-                  <MenuItem value="pending">Pending</MenuItem>
-                  <MenuItem value="archived">Archived</MenuItem>
-                </Select>
-              </FormControl>
-              <FormControl size="small" sx={{ minWidth: 120 }}>
-                <InputLabel>Water type</InputLabel>
-                <Select label="Water type" value={waterTypeFilterAdmin} onChange={(e) => setWaterTypeFilterAdmin(e.target.value)}>
-                  <MenuItem value="all">All types</MenuItem>
-                  <MenuItem value="sea">Sea</MenuItem>
-                  <MenuItem value="lake">Lake</MenuItem>
-                  <MenuItem value="deep_tank">Deep Tank</MenuItem>
-                </Select>
-              </FormControl>
-            </Stack>
-            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap alignItems="center">
-              <Box sx={{ minWidth: 180 }}>
-                <CountryAutocomplete
-                  value={countryFilterAdmin}
-                  onChange={(c) => setCountryFilterAdmin(c)}
-                  label="Country"
-                  size="small"
-                  limitToLabels={presentCountries}
-                />
-              </Box>
-              <FormControl size="small" sx={{ minWidth: 160 }}>
-                <InputLabel>Relevance</InputLabel>
-                <Select label="Relevance" value={relevanceFilter} onChange={(e) => setRelevanceFilter(e.target.value)}>
+                <Select label="Relevance" value={relevanceFilter} onChange={(e) => { setRelevanceFilter(e.target.value); setPage(0); }}>
                   <MenuItem value="all">All sites</MenuItem>
                   <MenuItem value="needs-review">Needs review</MenuItem>
                   <MenuItem value="scuba-only">Scuba only</MenuItem>
                   <MenuItem value="depth-unknown">Depth unknown</MenuItem>
                   <MenuItem value="not-scored">Not scored yet</MenuItem>
                   <MenuItem value="on-shore">Coords on shore</MenuItem>
-                  <MenuItem value="verified">Verified</MenuItem>
                   <MenuItem value="has-votes">Has votes</MenuItem>
                 </Select>
               </FormControl>
-              <Button
-                size="small"
-                variant="outlined"
-                startIcon={<ViewColumnIcon />}
-                onClick={(e) => setColAnchorEl(e.currentTarget)}
-                sx={{ whiteSpace: 'nowrap' }}
-              >
-                Columns
-              </Button>
-              <Popover
-                open={Boolean(colAnchorEl)}
-                anchorEl={colAnchorEl}
-                onClose={() => setColAnchorEl(null)}
-                anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
-              >
-                <Box sx={{ p: 2, minWidth: 190 }}>
-                  <Typography variant="subtitle2" fontWeight={700} mb={1.5}>Visible columns</Typography>
-                  {ALL_COLS.map((col) => (
-                    <FormControlLabel
-                      key={col.id}
-                      control={<Checkbox size="small" checked={visibleCols.has(col.id)} onChange={() => toggleCol(col.id)} />}
-                      label={<Typography variant="body2">{col.label}</Typography>}
-                      sx={{ display: 'flex', mb: 0.5, ml: 0 }}
-                    />
-                  ))}
-                </Box>
-              </Popover>
-              <Chip
-                icon={<VerifiedIcon sx={{ fontSize: '14px !important' }} />}
-                label="Verified"
-                size="small"
-                clickable
-                color={verifiedFilter === 'verified' ? 'success' : 'default'}
-                variant={verifiedFilter === 'verified' ? 'filled' : 'outlined'}
-                onClick={() => setVerifiedFilter((v) => v === 'verified' ? null : 'verified')}
-              />
-              <Chip
-                label="Not verified"
-                size="small"
-                clickable
-                color={verifiedFilter === 'unverified' ? 'warning' : 'default'}
-                variant={verifiedFilter === 'unverified' ? 'filled' : 'outlined'}
-                onClick={() => setVerifiedFilter((v) => v === 'unverified' ? null : 'unverified')}
-              />
-              <FormControl size="small" sx={{ minWidth: 160 }}>
+              <FormControl size="small" fullWidth>
                 <InputLabel>Google Verification</InputLabel>
-                <Select label="Google Verification" value={googleVerifFilter} onChange={(e) => setGoogleVerifFilter(e.target.value as typeof googleVerifFilter)}>
+                <Select label="Google Verification" value={googleVerifFilter} onChange={(e) => { setGoogleVerifFilter(e.target.value as typeof googleVerifFilter); setPage(0); }}>
                   <MenuItem value="all">All</MenuItem>
                   <MenuItem value="KEEP">✅ Keep</MenuItem>
                   <MenuItem value="REVIEW_NEGATIVE">⚠️ Review Negative</MenuItem>
@@ -617,18 +516,67 @@ export default function AdminDiveSitesPage() {
                   <MenuItem value="unverified">Not run yet</MenuItem>
                 </Select>
               </FormControl>
-              {hasFilters && (
-                <Tooltip title="Clear all filters">
-                  <Button size="small" startIcon={<FilterListOffIcon />} onClick={clearFilters} color="inherit">Clear</Button>
-                </Tooltip>
-              )}
-              <Typography variant="body2" color="text.secondary" sx={{ ml: 'auto', whiteSpace: 'nowrap' }}>
-                {filtered.length}/{sites.length}
-                {selected.size > 0 && ` · ${selected.size} sel`}
-              </Typography>
+              <Stack direction="row" spacing={1}>
+                <Chip
+                  icon={<VerifiedIcon sx={{ fontSize: '14px !important' }} />}
+                  label="Verified"
+                  size="small"
+                  clickable
+                  color={verifiedFilter === 'verified' ? 'success' : 'default'}
+                  variant={verifiedFilter === 'verified' ? 'filled' : 'outlined'}
+                  onClick={() => setVerifiedFilter((v) => v === 'verified' ? null : 'verified')}
+                />
+                <Chip
+                  label="Not verified"
+                  size="small"
+                  clickable
+                  color={verifiedFilter === 'unverified' ? 'warning' : 'default'}
+                  variant={verifiedFilter === 'unverified' ? 'filled' : 'outlined'}
+                  onClick={() => setVerifiedFilter((v) => v === 'unverified' ? null : 'unverified')}
+                />
+              </Stack>
             </Stack>
-          </Stack>
-        )}
+          </Popover>
+
+          {/* Columns */}
+          <Button
+            size="small"
+            variant="outlined"
+            startIcon={<ViewColumnIcon />}
+            onClick={(e) => setColAnchorEl(e.currentTarget)}
+            sx={{ whiteSpace: 'nowrap' }}
+          >
+            Columns
+          </Button>
+          <Popover
+            open={Boolean(colAnchorEl)}
+            anchorEl={colAnchorEl}
+            onClose={() => setColAnchorEl(null)}
+            anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+          >
+            <Box sx={{ p: 2, minWidth: 190 }}>
+              <Typography variant="subtitle2" fontWeight={700} mb={1.5}>Visible columns</Typography>
+              {ALL_COLS.map((col) => (
+                <FormControlLabel
+                  key={col.id}
+                  control={<Checkbox size="small" checked={visibleCols.has(col.id)} onChange={() => toggleCol(col.id)} />}
+                  label={<Typography variant="body2">{col.label}</Typography>}
+                  sx={{ display: 'flex', mb: 0.5, ml: 0 }}
+                />
+              ))}
+            </Box>
+          </Popover>
+
+          {/* Clear + count */}
+          {hasFilters && (
+            <Tooltip title="Clear all filters">
+              <Button size="small" startIcon={<FilterListOffIcon />} onClick={clearFilters} color="inherit">Clear</Button>
+            </Tooltip>
+          )}
+          <Typography variant="body2" color="text.secondary" sx={{ ml: 'auto', whiteSpace: 'nowrap' }}>
+            {filtered.length}/{sites.length}{selected.size > 0 && ` · ${selected.size} sel`}
+          </Typography>
+        </Stack>
       </Paper>
 
       {loading ? (
@@ -854,6 +802,9 @@ export default function AdminDiveSitesPage() {
                           )}
                           {(site.activities ?? []).includes('snorkeling') && (
                             <Chip label="Snorkeling" size="small" sx={{ fontSize: '0.65rem', height: 18, bgcolor: '#e0f2f1', color: '#00897b', fontWeight: 700 }} />
+                          )}
+                          {site.enhancedAt && (
+                            <Chip label="✨ Enhanced" size="small" sx={{ fontSize: '0.65rem', height: 18, bgcolor: '#eff6ff', color: '#1d4ed8', fontWeight: 700, border: '1px solid #bfdbfe' }} />
                           )}
                           {site.verification && (
                             <Chip

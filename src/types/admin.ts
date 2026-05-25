@@ -109,6 +109,22 @@ export interface DiveSite {
     negativeMatchCount: number;
     matchedPlaceId: string | null;
   };
+  enhancedAt?: string;
+  facilitiesEnhanced?: {
+    diveCenter?: boolean;
+    restaurant?: boolean;
+    parking?: boolean;
+    equipment?: boolean;
+    accommodation?: boolean;
+    depthMarkers?: string[];
+  };
+  marineLife?: {
+    fish: { name: string; scientificName?: string; frequency?: string; location?: string; season?: string }[];
+    corals: { type?: string; name?: string; scientificName?: string; location?: string; condition?: string }[];
+    macro: { name: string; scientificName?: string; frequency?: string; location?: string; behavior?: string }[];
+    pelagic: { name: string; scientificName?: string; frequency?: string; season?: string }[];
+    specialSightings: string[];
+  };
 }
 
 export interface DiveSiteDraft {

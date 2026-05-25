@@ -37,6 +37,11 @@ import WarningAmberIcon from '@mui/icons-material/WarningAmber';
 import FlagIcon from '@mui/icons-material/Flag';
 import BlockIcon from '@mui/icons-material/Block';
 import LocalOfferIcon from '@mui/icons-material/LocalOffer';
+import SetMealIcon from '@mui/icons-material/SetMeal';
+import PestControlIcon from '@mui/icons-material/PestControl';
+import BubbleChartIcon from '@mui/icons-material/BubbleChart';
+import WavesIcon from '@mui/icons-material/Waves';
+import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import Link from 'next/link';
 import { APIProvider, useMapsLibrary } from '@vis.gl/react-google-maps';
 import { DiveSite, Thermocline } from '@/types/admin';
@@ -1488,10 +1493,24 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
 
             {/* Description */}
             <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, mb: 3 }}>
-              <Typography variant="h6" fontWeight={700} mb={1.5}>About This Site</Typography>
-              <Typography variant="body1" color="text.secondary" sx={{ lineHeight: 1.8 }}>
-                {site.description}
-              </Typography>
+              <Typography variant="h6" fontWeight={700} mb={2}>About This Site</Typography>
+              {site.description
+                .split(/\n\n+/)
+                .filter(Boolean)
+                .map((para, i) => (
+                  <Typography
+                    key={i}
+                    variant="body1"
+                    sx={{
+                      lineHeight: 1.85,
+                      mb: i < site.description.split(/\n\n+/).length - 1 ? 2 : 0,
+                      color: i === 0 ? 'text.primary' : 'text.secondary',
+                      fontSize: i === 0 ? '1rem' : '0.95rem',
+                    }}
+                  >
+                    {para}
+                  </Typography>
+                ))}
             </Paper>
 
             {/* Highlights */}
@@ -1509,6 +1528,88 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
               </Paper>
             )}
 
+            {/* Marine Life */}
+            {site.marineLife && (
+              (() => {
+                const ml = site.marineLife!;
+                const categories = [
+                  { key: 'fish',    label: 'Fish',            icon: <SetMealIcon sx={{ fontSize: 16 }} />,     color: '#0ea5e9', bg: '#f0f9ff', items: ml.fish },
+                  { key: 'macro',   label: 'Macro & Critters', icon: <PestControlIcon sx={{ fontSize: 16 }} />, color: '#7c3aed', bg: '#faf5ff', items: ml.macro },
+                  { key: 'corals',  label: 'Corals & Plants',  icon: <BubbleChartIcon sx={{ fontSize: 16 }} />, color: '#059669', bg: '#f0fdf4', items: ml.corals },
+                  { key: 'pelagic', label: 'Pelagic',          icon: <WavesIcon sx={{ fontSize: 16 }} />,       color: '#0369a1', bg: '#e0f2fe', items: ml.pelagic },
+                ].filter(c => c.items && c.items.length > 0);
+
+                if (categories.length === 0 && (!ml.specialSightings || ml.specialSightings.length === 0)) return null;
+
+                return (
+                  <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, mb: 3 }}>
+                    <Typography variant="h6" fontWeight={700} mb={2}>Marine Life</Typography>
+
+                    <Stack spacing={2.5}>
+                      {categories.map(cat => (
+                        <Box key={cat.key}>
+                          <Stack direction="row" spacing={0.75} alignItems="center" mb={1.25}>
+                            <Box sx={{ color: cat.color }}>{cat.icon}</Box>
+                            <Typography variant="caption" fontWeight={700} sx={{ color: cat.color, textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.7rem' }}>
+                              {cat.label}
+                            </Typography>
+                          </Stack>
+                          <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 0.75 }}>
+                            {cat.items.map((item: Record<string, string>, i: number) => {
+                              const name = item.name || item.type || '';
+                              const sci = item.scientificName;
+                              const freq = item.frequency;
+                              return (
+                                <Tooltip
+                                  key={i}
+                                  title={sci ? `${sci}${freq ? ` · ${freq}` : ''}` : (freq || '')}
+                                  placement="top"
+                                  arrow
+                                >
+                                  <Chip
+                                    label={name}
+                                    size="small"
+                                    sx={{
+                                      bgcolor: cat.bg,
+                                      color: cat.color,
+                                      border: `1px solid ${cat.color}22`,
+                                      fontWeight: 500,
+                                      fontSize: '0.75rem',
+                                      cursor: sci ? 'help' : 'default',
+                                      '& .MuiChip-label': { px: 1.25 },
+                                    }}
+                                  />
+                                </Tooltip>
+                              );
+                            })}
+                          </Box>
+                        </Box>
+                      ))}
+
+                      {ml.specialSightings && ml.specialSightings.length > 0 && (
+                        <Box>
+                          <Stack direction="row" spacing={0.75} alignItems="center" mb={1.25}>
+                            <AutoAwesomeIcon sx={{ fontSize: 16, color: '#d97706' }} />
+                            <Typography variant="caption" fontWeight={700} sx={{ color: '#d97706', textTransform: 'uppercase', letterSpacing: '0.05em', fontSize: '0.7rem' }}>
+                              Special Sightings
+                            </Typography>
+                          </Stack>
+                          <Stack spacing={0.75}>
+                            {ml.specialSightings.map((s, i) => (
+                              <Stack key={i} direction="row" spacing={1} alignItems="flex-start">
+                                <AutoAwesomeIcon sx={{ fontSize: 14, color: '#d97706', mt: 0.3, flexShrink: 0 }} />
+                                <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>{s}</Typography>
+                              </Stack>
+                            ))}
+                          </Stack>
+                        </Box>
+                      )}
+                    </Stack>
+                  </Paper>
+                );
+              })()
+            )}
+
             {/* Thermocline */}
             {site.thermocline && (
               <ThermoclineCard thermocline={site.thermocline} maxDepth={site.maxDepth} />
@@ -1520,15 +1621,42 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
             </Paper>
 
             {/* Facilities */}
-            {site.facilities.length > 0 && (
-              <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, mb: 3 }}>
-                <Typography variant="h6" fontWeight={700} mb={1.5}>Facilities</Typography>
-                <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
-                  {site.facilities.map((f) => (
-                    <Chip key={f} label={f} size="small" variant="outlined" />
-                  ))}
-                </Stack>
-              </Paper>
+            {site.facilitiesEnhanced && (
+              (() => {
+                const f = site.facilitiesEnhanced!;
+                const items = [
+                  { key: 'diveCenter',    label: 'Dive Center',    icon: '🤿' },
+                  { key: 'restaurant',    label: 'Restaurant',     icon: '🍽️' },
+                  { key: 'parking',       label: 'Parking',        icon: '🅿️' },
+                  { key: 'equipment',     label: 'Equipment Hire', icon: '🎽' },
+                  { key: 'accommodation', label: 'Accommodation',  icon: '🏨' },
+                ].filter(item => f[item.key as keyof typeof f] === true);
+
+                if (items.length === 0 && (!f.depthMarkers || f.depthMarkers.length === 0)) return null;
+
+                return (
+                  <Paper variant="outlined" sx={{ p: 3, borderRadius: 2, mb: 3 }}>
+                    <Typography variant="h6" fontWeight={700} mb={2}>Facilities</Typography>
+                    <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                      {items.map(item => (
+                        <Chip
+                          key={item.key}
+                          label={`${item.icon} ${item.label}`}
+                          size="small"
+                          sx={{ bgcolor: '#f0fdf4', color: '#166534', border: '1px solid #bbf7d0', fontWeight: 500 }}
+                        />
+                      ))}
+                      {f.depthMarkers && f.depthMarkers.length > 0 && (
+                        <Chip
+                          label={`📏 Depth markers: ${f.depthMarkers.join(', ')}`}
+                          size="small"
+                          sx={{ bgcolor: '#eff6ff', color: '#1d4ed8', border: '1px solid #bfdbfe', fontWeight: 500 }}
+                        />
+                      )}
+                    </Stack>
+                  </Paper>
+                );
+              })()
             )}
 
             {/* Photos from Google Maps */}

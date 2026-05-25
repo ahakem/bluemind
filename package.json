@@ -14,13 +14,16 @@
     "scrape": "cd scraper && npm run scrape",
     "scrape:dry": "cd scraper && npm run scrape:dry",
     "scrape:limit": "cd scraper && npm run scrape:limit",
-    "scraper:install": "cd scraper && npm install"
+    "scraper:install": "cd scraper && npm install",
+    "enhance": "node scripts/enhance-dive-sites.js",
+    "enhance:test": "node scripts/test-single-site.js"
   },
   "dependencies": {
     "@emailjs/browser": "^4.4.1",
     "@emotion/cache": "^11.14.0",
     "@emotion/react": "^11.14.0",
     "@emotion/styled": "^11.14.0",
+    "@google/generative-ai": "^0.24.1",
     "@mui/icons-material": "^7.1.0",
     "@mui/material": "^7.1.0",
     "@mui/material-nextjs": "^7.1.0",

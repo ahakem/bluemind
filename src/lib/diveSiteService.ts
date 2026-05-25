@@ -66,6 +66,15 @@ const docToDiveSite = (id: string, data: Record<string, unknown>): DiveSite => (
   verified: data.verified as boolean | undefined,
   activities: (data.activities as ('line_diving' | 'snorkeling')[]) || [],
   verification: data.verification as DiveSite['verification'] ?? undefined,
+  enhancedAt: data.enhancedAt as string | undefined,
+  facilitiesEnhanced: (
+    typeof data.facilitiesEnhanced === 'object' && !Array.isArray(data.facilitiesEnhanced)
+      ? data.facilitiesEnhanced
+      : typeof data.facilities === 'object' && !Array.isArray(data.facilities)
+        ? data.facilities
+        : undefined
+  ) as DiveSite['facilitiesEnhanced'] ?? undefined,
+  marineLife: data.marineLife as DiveSite['marineLife'] ?? undefined,
 });
 
 export const generateSlug = (name: string): string =>
