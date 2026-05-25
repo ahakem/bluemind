@@ -405,7 +405,7 @@ async function saveCheckpoint(db, lastId, stats) {
 }
 
 // ─── Site enhancer ────────────────────────────────────────────────────────────
-async function enhanceSite(model, db, siteId, siteData, costTracker) {
+async function enhanceSite(model, db, siteId, siteData, costTracker, attempt = 0) {
   const prompt = buildPrompt(siteData);
   let raw = '';
   let sources = [];
@@ -431,11 +431,22 @@ async function enhanceSite(model, db, siteId, siteData, costTracker) {
       console.error('\n❌  Permission denied — enable Gemini API in Google Cloud Console');
       process.exit(1);
     }
-    if (err.message?.includes('RESOURCE_EXHAUSTED')) {
-      console.log('⚠️  Rate limit hit — waiting 60s…');
-      await sleep(60_000);
-      return enhanceSite(model, db, siteId, siteData, costTracker); // retry once
+
+    const isRetryable = err.message?.includes('RESOURCE_EXHAUSTED') ||
+                        err.message?.includes('UNAVAILABLE') ||
+                        err.message?.includes('network') ||
+                        err.message?.includes('fetch') ||
+                        err.message?.includes('503') ||
+                        err.message?.includes('502') ||
+                        err.message?.includes('429');
+
+    if (isRetryable && attempt < 3) {
+      const wait = [15_000, 30_000, 60_000][attempt];
+      console.log(`   ⚠️  API error (attempt ${attempt + 1}/3) — retrying in ${wait / 1000}s… [${err.message?.slice(0, 60)}]`);
+      await sleep(wait);
+      return enhanceSite(model, db, siteId, siteData, costTracker, attempt + 1);
     }
+
     console.error(`   API error: ${err.message}`);
     return null;
   }
@@ -444,6 +455,7 @@ async function enhanceSite(model, db, siteId, siteData, costTracker) {
 
   if (!parsed) {
     console.log('   ⚠️  Could not parse JSON from response');
+    console.log('   Raw (first 300 chars):', raw.slice(0, 300).replace(/\n/g, ' '));
     await db.collection(REVIEW_COLLECTION).doc(siteId).set({
       originalData:        siteData,
       rawResponse:         raw.slice(0, 2000),
