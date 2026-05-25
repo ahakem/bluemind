@@ -254,6 +254,13 @@ export const getDiveLogCounts = async (): Promise<Map<string, number>> => {
   return counts;
 };
 
+export const getSiteDiveCount = async (siteId: string): Promise<number> => {
+  const firestore = validateDb();
+  const q = query(collection(firestore, DIVE_LOGS_COLLECTION), where('siteId', '==', siteId));
+  const snap = await getDocs(q);
+  return snap.size;
+};
+
 // ── Community ratings ─────────────────────────────────────────────────────────
 
 export const submitRating = async (
