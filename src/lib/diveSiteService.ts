@@ -41,7 +41,7 @@ const docToDiveSite = (id: string, data: Record<string, unknown>): DiveSite => (
   country: (data.country as string) || '',
   coordinates: (data.coordinates as { lat: number; lng: number }) || { lat: 0, lng: 0 },
   waterType: (data.waterType as DiveSite['waterType']) || 'sea',
-  maxDepth: (data.maxDepth as number) || 0,
+  maxDepth: typeof data.maxDepth === 'number' ? data.maxDepth : (parseFloat(data.maxDepth as string) || 0),
   description: (data.description as string) || '',
   highlights: (data.highlights as string[]) || [],
   facilities: Array.isArray(data.facilities) ? (data.facilities as string[]) : [],
