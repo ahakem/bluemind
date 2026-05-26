@@ -163,12 +163,12 @@ const Navbar = () => {
                 textTransform: "none",
                 fontWeight: 700,
                 fontSize: "0.85rem",
-                bgcolor: "#0077be",
+                bgcolor: "#2e7d32",
                 px: 2.5,
-                "&:hover": { bgcolor: "#005fa3" },
+                "&:hover": { bgcolor: "#1b5e20" },
               }}
             >
-              Submit a Site
+              Submit a Dive Site
             </Button>
 
             {/* ── Mobile hamburger ── */}
@@ -188,8 +188,8 @@ const Navbar = () => {
                 <MenuItem component={Link} href="/blog" onClick={handleCloseNavMenu}>Blog</MenuItem>
                 <MenuItem component={Link} href="/about" onClick={handleCloseNavMenu}>About</MenuItem>
                 <Divider />
-                <MenuItem onClick={() => { handleCloseNavMenu(); setSubmitOpen(true); }} sx={{ fontWeight: 700, color: "#0077be" }}>
-                  Submit a Site
+                <MenuItem onClick={() => { handleCloseNavMenu(); setSubmitOpen(true); }} sx={{ fontWeight: 700, color: "#2e7d32" }}>
+                  Submit a Dive Site
                 </MenuItem>
               </Menu>
             </Box>
