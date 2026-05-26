@@ -17,18 +17,25 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { useSiteFeatures } from "@/contexts/SiteSettingsContext";
 import WaterIcon from "@mui/icons-material/Water";
+import { useIsFreediveOne } from "@/hooks/useIsFreediveOne";
 
 const ALL_NAV_ITEMS = [
-  { name: "Home", href: "/", feature: null },
-  { name: "About Us", href: "/about", feature: null },
-  { name: "Membership", href: "/membership", feature: null },
-  { name: "Gallery", href: "/gallery", feature: null },
-  { name: "Dive Sites", href: "/dive-sites", feature: "diveSitesEnabled" },
-  { name: "Blog", href: "/blog", feature: null },
-  { name: "Community", href: "/community", feature: null },
-  { name: "Schedule", href: "/schedule", feature: null },
-  { name: "Reviews", href: "/reviews", feature: null },
-  { name: "Contact", href: "/contact", feature: null },
+  { name: "Home", href: "/", feature: null, schoolOnly: false },
+  { name: "About", href: "/about", feature: null, schoolOnly: false },
+  { name: "Membership", href: "/membership", feature: null, schoolOnly: true },
+  { name: "Gallery", href: "/gallery", feature: null, schoolOnly: true },
+  { name: "Dive Sites", href: "/dive-sites", feature: "diveSitesEnabled", schoolOnly: false },
+  { name: "Blog", href: "/blog", feature: null, schoolOnly: false },
+  { name: "Community", href: "/community", feature: null, schoolOnly: true },
+  { name: "Schedule", href: "/schedule", feature: null, schoolOnly: true },
+  { name: "Reviews", href: "/reviews", feature: null, schoolOnly: true },
+  { name: "Contact", href: "/contact", feature: null, schoolOnly: true },
+];
+
+const FREEDIVE_NAV_ITEMS = [
+  { name: "Dive Sites", href: "/dive-sites", isDiveSites: true },
+  { name: "Blog", href: "/blog", isDiveSites: false },
+  { name: "About", href: "/about", isDiveSites: false },
 ];
 
 const Navbar = () => {
@@ -36,10 +43,12 @@ const Navbar = () => {
   const [elevated, setElevated] = useState(false);
   const scrollPosition = useScrollPosition();
   const features = useSiteFeatures();
+  const isFreediveOne = useIsFreediveOne();
 
-  const navItems = ALL_NAV_ITEMS.filter((item) =>
+  const bluemindNavItems = ALL_NAV_ITEMS.filter((item) =>
     !item.feature || features[item.feature as keyof typeof features]
   );
+
   const pathname = usePathname();
 
   useEffect(() => {
@@ -59,8 +68,145 @@ const Navbar = () => {
     return pathname.startsWith(href);
   };
 
+  if (isFreediveOne) {
+    return (
+      <AppBar
+        position="sticky"
+        component="header"
+        id="navigation"
+        role="banner"
+        aria-label="Main navigation"
+        sx={{
+          top: 0,
+          zIndex: 1100,
+          background: "white",
+          color: "text.primary",
+          boxShadow: elevated ? 2 : 0,
+          transition: "box-shadow 0.3s ease",
+        }}
+      >
+        <Container maxWidth="lg">
+          <Toolbar disableGutters sx={{ gap: 2 }}>
+            {/* Logo */}
+            <Link href="/dive-sites" style={{ textDecoration: "none", flexShrink: 0 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
+                <WaterIcon sx={{ color: "#0077be", fontSize: 28 }} />
+                <Typography
+                  variant="h6"
+                  fontWeight={800}
+                  sx={{
+                    color: "#001f3f",
+                    letterSpacing: "-0.5px",
+                    fontSize: { xs: "1.1rem", md: "1.25rem" },
+                    "& span": { color: "#0077be" },
+                  }}
+                >
+                  freedive<span>.one</span>
+                </Typography>
+              </Box>
+            </Link>
+
+            {/* Mobile menu */}
+            <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" }, justifyContent: "flex-end" }}>
+              <IconButton size="large" onClick={handleOpenNavMenu} color="inherit" aria-label="Open navigation menu">
+                <MenuIcon />
+              </IconButton>
+              <Menu
+                anchorEl={anchorElNav}
+                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                keepMounted
+                transformOrigin={{ vertical: "top", horizontal: "left" }}
+                open={Boolean(anchorElNav)}
+                onClose={handleCloseNavMenu}
+                sx={{ display: { xs: "block", md: "none" } }}
+              >
+                {FREEDIVE_NAV_ITEMS.map((item) => (
+                  <MenuItem key={item.name} onClick={handleCloseNavMenu} component={Link} href={item.href} selected={isActive(item.href)}>
+                    <Typography textAlign="center" fontWeight={isActive(item.href) ? 600 : 500}>
+                      {item.name}
+                    </Typography>
+                  </MenuItem>
+                ))}
+              </Menu>
+            </Box>
+
+            {/* Desktop nav */}
+            <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, alignItems: "center", gap: 0.5 }}>
+              {FREEDIVE_NAV_ITEMS.map((item) =>
+                item.isDiveSites ? (
+                  <Button
+                    key={item.name}
+                    component={Link}
+                    href={item.href}
+                    startIcon={<WaterIcon sx={{ fontSize: "16px !important" }} />}
+                    sx={{
+                      px: 1.75, py: 0.55,
+                      whiteSpace: "nowrap",
+                      textTransform: "none",
+                      fontWeight: 700,
+                      fontSize: "0.85rem",
+                      borderRadius: "50px",
+                      background: isActive(item.href)
+                        ? "linear-gradient(135deg, #0077be 0%, #005fa3 100%)"
+                        : "linear-gradient(135deg, #001f3f 0%, #003d7a 100%)",
+                      color: "white",
+                      border: "1.5px solid",
+                      borderColor: isActive(item.href) ? "#0077be" : "rgba(0,119,190,0.5)",
+                      boxShadow: "0 2px 8px rgba(0,119,190,0.25)",
+                      "&:hover": {
+                        background: "linear-gradient(135deg, #0077be 0%, #005fa3 100%)",
+                        borderColor: "#0077be",
+                        boxShadow: "0 4px 14px rgba(0,119,190,0.4)",
+                      },
+                    }}
+                  >
+                    {item.name}
+                  </Button>
+                ) : (
+                  <Button
+                    key={item.name}
+                    component={Link}
+                    href={item.href}
+                    sx={{
+                      px: 1, my: 2,
+                      whiteSpace: "nowrap",
+                      color: isActive(item.href) ? "primary.main" : "text.primary",
+                      textTransform: "none",
+                      fontWeight: isActive(item.href) ? 600 : 500,
+                      fontSize: "0.85rem",
+                      borderBottom: isActive(item.href) ? "2px solid" : "none",
+                      borderColor: "primary.main",
+                      borderRadius: 0,
+                      "&:hover": { color: "primary.main", background: "transparent" },
+                    }}
+                  >
+                    {item.name}
+                  </Button>
+                )
+              )}
+            </Box>
+
+            {/* Tag line — desktop only */}
+            <Typography
+              variant="caption"
+              sx={{
+                display: { xs: "none", lg: "block" },
+                color: "text.disabled",
+                whiteSpace: "nowrap",
+                fontSize: "0.72rem",
+              }}
+            >
+              Free global freediving directory
+            </Typography>
+          </Toolbar>
+        </Container>
+      </AppBar>
+    );
+  }
+
+  // ── Blue Mind navbar ──────────────────────────────────────────────────────
   return (
-    <AppBar 
+    <AppBar
       position="sticky"
       component="header"
       id="navigation"
@@ -79,15 +225,15 @@ const Navbar = () => {
       <Container maxWidth="lg">
         <Toolbar disableGutters>
           <Link href="/" style={{ textDecoration: 'none' }}>
-            <Box 
-              sx={{ 
-                display: { xs: "none", md: "flex" }, 
+            <Box
+              sx={{
+                display: { xs: "none", md: "flex" },
                 mr: 2,
                 position: 'relative',
                 height: 50,
                 width: 150,
                 cursor: "pointer",
-              }} 
+              }}
             >
               <Image
                 src="/images/bluemind-logo.webp"
@@ -101,9 +247,9 @@ const Navbar = () => {
           </Link>
 
           <Box sx={{ flexGrow: 0, display: { xs: "flex", md: "none" } }}>
-            <IconButton 
-              size="large" 
-              onClick={handleOpenNavMenu} 
+            <IconButton
+              size="large"
+              onClick={handleOpenNavMenu}
               color="inherit"
               aria-label="Open navigation menu"
               aria-controls="menu-appbar"
@@ -121,7 +267,7 @@ const Navbar = () => {
               onClose={handleCloseNavMenu}
               sx={{ display: { xs: "block", md: "none" } }}
             >
-              {navItems.map((item) => {
+              {bluemindNavItems.map((item) => {
                 const isDiveSites = item.href === '/dive-sites';
                 const active = isActive(item.href);
                 return (
@@ -153,12 +299,12 @@ const Navbar = () => {
               })}
             </Menu>
           </Box>
-          
+
           <Link href="/" style={{ flexGrow: 1, textDecoration: 'none', display: 'flex', justifyContent: 'center' }}>
             <Box sx={{ display: { xs: "flex", md: "none" }, alignItems: "center", position: 'relative', height: 40, width: 120 }}>
-              <Image 
-                src="/images/bluemind-logo.webp" 
-                alt="Blue Mind Freediving" 
+              <Image
+                src="/images/bluemind-logo.webp"
+                alt="Blue Mind Freediving"
                 fill
                 sizes="120px"
                 style={{ objectFit: 'contain' }}
@@ -168,7 +314,7 @@ const Navbar = () => {
           </Link>
 
           <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, justifyContent: "center", alignItems: "center" }}>
-            {navItems.map((item) => {
+            {bluemindNavItems.map((item) => {
               const isDiveSites = item.href === '/dive-sites';
               const active = isActive(item.href);
               if (isDiveSites) {
@@ -179,9 +325,7 @@ const Navbar = () => {
                     href={item.href}
                     startIcon={<WaterIcon sx={{ fontSize: '16px !important' }} />}
                     sx={{
-                      mx: 0.5,
-                      px: 1.75,
-                      py: 0.55,
+                      mx: 0.5, px: 1.75, py: 0.55,
                       whiteSpace: 'nowrap',
                       textTransform: 'none',
                       fontWeight: 700,
@@ -211,9 +355,7 @@ const Navbar = () => {
                   component={Link}
                   href={item.href}
                   sx={{
-                    my: 2,
-                    mx: 0.25,
-                    px: 1,
+                    my: 2, mx: 0.25, px: 1,
                     display: "block",
                     whiteSpace: 'nowrap',
                     color: active ? "primary.main" : "text.primary",
