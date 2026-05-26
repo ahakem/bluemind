@@ -4,50 +4,82 @@ import type { NextRequest } from 'next/server';
 const DIVE_SITE_DOMAINS = ['freedive.one', 'www.freedive.one'];
 const BLUEMIND_MAIN = 'https://bluemindfreediving.nl';
 
-// Pages that belong to the Blue Mind school, not the dive directory
 const SCHOOL_PATHS = [
   '/training', '/schedule', '/membership', '/community',
   '/gallery', '/contact', '/judging', '/documents', '/reviews', '/welcome',
 ];
+
+// Paths on freedive.one that are NOT dive-site paths and should pass through as-is
+const FREEDIVE_OWN_PATHS = [
+  '/blog', '/about', '/privacy-policy', '/terms-of-service',
+  '/admin', '/api', '/submit', '/_next',
+];
+
+function isFreediveOwnPath(pathname: string) {
+  return FREEDIVE_OWN_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'));
+}
 
 export function middleware(request: NextRequest) {
   const host =
     request.headers.get('x-forwarded-host') ??
     request.headers.get('host') ??
     '';
+
   const isDiveSiteDomain =
     DIVE_SITE_DOMAINS.some((d) => host.includes(d)) ||
     process.env.NEXT_PUBLIC_FREEDIVE_ONE === 'true';
 
-  if (isDiveSiteDomain) {
-    const { pathname } = request.nextUrl;
+  if (!isDiveSiteDomain) return NextResponse.next();
 
-    if (pathname === '/') {
-      return NextResponse.rewrite(new URL('/dive-sites', request.url));
-    }
+  const { pathname } = request.nextUrl;
 
-    // About → freedive.one-specific page
-    if (pathname === '/about') {
-      return NextResponse.rewrite(new URL('/dive-sites/about', request.url));
-    }
+  // ── Already internally rewritten — skip to avoid infinite loop ──────────
+  if (request.headers.get('x-freedive-rewrite') === '1') {
+    return NextResponse.next();
+  }
 
-    // Legal pages → freedive.one-specific pages
-    if (pathname === '/privacy-policy') {
-      return NextResponse.rewrite(new URL('/dive-sites/privacy', request.url));
-    }
-    if (pathname === '/terms-of-service') {
-      return NextResponse.rewrite(new URL('/dive-sites/terms', request.url));
-    }
+  // ── Root → dive sites listing ────────────────────────────────────────────
+  if (pathname === '/') {
+    return rewrite(request, '/dive-sites');
+  }
 
-    // School pages → redirect to Blue Mind main site
-    if (SCHOOL_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'))) {
-      return NextResponse.redirect(`${BLUEMIND_MAIN}${pathname}`);
-    }
+  // ── Legal / about → dedicated freedive.one pages ────────────────────────
+  if (pathname === '/about')           return rewrite(request, '/dive-sites/about');
+  if (pathname === '/privacy-policy')  return rewrite(request, '/dive-sites/privacy');
+  if (pathname === '/terms-of-service') return rewrite(request, '/dive-sites/terms');
+  if (pathname === '/submit')          return rewrite(request, '/dive-sites/submit');
+
+  // ── Strip /dive-sites prefix → redirect to clean URL ────────────────────
+  if (pathname === '/dive-sites') {
+    return NextResponse.redirect(new URL('/', request.url));
+  }
+  if (pathname.startsWith('/dive-sites/')) {
+    const clean = pathname.slice('/dive-sites'.length); // e.g. /country/egypt
+    return NextResponse.redirect(new URL(clean, request.url));
+  }
+
+  // ── School pages → redirect to Blue Mind ────────────────────────────────
+  if (SCHOOL_PATHS.some((p) => pathname === p || pathname.startsWith(p + '/'))) {
+    return NextResponse.redirect(`${BLUEMIND_MAIN}${pathname}`);
+  }
+
+  // ── Clean dive-site paths → rewrite to /dive-sites/* ────────────────────
+  if (!isFreediveOwnPath(pathname)) {
+    return rewrite(request, '/dive-sites' + pathname);
   }
 
   return NextResponse.next();
 }
 
+function rewrite(request: NextRequest, destination: string) {
+  const url = new URL(destination, request.url);
+  // Copy search params so filters (?continent=Europe etc.) are preserved
+  request.nextUrl.searchParams.forEach((v, k) => url.searchParams.set(k, v));
+  const headers = new Headers(request.headers);
+  headers.set('x-freedive-rewrite', '1');
+  return NextResponse.rewrite(url, { request: { headers } });
+}
+
 export const config = {
-  matcher: ['/((?!_next/static|_next/image|favicon.ico|api/).*)'],
+  matcher: ['/((?!_next/static|_next/image|favicon.ico).*)'],
 };

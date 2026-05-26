@@ -17,6 +17,11 @@ import { usePathname } from "next/navigation";
 import Image from "next/image";
 import { useSiteFeatures } from "@/contexts/SiteSettingsContext";
 import WaterIcon from "@mui/icons-material/Water";
+import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import AddLocationAltIcon from "@mui/icons-material/AddLocationAlt";
+import PublicIcon from "@mui/icons-material/Public";
+import Divider from "@mui/material/Divider";
+import ListItemText from "@mui/material/ListItemText";
 import { useIsFreediveOne } from "@/hooks/useIsFreediveOne";
 
 const ALL_NAV_ITEMS = [
@@ -67,136 +72,126 @@ const Navbar = () => {
     return pathname.startsWith(href);
   };
 
+  const [exploreAnchor, setExploreAnchor] = useState<null | HTMLElement>(null);
+
   if (isFreediveOne) {
+    const navBtnSx = {
+      px: 1.25, py: 0.6,
+      textTransform: "none" as const,
+      fontWeight: 500,
+      fontSize: "0.875rem",
+      color: "text.primary",
+      borderRadius: 2,
+      "&:hover": { bgcolor: "rgba(0,119,190,0.07)", color: "primary.main" },
+    };
+
     return (
       <AppBar
         position="sticky"
         component="header"
-        id="navigation"
-        role="banner"
-        aria-label="Main navigation"
-        sx={{
-          top: 0,
-          zIndex: 1100,
-          background: "white",
-          color: "text.primary",
-          boxShadow: elevated ? 2 : 0,
-          transition: "box-shadow 0.3s ease",
-        }}
+        sx={{ top: 0, zIndex: 1100, background: "white", color: "text.primary", boxShadow: elevated ? 2 : 0, transition: "box-shadow 0.3s ease" }}
       >
         <Container maxWidth="lg">
-          <Toolbar disableGutters sx={{ gap: 2 }}>
-            {/* Logo */}
-            <Link href="/dive-sites" style={{ textDecoration: "none", flexShrink: 0 }}>
-              <Box sx={{ display: "flex", alignItems: "center", gap: 1 }}>
-                <WaterIcon sx={{ color: "#0077be", fontSize: 28 }} />
-                <Typography
-                  variant="h6"
-                  fontWeight={800}
-                  sx={{
-                    color: "#001f3f",
-                    letterSpacing: "-0.5px",
-                    fontSize: { xs: "1.1rem", md: "1.25rem" },
-                    "& span": { color: "#0077be" },
-                  }}
-                >
+          <Toolbar disableGutters sx={{ gap: 1 }}>
+
+            {/* ── Logo ── */}
+            <Link href="/" style={{ textDecoration: "none", flexShrink: 0, marginRight: 8 }}>
+              <Box sx={{ display: "flex", alignItems: "center", gap: 0.75 }}>
+                <WaterIcon sx={{ color: "#0077be", fontSize: 26 }} />
+                <Typography variant="h6" fontWeight={800} sx={{ color: "#001f3f", letterSpacing: "-0.5px", fontSize: "1.15rem", "& span": { color: "#0077be" } }}>
                   freedive<span>.one</span>
                 </Typography>
               </Box>
             </Link>
 
-            {/* Mobile menu */}
+            {/* ── Desktop nav ── */}
+            <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, alignItems: "center", gap: 0.25 }}>
+
+              {/* Explore dropdown */}
+              <Button
+                endIcon={<KeyboardArrowDownIcon />}
+                onClick={(e) => setExploreAnchor(e.currentTarget)}
+                sx={navBtnSx}
+              >
+                Explore
+              </Button>
+              <Menu
+                anchorEl={exploreAnchor}
+                open={Boolean(exploreAnchor)}
+                onClose={() => setExploreAnchor(null)}
+                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
+                transformOrigin={{ vertical: "top", horizontal: "left" }}
+                PaperProps={{ sx: { mt: 0.5, minWidth: 200, borderRadius: 2, boxShadow: "0 8px 32px rgba(0,0,0,0.12)" } }}
+              >
+                <MenuItem component={Link} href="/continents" onClick={() => setExploreAnchor(null)} sx={{ py: 1, fontSize: "0.875rem", gap: 1.5 }}>
+                  <PublicIcon sx={{ fontSize: 18, color: "#0077be" }} />
+                  <ListItemText primary="By Continent" secondary="Browse all 6 continents" />
+                </MenuItem>
+                <MenuItem component={Link} href="/countries" onClick={() => setExploreAnchor(null)} sx={{ py: 1, fontSize: "0.875rem", gap: 1.5 }}>
+                  <WaterIcon sx={{ fontSize: 18, color: "#0077be" }} />
+                  <ListItemText primary="By Country" secondary="80+ countries" />
+                </MenuItem>
+                <Divider sx={{ my: 0.5 }} />
+                <MenuItem disabled sx={{ opacity: 1, py: 0.5 }}>
+                  <Typography variant="caption" fontWeight={700} color="text.disabled" sx={{ textTransform: "uppercase", letterSpacing: 1 }}>
+                    Water Type
+                  </Typography>
+                </MenuItem>
+                {[{ label: "Sea & Ocean", val: "sea" }, { label: "Lakes & Quarries", val: "lake" }, { label: "Deep Tanks", val: "deep_tank" }].map((wt) => (
+                  <MenuItem key={wt.val} component={Link} href={`/?waterType=${wt.val}`} onClick={() => setExploreAnchor(null)} sx={{ py: 0.75, fontSize: "0.875rem" }}>
+                    <ListItemText primary={wt.label} />
+                  </MenuItem>
+                ))}
+              </Menu>
+
+              <Button component={Link} href="/blog" sx={navBtnSx}>Blog</Button>
+              <Button component={Link} href="/about" sx={navBtnSx}>About</Button>
+            </Box>
+
+            {/* ── Submit a Site CTA ── */}
+            <Button
+              component={Link}
+              href="/submit"
+              variant="contained"
+              startIcon={<AddLocationAltIcon />}
+              sx={{
+                display: { xs: "none", sm: "flex" },
+                ml: "auto",
+                borderRadius: "50px",
+                textTransform: "none",
+                fontWeight: 700,
+                fontSize: "0.85rem",
+                bgcolor: "#0077be",
+                px: 2.5,
+                "&:hover": { bgcolor: "#005fa3" },
+              }}
+            >
+              Submit a Site
+            </Button>
+
+            {/* ── Mobile hamburger ── */}
             <Box sx={{ flexGrow: 1, display: { xs: "flex", md: "none" }, justifyContent: "flex-end" }}>
-              <IconButton size="large" onClick={handleOpenNavMenu} color="inherit" aria-label="Open navigation menu">
+              <IconButton size="large" onClick={handleOpenNavMenu} color="inherit">
                 <MenuIcon />
               </IconButton>
               <Menu
                 anchorEl={anchorElNav}
-                anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
-                keepMounted
-                transformOrigin={{ vertical: "top", horizontal: "left" }}
                 open={Boolean(anchorElNav)}
                 onClose={handleCloseNavMenu}
-                sx={{ display: { xs: "block", md: "none" } }}
+                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
+                transformOrigin={{ vertical: "top", horizontal: "right" }}
               >
-                {FREEDIVE_NAV_ITEMS.map((item) => (
-                  <MenuItem key={item.name} onClick={handleCloseNavMenu} component={Link} href={item.href} selected={isActive(item.href)}>
-                    <Typography textAlign="center" fontWeight={isActive(item.href) ? 600 : 500}>
-                      {item.name}
-                    </Typography>
-                  </MenuItem>
-                ))}
+                <MenuItem component={Link} href="/continents" onClick={handleCloseNavMenu}>By Continent</MenuItem>
+                <MenuItem component={Link} href="/countries" onClick={handleCloseNavMenu}>By Country</MenuItem>
+                <MenuItem component={Link} href="/blog" onClick={handleCloseNavMenu}>Blog</MenuItem>
+                <MenuItem component={Link} href="/about" onClick={handleCloseNavMenu}>About</MenuItem>
+                <Divider />
+                <MenuItem component={Link} href="/submit" onClick={handleCloseNavMenu} sx={{ fontWeight: 700, color: "#0077be" }}>
+                  Submit a Site
+                </MenuItem>
               </Menu>
             </Box>
 
-            {/* Desktop nav */}
-            <Box sx={{ flexGrow: 1, display: { xs: "none", md: "flex" }, alignItems: "center", gap: 0.5 }}>
-              {FREEDIVE_NAV_ITEMS.map((item) =>
-                item.isDiveSites ? (
-                  <Button
-                    key={item.name}
-                    component={Link}
-                    href={item.href}
-                    startIcon={<WaterIcon sx={{ fontSize: "16px !important" }} />}
-                    sx={{
-                      px: 1.75, py: 0.55,
-                      whiteSpace: "nowrap",
-                      textTransform: "none",
-                      fontWeight: 700,
-                      fontSize: "0.85rem",
-                      borderRadius: "50px",
-                      background: isActive(item.href)
-                        ? "linear-gradient(135deg, #0077be 0%, #005fa3 100%)"
-                        : "linear-gradient(135deg, #001f3f 0%, #003d7a 100%)",
-                      color: "white",
-                      border: "1.5px solid",
-                      borderColor: isActive(item.href) ? "#0077be" : "rgba(0,119,190,0.5)",
-                      boxShadow: "0 2px 8px rgba(0,119,190,0.25)",
-                      "&:hover": {
-                        background: "linear-gradient(135deg, #0077be 0%, #005fa3 100%)",
-                        borderColor: "#0077be",
-                        boxShadow: "0 4px 14px rgba(0,119,190,0.4)",
-                      },
-                    }}
-                  >
-                    {item.name}
-                  </Button>
-                ) : (
-                  <Button
-                    key={item.name}
-                    component={Link}
-                    href={item.href}
-                    sx={{
-                      px: 1, my: 2,
-                      whiteSpace: "nowrap",
-                      color: isActive(item.href) ? "primary.main" : "text.primary",
-                      textTransform: "none",
-                      fontWeight: isActive(item.href) ? 600 : 500,
-                      fontSize: "0.85rem",
-                      borderBottom: isActive(item.href) ? "2px solid" : "none",
-                      borderColor: "primary.main",
-                      borderRadius: 0,
-                      "&:hover": { color: "primary.main", background: "transparent" },
-                    }}
-                  >
-                    {item.name}
-                  </Button>
-                )
-              )}
-            </Box>
-
-            {/* Tag line — desktop only */}
-            <Typography
-              variant="caption"
-              sx={{
-                display: { xs: "none", lg: "block" },
-                color: "text.disabled",
-                whiteSpace: "nowrap",
-                fontSize: "0.72rem",
-              }}
-            >
-              Free global freediving directory
-            </Typography>
           </Toolbar>
         </Container>
       </AppBar>
