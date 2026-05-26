@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/lib/siteConfig';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 
@@ -5,7 +6,6 @@ export const revalidate = 3600; // regenerate at most once per hour
 import { getDiveSiteBySlug, getActiveDiveSites } from '@/lib/diveSiteService';
 import DiveSiteDetailClient from './DiveSiteDetailClient';
 
-const BASE_URL = 'https://bluemindfreediving.nl';
 const DEFAULT_OG_IMAGE = `${BASE_URL}/images/og-image.jpg`;
 
 interface Props {

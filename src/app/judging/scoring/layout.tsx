@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/lib/siteConfig';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -17,11 +18,11 @@ export const metadata: Metadata = {
     title: 'AIDA Scoring & Penalty Calculator - Free Judge Tool',
     description:
       'Instant scoring and penalty calculations for all AIDA pool and depth freediving disciplines.',
-    url: 'https://bluemindfreediving.nl/judging/scoring',
+    url: `${BASE_URL}/judging/scoring`,
     type: 'article',
   },
   alternates: {
-    canonical: 'https://bluemindfreediving.nl/judging/scoring',
+    canonical: `${BASE_URL}/judging/scoring`,
   },
 };
 

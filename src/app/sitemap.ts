@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/lib/siteConfig';
 import type { MetadataRoute } from 'next';
 import { getActiveDiveSites } from '@/lib/diveSiteService';
 import { getPublishedPosts } from '@/lib/blogService';
@@ -6,7 +7,6 @@ import { CONTINENTS } from '@/data/continents';
 // Revalidate daily — picks up newly published dive sites and new countries
 export const revalidate = 86400;
 
-const BASE_URL = 'https://bluemindfreediving.nl';
 
 const STATIC_PAGES: MetadataRoute.Sitemap = [
   { url: BASE_URL,                                   changeFrequency: 'weekly',  priority: 1.0 },

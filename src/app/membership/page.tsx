@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/lib/siteConfig';
 import type { Metadata } from 'next';
 import Membership from '@/sections/Membership';
 
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Membership | Blue Mind Freediving Amsterdam',
     description: 'Join Blue Mind Freediving! Learn about membership benefits and registration.',
-    url: 'https://bluemindfreediving.nl/membership',
+    url: `${BASE_URL}/membership`,
     type: 'website',
     images: [
       {

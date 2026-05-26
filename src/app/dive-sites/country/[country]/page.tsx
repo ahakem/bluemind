@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/lib/siteConfig';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getActiveDiveSites } from '@/lib/diveSiteService';
@@ -7,7 +8,6 @@ import CountryListingClient from './CountryListingClient';
 
 export const revalidate = 86400;
 
-const BASE_URL = 'https://bluemindfreediving.nl';
 
 function countryToSlug(name: string) {
   return name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');

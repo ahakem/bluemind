@@ -1,10 +1,10 @@
+import { BASE_URL } from '@/lib/siteConfig';
 import type { Metadata } from 'next';
 import { getActiveDiveSites } from '@/lib/diveSiteService';
 import DiveSiteListingClient from './DiveSiteListingClient';
 
 export const revalidate = 3600; // re-fetch from Firestore at most once per hour
 
-const BASE_URL = 'https://bluemindfreediving.nl';
 const SITE_NAME = 'Blue Mind Freediving';
 
 interface Props {

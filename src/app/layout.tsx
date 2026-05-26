@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/lib/siteConfig';
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
 import { Montserrat, Poppins } from 'next/font/google';
@@ -36,7 +37,7 @@ export const metadata: Metadata = {
     ],
     apple: '/apple-touch-icon.png',
   },
-  metadataBase: new URL('https://bluemindfreediving.nl'),
+  metadataBase: new URL(BASE_URL),
   title: {
     default: 'Freediving Amsterdam | Blue Mind Freediving Club - #1 Pool Training',
     template: '%s | Freediving Amsterdam - Blue Mind',
@@ -70,7 +71,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_NL',
-    url: 'https://bluemindfreediving.nl',
+    url: BASE_URL,
     siteName: 'Blue Mind Freediving Amsterdam',
     title: 'Freediving Amsterdam | Blue Mind Freediving Club',
     description: "Freediving Amsterdam - Blue Mind, Amsterdam's #1 freediving club. Professional pool training at Sloterparkbad with AIDA certified instructors.",
@@ -98,13 +99,13 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: 'https://bluemindfreediving.nl',
+    canonical: BASE_URL,
   },
 };
 
 // JSON-LD Structured Data - Enhanced LocalBusiness + SportsClub + ExerciseGym Schema
 const jsonLd = generateLocalBusinessSchema({
-  baseUrl: 'https://bluemindfreediving.nl',
+  baseUrl: BASE_URL,
 });
 
 export default function RootLayout({

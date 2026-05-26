@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/lib/siteConfig';
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
@@ -18,11 +19,11 @@ export const metadata: Metadata = {
     title: 'Pool Distance Calculator — Any Pool Size',
     description:
       'Calculate realised distances for any pool length during freediving competitions — including non-standard sizes like 33 m.',
-    url: 'https://bluemindfreediving.nl/judging/pool-distance',
+    url: `${BASE_URL}/judging/pool-distance`,
     type: 'article',
   },
   alternates: {
-    canonical: 'https://bluemindfreediving.nl/judging/pool-distance',
+    canonical: `${BASE_URL}/judging/pool-distance`,
   },
 };
 

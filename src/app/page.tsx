@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/lib/siteConfig';
 import type { Metadata } from 'next';
 import Script from 'next/script';
 import Hero from '@/sections/Hero';
@@ -12,7 +13,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Freediving Amsterdam | Blue Mind Freediving Club',
     description: 'Freediving Amsterdam - Join Blue Mind, Amsterdam\'s premier freediving club. Professional pool training at Sloterparkbad. AIDA certified instructors.',
-    url: 'https://bluemindfreediving.nl',
+    url: BASE_URL,
     type: 'website',
     images: [
       {
@@ -30,7 +31,7 @@ export const metadata: Metadata = {
     images: ['/images/hero.webp'],
   },
   alternates: {
-    canonical: 'https://bluemindfreediving.nl',
+    canonical: BASE_URL,
   },
 };
 
@@ -43,7 +44,7 @@ const breadcrumbSchema = {
       '@type': 'ListItem',
       position: 1,
       name: 'Home',
-      item: 'https://bluemindfreediving.nl',
+      item: BASE_URL,
     },
   ],
 };

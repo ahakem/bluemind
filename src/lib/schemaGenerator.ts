@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/lib/siteConfig';
 /**
  * JSON-LD Schema Generator for Blue Mind Freediving
  * Generates comprehensive structured data for SEO optimization
@@ -9,7 +10,7 @@ interface SchemaConfig {
   founderName?: string;
 }
 
-export const generateLocalBusinessSchema = (config: SchemaConfig = { baseUrl: 'https://bluemindfreediving.nl' }) => {
+export const generateLocalBusinessSchema = (config: SchemaConfig = { baseUrl: BASE_URL }) => {
   const jsonLd = {
     '@context': 'https://schema.org',
     '@graph': [

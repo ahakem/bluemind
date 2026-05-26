@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/lib/siteConfig';
 /**
  * Blog Post Detail Page - SEO optimized with slug-based URL
  */
@@ -57,7 +58,7 @@ export async function generateMetadata({ params }: BlogPostPageProps): Promise<M
     const authorInfo = post.author ? await getAuthorInfo(post.author) : null;
     const authorDisplayName = authorInfo?.displayName || post.authorDisplayName || post.author?.split('@')[0] || 'BlueMind';
 
-    const url = `https://bluemindfreediving.nl/blog/${post.slug}/`;
+    const url = `${BASE_URL}/blog/${post.slug}/`;
     
     return {
       title: `${post.title} | Blue Mind Freediving Blog`,
@@ -214,7 +215,7 @@ export default async function BlogPostPage({ params }: BlogPostPageProps) {
           <ShareButtons
             title={post.title}
             excerpt={post.excerpt}
-            url={`https://bluemindfreediving.nl/blog/${post.slug}/`}
+            url={`${BASE_URL}/blog/${post.slug}/`}
           />
         </Box>
 

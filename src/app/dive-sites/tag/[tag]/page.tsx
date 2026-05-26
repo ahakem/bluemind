@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/lib/siteConfig';
 import { notFound } from 'next/navigation';
 import type { Metadata } from 'next';
 import { getActiveDiveSites } from '@/lib/diveSiteService';
@@ -5,7 +6,6 @@ import TagListingClient from './TagListingClient';
 
 export const revalidate = 86400;
 
-const BASE_URL = 'https://bluemindfreediving.nl';
 
 function tagToSlug(tag: string) {
   return tag.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');

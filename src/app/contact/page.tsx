@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/lib/siteConfig';
 import type { Metadata } from 'next';
 import Contact from '@/sections/Contact';
 
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Contact Us | Blue Mind Freediving Amsterdam',
     description: 'Contact Blue Mind Freediving Amsterdam. Get in touch about membership or training.',
-    url: 'https://bluemindfreediving.nl/contact',
+    url: `${BASE_URL}/contact`,
     type: 'website',
     images: [
       {

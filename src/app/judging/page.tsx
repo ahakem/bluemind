@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/lib/siteConfig';
 import type { Metadata } from 'next';
 import { Container, Box, Typography, Button, Chip, Divider } from '@mui/material';
 import Link from 'next/link';
@@ -29,7 +30,7 @@ export const metadata: Metadata = {
     title: 'AIDA Freediving Judge Suite - Free Scoring & Penalty Tools',
     description:
       'Professional scoring, penalty, and distance tools for AIDA freediving judges. Free, open, and updated for v17.7 rules.',
-    url: 'https://bluemindfreediving.nl/judging',
+    url: `${BASE_URL}/judging`,
     type: 'article',
   },
   twitter: {
@@ -39,7 +40,7 @@ export const metadata: Metadata = {
       'Free professional tools for freediving judges — scoring, penalties, pool distance tracker.',
   },
   alternates: {
-    canonical: 'https://bluemindfreediving.nl/judging',
+    canonical: `${BASE_URL}/judging`,
   },
 };
 

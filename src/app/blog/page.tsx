@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/lib/siteConfig';
 /**
  * Blog Index Page - SEO optimized with server-side rendering
  */
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'en_NL',
-    url: 'https://bluemindfreediving.nl/blog',
+    url: `${BASE_URL}/blog`,
     siteName: 'Blue Mind Freediving',
     title: 'Freediving Blog | Blue Mind',
     description: 'Articles and tips about freediving training and techniques',

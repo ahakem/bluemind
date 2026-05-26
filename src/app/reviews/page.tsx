@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/lib/siteConfig';
 import type { Metadata } from 'next';
 import Script from 'next/script';
 import { fetchReviews, type Review } from '@/lib/googleReviews';
@@ -5,7 +6,6 @@ import ReviewsSection from '@/sections/Reviews';
 
 export const dynamic = 'force-dynamic';
 
-const BASE_URL = 'https://bluemindfreediving.nl';
 
 export const metadata: Metadata = {
   title: 'Reviews | Blue Mind Freediving Amsterdam',

@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/lib/siteConfig';
 import type { Metadata } from 'next';
 import Gallery from '@/sections/Gallery';
 
@@ -16,7 +17,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Gallery | Blue Mind Freediving Amsterdam',
     description: 'Explore our freediving training gallery featuring professional pool sessions in Amsterdam.',
-    url: 'https://bluemindfreediving.nl/gallery',
+    url: `${BASE_URL}/gallery`,
     images: [
       {
         url: '/images/gallery/1.webp',
@@ -27,7 +28,7 @@ export const metadata: Metadata = {
     ],
   },
   alternates: {
-    canonical: 'https://bluemindfreediving.nl/gallery',
+    canonical: `${BASE_URL}/gallery`,
   },
 };
 

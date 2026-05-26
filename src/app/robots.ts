@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/lib/siteConfig';
 import type { MetadataRoute } from 'next';
 
 export const dynamic = 'force-static';
@@ -8,6 +9,6 @@ export default function robots(): MetadataRoute.Robots {
       userAgent: '*',
       allow: '/',
     },
-    sitemap: 'https://bluemindfreediving.nl/sitemap.xml',
+    sitemap: `${BASE_URL}/sitemap.xml`,
   };
 }

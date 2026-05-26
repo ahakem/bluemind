@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/lib/siteConfig';
 import type { Metadata } from 'next';
 import Community from '@/sections/Community';
 
@@ -17,7 +18,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Community | Blue Mind Freediving Amsterdam',
     description: "Meet our community partners and guest instructors. Together, we're building Amsterdam's most inspiring freediving community.",
-    url: 'https://bluemindfreediving.nl/community',
+    url: `${BASE_URL}/community`,
     images: [
       {
         url: '/images/BMF-founders.webp',
@@ -28,7 +29,7 @@ export const metadata: Metadata = {
     ],
   },
   alternates: {
-    canonical: 'https://bluemindfreediving.nl/community',
+    canonical: `${BASE_URL}/community`,
   },
 };
 

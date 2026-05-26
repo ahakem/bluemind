@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/lib/siteConfig';
 import type { Metadata } from 'next';
 import Calendar from '@/sections/Calendar';
 import { getUpcomingSessions } from '@/lib/bookingService';
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Training Schedule | Blue Mind Freediving Amsterdam',
     description: 'View Blue Mind Freediving training schedule at Sloterparkbad Amsterdam.',
-    url: 'https://bluemindfreediving.nl/schedule',
+    url: `${BASE_URL}/schedule`,
     type: 'website',
     images: [
       {

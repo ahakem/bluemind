@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/lib/siteConfig';
 /**
  * useSchemaInjection - React Hook for managing JSON-LD schema injection
  * Safely injects and manages structured data on the client side
@@ -26,7 +27,7 @@ interface UseSchemaInjectionOptions {
 export function useSchemaInjection(options: UseSchemaInjectionOptions = {}) {
   const {
     scriptId = 'bluemind-schema-client',
-    baseUrl = 'https://bluemindfreediving.nl',
+    baseUrl = BASE_URL,
     autoInject = true,
   } = options;
 

@@ -1,3 +1,4 @@
+import { BASE_URL } from '@/lib/siteConfig';
 import type { Metadata } from 'next';
 import About from '@/sections/About';
 import Team from '@/sections/Team';
@@ -18,7 +19,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'About Us | Blue Mind Freediving Amsterdam',
     description: "Meet Hakim and Dewi, the founders of Amsterdam's premier freediving community. AIDA-certified instructors with national record achievements.",
-    url: 'https://bluemindfreediving.nl/about',
+    url: `${BASE_URL}/about`,
     images: [
       {
         url: '/images/BMF-founders.webp',
@@ -29,7 +30,7 @@ export const metadata: Metadata = {
     ],
   },
   alternates: {
-    canonical: 'https://bluemindfreediving.nl/about',
+    canonical: `${BASE_URL}/about`,
   },
 };
 
