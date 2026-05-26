@@ -11,7 +11,10 @@ const SCHOOL_PATHS = [
 ];
 
 export function middleware(request: NextRequest) {
-  const host = request.headers.get('host') ?? '';
+  const host =
+    request.headers.get('x-forwarded-host') ??
+    request.headers.get('host') ??
+    '';
   const isDiveSiteDomain =
     DIVE_SITE_DOMAINS.some((d) => host.includes(d)) ||
     process.env.NEXT_PUBLIC_FREEDIVE_ONE === 'true';
