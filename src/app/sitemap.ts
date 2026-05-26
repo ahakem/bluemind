@@ -9,21 +9,12 @@ export const revalidate = 86400;
 
 
 const STATIC_PAGES: MetadataRoute.Sitemap = [
-  { url: BASE_URL,                                   changeFrequency: 'weekly',  priority: 1.0 },
-  { url: `${BASE_URL}/training`,                     changeFrequency: 'monthly', priority: 0.9 },
-  { url: `${BASE_URL}/membership`,                   changeFrequency: 'monthly', priority: 0.9 },
-  { url: `${BASE_URL}/dive-sites`,                   changeFrequency: 'daily',   priority: 0.9 },
-  { url: `${BASE_URL}/about`,                        changeFrequency: 'monthly', priority: 0.8 },
-  { url: `${BASE_URL}/schedule`,                     changeFrequency: 'weekly',  priority: 0.8 },
-  { url: `${BASE_URL}/blog`,                         changeFrequency: 'weekly',  priority: 0.8 },
-  { url: `${BASE_URL}/community`,                    changeFrequency: 'monthly', priority: 0.7 },
-  { url: `${BASE_URL}/gallery`,                      changeFrequency: 'weekly',  priority: 0.7 },
-  { url: `${BASE_URL}/contact`,                      changeFrequency: 'monthly', priority: 0.7 },
-  { url: `${BASE_URL}/judging`,                      changeFrequency: 'monthly', priority: 0.7 },
-  { url: `${BASE_URL}/judging/scoring`,              changeFrequency: 'monthly', priority: 0.6 },
-  { url: `${BASE_URL}/judging/pool-distance`,        changeFrequency: 'monthly', priority: 0.6 },
-  { url: `${BASE_URL}/documents/privacy-policy`,     changeFrequency: 'yearly',  priority: 0.3 },
-  { url: `${BASE_URL}/documents/terms-of-service`,   changeFrequency: 'yearly',  priority: 0.3 },
+  { url: BASE_URL,                           changeFrequency: 'daily',   priority: 1.0 },
+  { url: `${BASE_URL}/dive-sites`,           changeFrequency: 'daily',   priority: 1.0 },
+  { url: `${BASE_URL}/blog`,                 changeFrequency: 'weekly',  priority: 0.8 },
+  { url: `${BASE_URL}/about`,                changeFrequency: 'monthly', priority: 0.7 },
+  { url: `${BASE_URL}/privacy-policy`,       changeFrequency: 'yearly',  priority: 0.3 },
+  { url: `${BASE_URL}/terms-of-service`,     changeFrequency: 'yearly',  priority: 0.3 },
 ];
 
 function listingUrl(params: Record<string, string>): string {

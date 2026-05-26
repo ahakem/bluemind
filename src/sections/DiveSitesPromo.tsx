@@ -104,7 +104,7 @@ export default function DiveSitesPromo() {
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems={{ sm: 'center' }}>
               <Button
                 component={Link}
-                href="/dive-sites"
+                href="https://freedive.one"
                 variant="contained"
                 size="large"
                 startIcon={<WaterIcon />}

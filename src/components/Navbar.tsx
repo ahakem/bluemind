@@ -275,7 +275,7 @@ const Navbar = () => {
                     key={item.name}
                     onClick={handleCloseNavMenu}
                     component={Link}
-                    href={item.href}
+                    href={isDiveSites ? 'https://freedive.one' : item.href}
                     selected={active}
                     sx={isDiveSites ? {
                       mx: 1, my: 0.5, borderRadius: 2,
@@ -322,7 +322,7 @@ const Navbar = () => {
                   <Button
                     key={item.name}
                     component={Link}
-                    href={item.href}
+                    href="https://freedive.one"
                     startIcon={<WaterIcon sx={{ fontSize: '16px !important' }} />}
                     sx={{
                       mx: 0.5, px: 1.75, py: 0.55,
