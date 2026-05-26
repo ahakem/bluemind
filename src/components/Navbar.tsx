@@ -33,7 +33,6 @@ const ALL_NAV_ITEMS = [
 ];
 
 const FREEDIVE_NAV_ITEMS = [
-  { name: "Dive Sites", href: "/dive-sites", isDiveSites: true },
   { name: "Blog", href: "/blog", isDiveSites: false },
   { name: "About", href: "/about", isDiveSites: false },
 ];
