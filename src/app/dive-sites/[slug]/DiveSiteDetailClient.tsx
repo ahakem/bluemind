@@ -1596,12 +1596,18 @@ export default function DiveSiteDetailClient({ site }: { site: DiveSite }) {
                             </Typography>
                           </Stack>
                           <Stack spacing={0.75}>
-                            {ml.specialSightings.map((s, i) => (
+                            {ml.specialSightings.map((s: unknown, i) => {
+                              const label = typeof s === 'string' ? s
+                                : s && typeof s === 'object'
+                                  ? (s as Record<string, string>).name || Object.values(s as Record<string, string>).filter(Boolean).join(' · ')
+                                  : String(s);
+                              return (
                               <Stack key={i} direction="row" spacing={1} alignItems="flex-start">
                                 <AutoAwesomeIcon sx={{ fontSize: 14, color: '#d97706', mt: 0.3, flexShrink: 0 }} />
-                                <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>{s}</Typography>
+                                <Typography variant="body2" sx={{ color: 'text.secondary', fontSize: '0.85rem' }}>{label}</Typography>
                               </Stack>
-                            ))}
+                              );
+                            })}
                           </Stack>
                         </Box>
                       )}

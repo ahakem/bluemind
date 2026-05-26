@@ -6,6 +6,7 @@ import {
   doc,
   getDocs,
   getDoc,
+  setDoc,
   query,
   where,
   orderBy,
@@ -330,4 +331,58 @@ export const getReviewQueue = async (
       timestamp: (data.timestamp as string) ?? '',
     };
   });
+};
+
+export const getReviewQueueCount = async (): Promise<number> => {
+  const firestore = validateDb();
+  const snap = await getDocs(collection(firestore, REVIEW_QUEUE_COLLECTION));
+  return snap.size;
+};
+
+export const deleteReviewItem = async (siteId: string): Promise<void> => {
+  const firestore = validateDb();
+  await deleteDoc(doc(firestore, REVIEW_QUEUE_COLLECTION, siteId));
+};
+
+export const saveReviewItem = async (item: ReviewQueueItem): Promise<void> => {
+  const firestore = validateDb();
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await setDoc(doc(firestore, REVIEW_QUEUE_COLLECTION, item.id), cleanForFirestore({
+    flag: item.flag,
+    originalData: item.originalData,
+    rawResponse: item.rawResponse,
+    attemptedEnhancement: item.attemptedEnhancement,
+    validationScore: item.validationScore,
+    issues: item.issues,
+    searchQueriesUsed: item.searchQueriesUsed,
+    timestamp: item.timestamp || new Date().toISOString(),
+  }) as any);
+};
+
+export const forceApplySiteEnhancement = async (siteId: string, item: ReviewQueueItem): Promise<void> => {
+  const firestore = validateDb();
+  const enh = item.attemptedEnhancement ?? {};
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  await updateDoc(doc(firestore, COLLECTION, siteId), cleanForFirestore({
+    description: enh.description,
+    highlights: enh.highlights,
+    maxDepth: enh.maxDepth ?? item.originalData,
+    visibilityRange: enh.visibilityRange,
+    freediverFriendly: enh.freediverFriendly,
+    freediverFriendlyReason: enh.freediverFriendlyReason,
+    hasLineDiving: enh.hasLineDiving,
+    lineDivingDetails: enh.lineDivingDetails ?? null,
+    freediverDepthRange: enh.freediverDepthRange,
+    freediverAccess: enh.freediverAccess,
+    freediverConditions: enh.freediverConditions,
+    facilitiesEnhanced: enh.facilities ?? {},
+    marineLife: enh.marineLife ?? {},
+    sources: enh.sources,
+    confidence: enh.confidence,
+    qualityScore: item.validationScore,
+    enhancedAt: new Date().toISOString(),
+    enhancedBy: 'force-applied',
+    updatedAt: Timestamp.now(),
+  }) as any);
+  await deleteDoc(doc(firestore, REVIEW_QUEUE_COLLECTION, siteId));
 };

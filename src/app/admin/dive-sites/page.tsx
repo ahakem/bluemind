@@ -65,8 +65,13 @@ import {
   generateSlug,
   markSiteVerified,
   getSiteVerificationCounts,
+  getReviewQueue,
+  getReviewQueueCount,
+  deleteReviewItem,
+  saveReviewItem,
+  forceApplySiteEnhancement,
 } from '@/lib/diveSiteService';
-import { DiveSite, DiveSiteDraft, WaterTempByMonth } from '@/types/admin';
+import { DiveSite, DiveSiteDraft, WaterTempByMonth, ReviewQueueItem } from '@/types/admin';
 
 const CoordinatePickerMap = dynamic(() => import('@/components/CoordinatePickerMap'), { ssr: false });
 
@@ -220,6 +225,35 @@ export default function AdminDiveSitesPage() {
   const [enhancementFilter, setEnhancementFilter] = useState<'all' | 'enhanced' | 'not-enhanced'>('all');
   const [moreFiltersAnchor, setMoreFiltersAnchor] = useState<HTMLElement | null>(null);
 
+  // Review queue
+  const [showReviewQueue, setShowReviewQueue] = useState(false);
+  const [reviewQueueFlag, setReviewQueueFlag] = useState<'all' | 'insufficient_data' | 'parse_failed' | 'quality_failed' | 'enhanced' | 'not_processed'>('all');
+  const [reviewQueueCount, setReviewQueueCount] = useState<number | null>(null);
+  const [allReviewItems, setAllReviewItems] = useState<ReviewQueueItem[]>([]);
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [reviewError, setReviewError] = useState('');
+  const [rawContentItem, setRawContentItem] = useState<ReviewQueueItem | null>(null);
+  const [reviewActionWorking, setReviewActionWorking] = useState<string | null>(null);
+  const [reviewSelected, setReviewSelected] = useState<Set<string>>(new Set());
+  const [reviewBulkWorking, setReviewBulkWorking] = useState(false);
+  const [enhancedStatusFilter, setEnhancedStatusFilter] = useState<'all' | 'active' | 'pending' | 'archived'>('all');
+  const [reviewSearch, setReviewSearch] = useState('');
+
+  // Retry / re-parse dialog
+  const [retryDialogItem, setRetryDialogItem] = useState<ReviewQueueItem | null>(null);
+  const [retryState, setRetryState] = useState<'idle' | 'loading' | 'done'>('idle');
+  const [retryResult, setRetryResult] = useState<Record<string, unknown> | null>(null);
+  const [retryLoadingStep, setRetryLoadingStep] = useState(0);
+  const [retryMode, setRetryMode] = useState<'enhance' | 'reparse'>('enhance');
+  const [retrySearchName, setRetrySearchName] = useState('');
+  const [retrySearchLocation, setRetrySearchLocation] = useState('');
+  const [retrySearchCountry, setRetrySearchCountry] = useState('');
+
+  // Form (Add/Edit) enhancement
+  const [formEnhancing, setFormEnhancing] = useState(false);
+  const [formEnhanceResult, setFormEnhanceResult] = useState<Record<string, unknown> | null>(null);
+  const [fetchingTemps, setFetchingTemps] = useState(false);
+
   const filtered = sites.filter((s) => {
     if (search && !s.name.toLowerCase().includes(search.toLowerCase()) && !s.location.toLowerCase().includes(search.toLowerCase())) return false;
     if (statusFilter !== 'all' && s.status !== statusFilter) return false;
@@ -289,7 +323,306 @@ export default function AdminDiveSitesPage() {
     }
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => {
+    load();
+    getReviewQueueCount().then(setReviewQueueCount).catch(() => {});
+  }, []);
+
+  const loadReviewQueue = () => {
+    setReviewLoading(true);
+    setReviewError('');
+    setAllReviewItems([]);
+    getReviewQueue()
+      .then((items) => {
+        setAllReviewItems(items);
+        setReviewQueueCount(items.length);
+      })
+      .catch((err) => { console.error('Review queue error:', err); setReviewError(err?.message || 'Failed to load'); })
+      .finally(() => setReviewLoading(false));
+  };
+
+  useEffect(() => {
+    if (!showReviewQueue) return;
+    setReviewSelected(new Set());
+    loadReviewQueue();
+  }, [showReviewQueue]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const RETRY_STEPS = ['Calling Gemini with Google Search...', 'Searching the web for site data...', 'Analyzing depth, features & marine life...', 'Validating data quality...'];
+  useEffect(() => {
+    if (retryState !== 'loading') { setRetryLoadingStep(0); return; }
+    const t = setInterval(() => setRetryLoadingStep((i) => Math.min(i + 1, RETRY_STEPS.length - 1)), 6000);
+    return () => clearInterval(t);
+  }, [retryState]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const reviewItems = allReviewItems
+    .filter((r) => {
+      if (reviewQueueFlag !== 'all') {
+        if (reviewQueueFlag === 'quality_failed' && r.flag !== 'quality_check_failed') return false;
+        if (reviewQueueFlag !== 'quality_failed' && r.flag !== reviewQueueFlag) return false;
+      }
+      if (reviewSearch) {
+        const q = reviewSearch.toLowerCase();
+        return (r.originalData?.name ?? '').toLowerCase().includes(q) ||
+          (r.originalData?.location ?? '').toLowerCase().includes(q) ||
+          (r.originalData?.country ?? '').toLowerCase().includes(q);
+      }
+      return true;
+    });
+
+  type GlobalResult =
+    | { kind: 'queue'; item: ReviewQueueItem }
+    | { kind: 'site'; site: DiveSite; category: 'enhanced' | 'not_processed' };
+
+  const globalSearchResults: GlobalResult[] = reviewSearch ? (() => {
+    const q = reviewSearch.toLowerCase();
+    const results: GlobalResult[] = [];
+    const seenIds = new Set<string>();
+    for (const r of allReviewItems) {
+      if (
+        (r.originalData?.name ?? '').toLowerCase().includes(q) ||
+        (r.originalData?.location ?? '').toLowerCase().includes(q) ||
+        (r.originalData?.country ?? '').toLowerCase().includes(q)
+      ) { results.push({ kind: 'queue', item: r }); seenIds.add(r.id); }
+    }
+    for (const s of sites) {
+      if (seenIds.has(s.id)) continue;
+      if (s.name.toLowerCase().includes(q) || s.location.toLowerCase().includes(q) || s.country.toLowerCase().includes(q)) {
+        results.push({ kind: 'site', site: s, category: s.enhancedAt ? 'enhanced' : 'not_processed' });
+      }
+    }
+    return results;
+  })() : [];
+
+  const reviewQueueIds = new Set(allReviewItems.map((r) => r.id));
+
+  const reviewCounts = {
+    all: allReviewItems.length,
+    insufficient_data: allReviewItems.filter((r) => r.flag === 'insufficient_data').length,
+    quality_failed: allReviewItems.filter((r) => r.flag === 'quality_check_failed').length,
+    parse_failed: allReviewItems.filter((r) => r.flag === 'parse_failed').length,
+    enhanced: sites.filter((s) => s.enhancedAt).length,
+    not_processed: sites.filter((s) => !s.enhancedAt && !reviewQueueIds.has(s.id) && s.status !== 'archived').length,
+  };
+
+  const enhancedSites = sites.filter((s) => {
+    if (!s.enhancedAt) return false;
+    if (enhancedStatusFilter !== 'all' && s.status !== enhancedStatusFilter) return false;
+    if (reviewSearch) {
+      const q = reviewSearch.toLowerCase();
+      return s.name.toLowerCase().includes(q) || s.location.toLowerCase().includes(q) || s.country.toLowerCase().includes(q);
+    }
+    return true;
+  });
+
+  const notProcessedSites = sites.filter((s) => {
+    if (s.enhancedAt || reviewQueueIds.has(s.id) || s.status === 'archived') return false;
+    if (reviewSearch) {
+      const q = reviewSearch.toLowerCase();
+      return s.name.toLowerCase().includes(q) || s.location.toLowerCase().includes(q) || s.country.toLowerCase().includes(q);
+    }
+    return true;
+  });
+
+  const removeReviewItem = (id: string) => {
+    setAllReviewItems((prev) => prev.filter((r) => r.id !== id));
+    setReviewQueueCount((c) => (c !== null ? c - 1 : c));
+    setReviewSelected((prev) => { const next = new Set(prev); next.delete(id); return next; });
+  };
+
+  const handleForceApply = async (item: ReviewQueueItem) => {
+    setReviewActionWorking(item.id);
+    try {
+      await forceApplySiteEnhancement(item.id, item);
+      removeReviewItem(item.id);
+      await load();
+    } catch (err: unknown) {
+      setReviewError((err as Error)?.message || 'Force apply failed');
+    } finally { setReviewActionWorking(null); }
+  };
+
+  const handleRetry = (item: ReviewQueueItem) => {
+    setRetryDialogItem(item);
+    setRetryMode('enhance');
+    setRetryState('idle');
+    setRetryResult(null);
+    setRetryLoadingStep(0);
+    setRetrySearchName(String(item.originalData?.name ?? ''));
+    setRetrySearchLocation(String(item.originalData?.location ?? ''));
+    setRetrySearchCountry(String(item.originalData?.country ?? ''));
+  };
+
+  const runEnhancement = (item: ReviewQueueItem) => {
+    setRetryState('loading');
+    setRetryResult(null);
+    setRetryLoadingStep(0);
+    const searchData = {
+      ...item.originalData,
+      name: retrySearchName || item.originalData?.name,
+      location: retrySearchLocation || item.originalData?.location,
+      country: retrySearchCountry || item.originalData?.country,
+    };
+    fetch('/api/enhance-site', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ siteData: searchData }),
+    })
+      .then((r) => r.json())
+      .then(async (data: Record<string, unknown>) => {
+        setRetryResult(data);
+        setRetryState('done');
+
+        // Auto-persist failures back to _needsReview so they're always findable
+        const status = data.status as string;
+        if (status === 'parse_failed' || status === 'quality_failed' || status === 'insufficient_data') {
+          const flag: ReviewQueueItem['flag'] =
+            status === 'quality_failed' ? 'quality_check_failed'
+            : status === 'parse_failed' ? 'parse_failed'
+            : 'insufficient_data';
+          const updatedItem: ReviewQueueItem = {
+            id: item.id,
+            flag,
+            originalData: item.originalData,
+            rawResponse: data.raw as string | undefined,
+            attemptedEnhancement: data.parsed as Record<string, unknown> | undefined,
+            validationScore: ((data.validation as Record<string, unknown> | undefined)?.score) as number | undefined,
+            issues: ((data.validation as Record<string, unknown> | undefined)?.issues) as string[] | undefined,
+            searchQueriesUsed: data.queries as string[] | undefined,
+            timestamp: new Date().toISOString(),
+          };
+          try {
+            await saveReviewItem(updatedItem);
+            setAllReviewItems((prev) => [...prev.filter((r) => r.id !== item.id), updatedItem]);
+            setReviewQueueCount((c) => {
+              const wasInQueue = allReviewItems.some((r) => r.id === item.id);
+              return c !== null && !wasInQueue ? c + 1 : c;
+            });
+          } catch (e) {
+            console.warn('Failed to persist retry result to review queue:', e);
+          }
+        }
+      })
+      .catch((err: unknown) => { setRetryResult({ error: (err as Error).message }); setRetryState('done'); });
+  };
+
+  const handleReparse = (item: ReviewQueueItem) => {
+    if (!item.rawResponse) return;
+    setRetryDialogItem(item);
+    setRetryMode('reparse');
+    setRetryState('loading');
+    setRetryResult(null);
+    fetch('/api/parse-response', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ raw: item.rawResponse }),
+    })
+      .then((r) => r.json())
+      .then(async (data: Record<string, unknown>) => {
+        setRetryResult(data);
+        setRetryState('done');
+        const status = data.status as string;
+        if (status === 'parse_failed' || status === 'quality_failed' || status === 'insufficient_data') {
+          const flag: ReviewQueueItem['flag'] =
+            status === 'quality_failed' ? 'quality_check_failed'
+            : status === 'parse_failed' ? 'parse_failed'
+            : 'insufficient_data';
+          const updatedItem: ReviewQueueItem = {
+            ...item, flag,
+            attemptedEnhancement: data.parsed as Record<string, unknown> | undefined,
+            validationScore: ((data.validation as Record<string, unknown> | undefined)?.score) as number | undefined,
+            issues: ((data.validation as Record<string, unknown> | undefined)?.issues) as string[] | undefined,
+            timestamp: new Date().toISOString(),
+          };
+          try {
+            await saveReviewItem(updatedItem);
+            setAllReviewItems((prev) => [...prev.filter((r) => r.id !== item.id), updatedItem]);
+          } catch (e) { console.warn('Failed to persist reparse result:', e); }
+        }
+      })
+      .catch((err: unknown) => { setRetryResult({ error: (err as Error).message }); setRetryState('done'); });
+  };
+
+  const handleRetrySave = async () => {
+    if (!retryDialogItem || !retryResult) return;
+    const parsed = retryResult.parsed as Record<string, unknown> | undefined;
+    if (!parsed) return;
+    setReviewActionWorking(retryDialogItem.id);
+    try {
+      const synthItem: ReviewQueueItem = {
+        ...retryDialogItem,
+        attemptedEnhancement: parsed,
+        validationScore: ((retryResult.validation as Record<string, unknown> | undefined)?.score as number | undefined),
+      };
+      await forceApplySiteEnhancement(retryDialogItem.id, synthItem);
+      removeReviewItem(retryDialogItem.id);
+      await load();
+      setRetryDialogItem(null);
+    } catch (err: unknown) {
+      setReviewError((err as Error)?.message || 'Save failed');
+      setRetryDialogItem(null);
+    } finally { setReviewActionWorking(null); }
+  };
+
+  const handleRetryDismiss = async () => {
+    if (!retryDialogItem) return;
+    setReviewActionWorking(retryDialogItem.id);
+    try {
+      await deleteReviewItem(retryDialogItem.id);
+      removeReviewItem(retryDialogItem.id);
+    } catch (err: unknown) {
+      setReviewError((err as Error)?.message || 'Dismiss failed');
+    } finally {
+      setReviewActionWorking(null);
+      setRetryDialogItem(null);
+    }
+  };
+
+  const handleDismiss = async (item: ReviewQueueItem) => {
+    setReviewActionWorking(item.id);
+    try {
+      await deleteReviewItem(item.id);
+      removeReviewItem(item.id);
+    } catch (err: unknown) {
+      setReviewError((err as Error)?.message || 'Dismiss failed');
+    } finally { setReviewActionWorking(null); }
+  };
+
+  const handleReviewBulkStatus = async (status: DiveSite['status']) => {
+    setReviewBulkWorking(true);
+    try {
+      await Promise.all([...reviewSelected].map((id) => updateDiveSite(id, { status })));
+      setReviewSelected(new Set());
+      await load();
+    } catch (err: unknown) {
+      setReviewError((err as Error)?.message || 'Bulk update failed');
+    } finally { setReviewBulkWorking(false); }
+  };
+
+  const handleReviewBulkVerify = async () => {
+    setReviewBulkWorking(true);
+    try {
+      await Promise.all([...reviewSelected].map((id) => markSiteVerified(id, true)));
+      setReviewSelected(new Set());
+      await load();
+    } catch (err: unknown) {
+      setReviewError((err as Error)?.message || 'Bulk verify failed');
+    } finally { setReviewBulkWorking(false); }
+  };
+
+  const reviewRowIds = reviewQueueFlag === 'enhanced'
+    ? enhancedSites.map((s) => s.id)
+    : reviewQueueFlag === 'not_processed'
+      ? notProcessedSites.map((s) => s.id)
+      : reviewItems.map((r) => r.id);
+  const reviewAllSelected = reviewRowIds.length > 0 && reviewRowIds.every((id) => reviewSelected.has(id));
+  const reviewSomeSelected = reviewRowIds.some((id) => reviewSelected.has(id)) && !reviewAllSelected;
+
+  const toggleReviewAll = () => {
+    if (reviewAllSelected) {
+      setReviewSelected(new Set());
+    } else {
+      setReviewSelected(new Set(reviewRowIds));
+    }
+  };
 
   // Auto-open edit dialog when ?edit=<siteId> is in the URL
   useEffect(() => {
@@ -359,7 +692,11 @@ export default function AdminDiveSitesPage() {
   };
 
   // Single site actions
-  const openCreate = () => { setEditingSite(null); setDraft(EMPTY_DRAFT); setDialogOpen(true); };
+  const openCreate = () => {
+    setEditingSite(null); setDraft(EMPTY_DRAFT);
+    setFormEnhanceResult(null); setFormEnhancing(false);
+    setDialogOpen(true);
+  };
 
   const openEdit = (site: DiveSite) => {
     setEditingSite(site);
@@ -374,15 +711,139 @@ export default function AdminDiveSitesPage() {
       status: site.status, slug: site.slug,
       activities: site.activities ?? [],
     });
+    setFormEnhanceResult(null); setFormEnhancing(false);
     setDialogOpen(true);
+  };
+
+  const handleFormEnhance = async () => {
+    setFormEnhancing(true);
+    setFormEnhanceResult(null);
+    try {
+      const res = await fetch('/api/enhance-site', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ siteData: draft }),
+      });
+      const data = await res.json();
+      setFormEnhanceResult(data);
+    } catch (err) {
+      setError(`Enhancement failed: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setFormEnhancing(false);
+    }
+  };
+
+  const applyFormEnhancement = () => {
+    if (!formEnhanceResult?.parsed) return;
+    const p = formEnhanceResult.parsed as Record<string, unknown>;
+    setDraft((d) => ({
+      ...d,
+      description: typeof p.description === 'string' ? p.description : d.description,
+      highlights: Array.isArray(p.highlights) ? (p.highlights as string[]) : d.highlights,
+      maxDepth: typeof p.maxDepth === 'string'
+        ? (parseFloat(p.maxDepth) || d.maxDepth)
+        : typeof p.maxDepth === 'number' ? p.maxDepth : d.maxDepth,
+    }));
+  };
+
+  const fetchWaterTemps = async () => {
+    const { lat, lng } = draft.coordinates;
+    if (!lat || !lng) return;
+    setFetchingTemps(true);
+    try {
+      const year = new Date().getFullYear() - 1;
+      const startDate = `${year}-01-01`;
+      const endDate   = `${year}-12-31`;
+      const monthly: Record<string, number[]> = {};
+
+      const accumulateDaily = (
+        times: string[], maxVals: (number | null)[], minVals: (number | null)[]
+      ) => {
+        times.forEach((dateStr, i) => {
+          const month = new Date(dateStr + 'T00:00:00Z').getUTCMonth();
+          const key   = MONTH_KEYS[month];
+          const max   = maxVals[i]; const min = minVals[i];
+          const avg   = max != null && min != null ? (max + min) / 2 : (max ?? min);
+          if (avg != null) { (monthly[key] ??= []).push(avg); }
+        });
+      };
+
+      // For sea sites — try marine API (sea surface temperature)
+      if (draft.waterType === 'sea') {
+        const marineUrl = `https://marine-api.open-meteo.com/v1/marine?latitude=${lat}&longitude=${lng}&daily=sea_surface_temperature_max,sea_surface_temperature_min&start_date=${startDate}&end_date=${endDate}&timezone=GMT`;
+        const marineRes = await fetch(marineUrl);
+        const marineData = await marineRes.json();
+        if (marineData.daily?.time && Array.isArray(marineData.daily.sea_surface_temperature_max)) {
+          accumulateDaily(
+            marineData.daily.time,
+            marineData.daily.sea_surface_temperature_max,
+            marineData.daily.sea_surface_temperature_min ?? marineData.daily.sea_surface_temperature_max,
+          );
+        }
+      }
+
+      // Fallback (or primary for lakes): archive weather API — air temp is a reasonable proxy for shallow lakes
+      if (Object.keys(monthly).length === 0 && draft.waterType !== 'deep_tank') {
+        const archiveUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lng}&start_date=${startDate}&end_date=${endDate}&daily=temperature_2m_max,temperature_2m_min&timezone=GMT`;
+        const archiveRes = await fetch(archiveUrl);
+        const archiveData = await archiveRes.json();
+        if (archiveData.daily?.time && Array.isArray(archiveData.daily.temperature_2m_max)) {
+          accumulateDaily(
+            archiveData.daily.time,
+            archiveData.daily.temperature_2m_max,
+            archiveData.daily.temperature_2m_min,
+          );
+        }
+      }
+
+      if (Object.keys(monthly).length === 0) {
+        setError('No temperature data found for these coordinates');
+        return;
+      }
+
+      const newTemps: WaterTempByMonth = {};
+      (Object.entries(monthly) as [keyof WaterTempByMonth, number[]][]).forEach(([key, vals]) => {
+        newTemps[key] = Math.round((vals.reduce((a, b) => a + b, 0) / vals.length) * 10) / 10;
+      });
+      setDraft((d) => ({ ...d, waterTemp: newTemps }));
+    } catch (err) {
+      setError(`Failed to fetch temperatures: ${err instanceof Error ? err.message : String(err)}`);
+    } finally {
+      setFetchingTemps(false);
+    }
   };
 
   const handleSave = async () => {
     if (!draft.name || !draft.location) return;
     setSaving(true);
     try {
-      if (editingSite) { await updateDiveSite(editingSite.id, draft); }
-      else { await createDiveSite(draft); }
+      let savedId: string;
+      if (editingSite) {
+        await updateDiveSite(editingSite.id, draft);
+        savedId = editingSite.id;
+      } else {
+        savedId = await createDiveSite(draft);
+      }
+      // Apply enhancement extras (marineLife, sources, etc.) if available
+      if (formEnhanceResult?.parsed) {
+        const p = formEnhanceResult.parsed as Record<string, unknown>;
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await updateDiveSite(savedId, {
+          marineLife: p.marineLife,
+          facilitiesEnhanced: p.facilities,
+          enhancedAt: new Date().toISOString(),
+          sources: p.sources,
+          confidence: p.confidence,
+          visibilityRange: p.visibilityRange,
+          freediverFriendly: p.freediverFriendly,
+          freediverFriendlyReason: p.freediverFriendlyReason,
+          hasLineDiving: p.hasLineDiving,
+          lineDivingDetails: p.lineDivingDetails,
+          freediverDepthRange: p.freediverDepthRange,
+          freediverAccess: p.freediverAccess,
+          freediverConditions: p.freediverConditions,
+        } as any);
+      }
       setDialogOpen(false);
       await load();
     } catch (err) {
@@ -451,7 +912,7 @@ export default function AdminDiveSitesPage() {
           </FormControl>
 
           {/* Enhancement */}
-          <FormControl size="small" sx={{ minWidth: 150 }}>
+          <FormControl size="small" sx={{ minWidth: 155 }}>
             <InputLabel>Enhancement</InputLabel>
             <Select label="Enhancement" value={enhancementFilter} onChange={(e) => { setEnhancementFilter(e.target.value as typeof enhancementFilter); setPage(0); }}>
               <MenuItem value="all">All</MenuItem>
@@ -459,6 +920,17 @@ export default function AdminDiveSitesPage() {
               <MenuItem value="not-enhanced">⬜ Not enhanced</MenuItem>
             </Select>
           </FormControl>
+
+          {/* Review Queue button */}
+          <Button
+            size="small"
+            variant={showReviewQueue ? 'contained' : 'outlined'}
+            color={showReviewQueue ? 'warning' : 'inherit'}
+            onClick={() => setShowReviewQueue((v) => !v)}
+            sx={{ whiteSpace: 'nowrap', fontWeight: 600 }}
+          >
+            ⚠️ Review Queue{reviewQueueCount !== null && reviewQueueCount > 0 ? ` (${reviewQueueCount})` : ''}
+          </Button>
 
           {/* More filters popover */}
           <Button
@@ -579,9 +1051,9 @@ export default function AdminDiveSitesPage() {
         </Stack>
       </Paper>
 
-      {loading ? (
+      {!showReviewQueue && loading ? (
         <Box sx={{ display: 'flex', justifyContent: 'center', py: 8 }}><CircularProgress /></Box>
-      ) : isMobile ? (
+      ) : !showReviewQueue && isMobile ? (
         /* ── MOBILE CARD LIST ─────────────────────────────────────────────── */
         <Box>
           {/* Bulk toolbar */}
@@ -745,7 +1217,7 @@ export default function AdminDiveSitesPage() {
             rowsPerPageOptions={[25, 50, 100]}
           />
         </Box>
-      ) : (
+      ) : !showReviewQueue ? (
         /* ── DESKTOP TABLE ────────────────────────────────────────────────── */
         <Paper sx={{ borderRadius: 3, boxShadow: 2, overflow: 'hidden' }}>
           {/* Bulk action toolbar */}
@@ -924,7 +1396,635 @@ export default function AdminDiveSitesPage() {
             rowsPerPageOptions={[25, 50, 100]}
           />
         </Paper>
+      ) : null}
+
+      {/* ── Review Queue ─────────────────────────────────────────────────── */}
+      {showReviewQueue && (
+        <Paper sx={{ borderRadius: 3, boxShadow: 2, overflow: 'hidden', mt: 2 }}>
+          {/* Queue header + flag tabs */}
+          <Box sx={{ px: 2.5, pt: 2, pb: 1.5, borderBottom: '1px solid', borderColor: 'divider' }}>
+            <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1} mb={1.5}>
+              <Typography fontWeight={700} fontSize={15}>Review Queue</Typography>
+              <TextField
+                size="small"
+                placeholder="Search name, location…"
+                value={reviewSearch}
+                onChange={(e) => setReviewSearch(e.target.value)}
+                sx={{ width: 220 }}
+                slotProps={{ input: { startAdornment: <InputAdornment position="start"><SearchIcon fontSize="small" /></InputAdornment> } }}
+              />
+            </Stack>
+            <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
+                {([
+                  { value: 'all',               label: '⭐❌🔴 All',           count: reviewCounts.all },
+                  { value: 'insufficient_data', label: '⭐ Insufficient data', count: reviewCounts.insufficient_data },
+                  { value: 'quality_failed',    label: '❌ Quality failed',    count: reviewCounts.quality_failed },
+                  { value: 'parse_failed',      label: '🔴 Parse failed',      count: reviewCounts.parse_failed },
+                  { value: 'enhanced',          label: '✅ Enhanced',          count: reviewCounts.enhanced },
+                  { value: 'not_processed',     label: '⬜ Not processed',     count: reviewCounts.not_processed },
+                ] as const).map((opt) => (
+                  <Chip
+                    key={opt.value}
+                    label={`${opt.label}${opt.count > 0 ? ` (${opt.count})` : ''}`}
+                    size="small"
+                    variant={reviewQueueFlag === opt.value ? 'filled' : 'outlined'}
+                    color={reviewQueueFlag === opt.value ? 'primary' : 'default'}
+                    onClick={() => { setReviewQueueFlag(opt.value); setReviewSelected(new Set()); }}
+                    sx={{ fontWeight: 600, cursor: 'pointer' }}
+                  />
+                ))}
+            </Stack>
+          </Box>
+
+          {/* Shared bulk toolbar */}
+          {reviewSelected.size > 0 && (
+            <Toolbar sx={{ bgcolor: (t) => alpha(t.palette.warning.main, 0.08), borderBottom: '1px solid', borderColor: 'divider', gap: 1 }}>
+              <Typography sx={{ flex: 1 }} fontWeight={600}>{reviewSelected.size} selected</Typography>
+              {reviewQueueFlag === 'enhanced' && (
+                <Button size="small" startIcon={<VerifiedIcon />} color="primary" variant="outlined" disabled={reviewBulkWorking} onClick={handleReviewBulkVerify}>Verify</Button>
+              )}
+              <Button size="small" startIcon={<CheckCircleIcon />} color="success" variant="outlined" disabled={reviewBulkWorking} onClick={() => handleReviewBulkStatus('active')}>Set Active</Button>
+              <Button size="small" startIcon={<PendingIcon />} variant="outlined" disabled={reviewBulkWorking} onClick={() => handleReviewBulkStatus('pending')}>Set Pending</Button>
+              <Button size="small" startIcon={<ArchiveIcon />} variant="outlined" disabled={reviewBulkWorking} onClick={() => handleReviewBulkStatus('archived')}>Set Archived</Button>
+              {reviewBulkWorking && <CircularProgress size={20} />}
+            </Toolbar>
+          )}
+
+          {reviewLoading ? (
+            <Box sx={{ p: 4, textAlign: 'center' }}><CircularProgress /></Box>
+          ) : reviewError ? (
+            <Box sx={{ p: 2.5 }}>
+              <Alert severity="error">{reviewError}</Alert>
+            </Box>
+          ) : reviewSearch && globalSearchResults.length === 0 ? (
+            <Box sx={{ p: 4, textAlign: 'center' }}>
+              <Typography color="text.secondary">No sites match &ldquo;{reviewSearch}&rdquo;</Typography>
+            </Box>
+          ) : reviewSearch ? (
+            /* ── Global search results across all categories ── */
+            <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow sx={{ bgcolor: '#f5f7fa' }}>
+                    <TableCell sx={{ fontWeight: 700 }}>Site</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Country</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Category</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }} align="right">Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {globalSearchResults.map((result) => {
+                    const id = result.kind === 'queue' ? result.item.id : result.site.id;
+                    const name = result.kind === 'queue' ? (result.item.originalData?.name ?? id) : result.site.name;
+                    const location = result.kind === 'queue' ? (result.item.originalData?.location ?? '') : result.site.location;
+                    const country = result.kind === 'queue' ? (result.item.originalData?.country ?? '') : result.site.country;
+                    const slug = result.kind === 'queue' ? result.item.originalData?.slug : result.site.slug;
+                    const working = reviewActionWorking === id;
+                    return (
+                      <TableRow key={id} hover sx={{ opacity: working ? 0.5 : 1 }}>
+                        <TableCell>
+                          <Typography fontWeight={600} fontSize={14}>{name}</Typography>
+                          <Typography variant="caption" color="text.secondary">{location}</Typography>
+                        </TableCell>
+                        <TableCell><Typography fontSize={13}>{country}</Typography></TableCell>
+                        <TableCell>
+                          {result.kind === 'queue' && result.item.flag === 'insufficient_data'    && <Chip label="⭐ Insufficient data" size="small" sx={{ bgcolor: '#fef9c3', color: '#854d0e', fontWeight: 600, fontSize: '0.7rem' }} />}
+                          {result.kind === 'queue' && result.item.flag === 'quality_check_failed' && <Chip label={`❌ Score ${result.item.validationScore ?? '?'}/100`} size="small" sx={{ bgcolor: '#fee2e2', color: '#991b1b', fontWeight: 600, fontSize: '0.7rem' }} />}
+                          {result.kind === 'queue' && result.item.flag === 'parse_failed'         && <Chip label="🔴 Parse failed" size="small" sx={{ bgcolor: '#fce7f3', color: '#9d174d', fontWeight: 600, fontSize: '0.7rem' }} />}
+                          {result.kind === 'site'  && result.category === 'enhanced'              && <Chip label="✅ Enhanced" size="small" sx={{ bgcolor: '#dcfce7', color: '#166534', fontWeight: 600, fontSize: '0.7rem' }} />}
+                          {result.kind === 'site'  && result.category === 'not_processed'         && <Chip label="⬜ Not processed" size="small" sx={{ bgcolor: '#f1f5f9', color: '#475569', fontWeight: 600, fontSize: '0.7rem' }} />}
+                        </TableCell>
+                        <TableCell align="right">
+                          <Stack direction="row" spacing={0.5} justifyContent="flex-end" alignItems="center">
+                            {working && <CircularProgress size={14} />}
+                            {slug && (
+                              <Tooltip title="View site">
+                                <IconButton size="small" component="a" href={`/dive-sites/${slug}`} target="_blank" disabled={working}>
+                                  <OpenInNewIcon sx={{ fontSize: 16 }} />
+                                </IconButton>
+                              </Tooltip>
+                            )}
+                            {result.kind === 'queue' && result.item.flag === 'parse_failed' && result.item.rawResponse && (
+                              <Button size="small" variant="outlined" color="secondary" disabled={working} sx={{ fontSize: '0.7rem', py: 0.3, px: 1 }} onClick={() => handleReparse(result.item)}>Re-parse</Button>
+                            )}
+                            {result.kind === 'queue' && result.item.flag === 'quality_check_failed' && result.item.attemptedEnhancement && (
+                              <Button size="small" variant="outlined" color="warning" disabled={working} sx={{ fontSize: '0.7rem', py: 0.3, px: 1 }} onClick={() => handleForceApply(result.item)}>Force save</Button>
+                            )}
+                            {(result.kind === 'queue' || (result.kind === 'site' && result.category === 'not_processed')) && (
+                              <Button size="small" variant="outlined" color="info" disabled={working} sx={{ fontSize: '0.7rem', py: 0.3, px: 1 }}
+                                onClick={() => handleRetry(result.kind === 'queue' ? result.item : { id, flag: 'insufficient_data', originalData: { name, location, country, slug: slug ?? '' }, timestamp: '' })}>
+                                {result.kind === 'site' ? 'Run' : 'Retry'}
+                              </Button>
+                            )}
+                            {result.kind === 'queue' && (
+                              <Button size="small" variant="outlined" color="error" disabled={working} sx={{ fontSize: '0.7rem', py: 0.3, px: 1 }} onClick={() => handleDismiss(result.item)}>Dismiss</Button>
+                            )}
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+          ) : reviewQueueFlag === 'enhanced' ? (
+            /* ── Enhanced sites table ── */
+            <>
+            {/* Status filter */}
+            <Box sx={{ px: 2, py: 1, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', gap: 1, alignItems: 'center' }}>
+              <Typography variant="caption" color="text.secondary" sx={{ mr: 0.5 }}>Status:</Typography>
+              {(['all', 'active', 'pending', 'archived'] as const).map((s) => {
+                const count = s === 'all'
+                  ? sites.filter((x) => x.enhancedAt).length
+                  : sites.filter((x) => x.enhancedAt && x.status === s).length;
+                return (
+                  <Chip
+                    key={s}
+                    label={`${s === 'all' ? 'All' : s.charAt(0).toUpperCase() + s.slice(1)} (${count})`}
+                    size="small"
+                    variant={enhancedStatusFilter === s ? 'filled' : 'outlined'}
+                    color={enhancedStatusFilter === s ? (s === 'active' ? 'success' : s === 'pending' ? 'warning' : s === 'archived' ? 'default' : 'primary') : 'default'}
+                    onClick={() => { setEnhancedStatusFilter(s); setReviewSelected(new Set()); }}
+                    sx={{ fontWeight: 600, cursor: 'pointer', fontSize: '0.72rem' }}
+                  />
+                );
+              })}
+            </Box>
+            {enhancedSites.length === 0 ? (
+              <Box sx={{ p: 4, textAlign: 'center' }}><Typography color="text.secondary">No enhanced sites with this status</Typography></Box>
+            ) : (
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: '#f5f7fa' }}>
+                      <TableCell padding="checkbox"><Checkbox size="small" checked={reviewAllSelected} indeterminate={reviewSomeSelected} onChange={toggleReviewAll} /></TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Site</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Country</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Verified</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Enhanced</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Score</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }} align="right">Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {enhancedSites.map((site) => (
+                      <TableRow key={site.id} hover selected={reviewSelected.has(site.id)}>
+                        <TableCell padding="checkbox">
+                          <Checkbox size="small" checked={reviewSelected.has(site.id)} onChange={() => setReviewSelected((prev) => { const next = new Set(prev); next.has(site.id) ? next.delete(site.id) : next.add(site.id); return next; })} />
+                        </TableCell>
+                        <TableCell>
+                          <Typography fontWeight={600} fontSize={14}>{site.name}</Typography>
+                          <Typography variant="caption" color="text.secondary">{site.location}</Typography>
+                        </TableCell>
+                        <TableCell><Typography fontSize={13}>{site.country}</Typography></TableCell>
+                        <TableCell>
+                          <Chip label={site.status} size="small" color={site.status === 'active' ? 'success' : site.status === 'pending' ? 'warning' : 'default'} sx={{ fontSize: '0.7rem', fontWeight: 600 }} />
+                        </TableCell>
+                        <TableCell>
+                          {site.verified
+                            ? <Chip label="✓ Verified" size="small" sx={{ bgcolor: '#dcfce7', color: '#166534', fontWeight: 600, fontSize: '0.7rem' }} />
+                            : <Typography variant="caption" color="text.secondary">—</Typography>}
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="caption" color="text.secondary">
+                            {site.enhancedAt ? new Date(site.enhancedAt).toLocaleDateString() : '—'}
+                          </Typography>
+                        </TableCell>
+                        <TableCell>
+                          {(site as unknown as Record<string,unknown>).qualityScore !== undefined
+                            ? <Chip label={`${(site as unknown as Record<string,unknown>).qualityScore}/100`} size="small" sx={{ bgcolor: '#eff6ff', color: '#1d4ed8', fontWeight: 600, fontSize: '0.7rem' }} />
+                            : <Typography variant="caption" color="text.secondary">—</Typography>}
+                        </TableCell>
+                        <TableCell align="right">
+                          <Stack direction="row" spacing={0.5} justifyContent="flex-end">
+                            <Tooltip title="View site">
+                              <IconButton size="small" component="a" href={`/dive-sites/${site.slug}`} target="_blank">
+                                <OpenInNewIcon sx={{ fontSize: 16 }} />
+                              </IconButton>
+                            </Tooltip>
+                            <Tooltip title={site.verified ? 'Unverify' : 'Verify'}>
+                              <IconButton size="small" onClick={async () => { await markSiteVerified(site.id, !site.verified); await load(); }}>
+                                <VerifiedIcon sx={{ fontSize: 16, color: site.verified ? 'success.main' : 'text.disabled' }} />
+                              </IconButton>
+                            </Tooltip>
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )}
+            </>
+          ) : reviewQueueFlag === 'not_processed' ? (
+            /* ── Not-processed sites table ── */
+            notProcessedSites.length === 0 ? (
+              <Box sx={{ p: 4, textAlign: 'center' }}>
+                <Typography color="text.secondary">All sites have been processed ✅</Typography>
+              </Box>
+            ) : (
+              <TableContainer>
+                <Table size="small">
+                  <TableHead>
+                    <TableRow sx={{ bgcolor: '#f5f7fa' }}>
+                      <TableCell padding="checkbox">
+                        <Checkbox size="small" checked={reviewAllSelected} indeterminate={reviewSomeSelected} onChange={toggleReviewAll} />
+                      </TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Site</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Country</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Status</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }}>Depth</TableCell>
+                      <TableCell sx={{ fontWeight: 700 }} align="right">Actions</TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {notProcessedSites.map((site) => {
+                      const working = reviewActionWorking === site.id;
+                      return (
+                        <TableRow key={site.id} hover selected={reviewSelected.has(site.id)} sx={{ opacity: working ? 0.5 : 1 }}>
+                          <TableCell padding="checkbox">
+                            <Checkbox size="small" checked={reviewSelected.has(site.id)} onChange={() => setReviewSelected((prev) => { const next = new Set(prev); next.has(site.id) ? next.delete(site.id) : next.add(site.id); return next; })} />
+                          </TableCell>
+                          <TableCell>
+                            <Typography fontWeight={600} fontSize={14}>{site.name}</Typography>
+                            <Typography variant="caption" color="text.secondary">{site.location}</Typography>
+                          </TableCell>
+                          <TableCell><Typography fontSize={13}>{site.country}</Typography></TableCell>
+                          <TableCell>
+                            <Chip label={site.status} size="small" color={site.status === 'active' ? 'success' : site.status === 'pending' ? 'warning' : 'default'} sx={{ fontSize: '0.7rem', fontWeight: 600 }} />
+                          </TableCell>
+                          <TableCell>
+                            <Typography fontSize={13}>{site.maxDepth ? `${site.maxDepth}m` : '—'}</Typography>
+                          </TableCell>
+                          <TableCell align="right">
+                            <Stack direction="row" spacing={0.5} justifyContent="flex-end" alignItems="center">
+                              {working && <CircularProgress size={14} />}
+                              <Tooltip title="View site">
+                                <IconButton size="small" component="a" href={`/dive-sites/${site.slug}`} target="_blank" disabled={working}>
+                                  <OpenInNewIcon sx={{ fontSize: 16 }} />
+                                </IconButton>
+                              </Tooltip>
+                              <Tooltip title="Run enhancement — call Gemini to fetch data for this site">
+                                <Button
+                                  size="small" variant="outlined" color="info" disabled={working}
+                                  sx={{ fontSize: '0.7rem', py: 0.3, px: 1 }}
+                                  onClick={() => handleRetry({ id: site.id, flag: 'insufficient_data', originalData: { name: site.name, location: site.location, country: site.country, slug: site.slug }, timestamp: '' })}
+                                >
+                                  Run
+                                </Button>
+                              </Tooltip>
+                            </Stack>
+                          </TableCell>
+                        </TableRow>
+                      );
+                    })}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+            )
+          ) : reviewItems.length === 0 ? (
+            <Box sx={{ p: 4, textAlign: 'center' }}>
+              <Typography color="text.secondary">No items in this category</Typography>
+            </Box>
+          ) : (
+            <>
+          <TableContainer>
+              <Table size="small">
+                <TableHead>
+                  <TableRow sx={{ bgcolor: '#f5f7fa' }}>
+                    <TableCell padding="checkbox">
+                      <Checkbox size="small" checked={reviewAllSelected} indeterminate={reviewSomeSelected} onChange={toggleReviewAll} />
+                    </TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Site</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Location</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Flag</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Details</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }}>Date</TableCell>
+                    <TableCell sx={{ fontWeight: 700 }} align="right">Actions</TableCell>
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {reviewItems.map((item) => {
+                    const working = reviewActionWorking === item.id;
+                    return (
+                      <TableRow key={item.id} hover selected={reviewSelected.has(item.id)} sx={{ opacity: working ? 0.5 : 1 }}>
+                        <TableCell padding="checkbox">
+                          <Checkbox size="small" checked={reviewSelected.has(item.id)} onChange={() => setReviewSelected((prev) => { const next = new Set(prev); next.has(item.id) ? next.delete(item.id) : next.add(item.id); return next; })} />
+                        </TableCell>
+                        <TableCell>
+                          <Typography fontWeight={600} fontSize={14}>{item.originalData?.name || item.id}</Typography>
+                          <Typography variant="caption" color="text.secondary">{item.id}</Typography>
+                        </TableCell>
+                        <TableCell>
+                          <Typography fontSize={13}>{item.originalData?.location || '—'}</Typography>
+                          <Typography variant="caption" color="text.secondary">{item.originalData?.country || ''}</Typography>
+                        </TableCell>
+                        <TableCell>
+                          {item.flag === 'insufficient_data'   && <Chip label="⭐ No data"        size="small" sx={{ bgcolor: '#fef9c3', color: '#854d0e', fontWeight: 600, fontSize: '0.7rem' }} />}
+                          {item.flag === 'quality_check_failed' && <Chip label={`❌ Score ${item.validationScore ?? '?'}/100`} size="small" sx={{ bgcolor: '#fee2e2', color: '#991b1b', fontWeight: 600, fontSize: '0.7rem' }} />}
+                          {item.flag === 'parse_failed'         && <Chip label="🔴 Parse failed"  size="small" sx={{ bgcolor: '#fce7f3', color: '#9d174d', fontWeight: 600, fontSize: '0.7rem' }} />}
+                        </TableCell>
+                        <TableCell sx={{ maxWidth: 260 }}>
+                          {item.flag === 'quality_check_failed' && item.issues && (
+                            <Typography variant="caption" color="text.secondary">{item.issues.slice(0, 3).join(' · ')}</Typography>
+                          )}
+                          {item.flag === 'parse_failed' && (
+                            <Typography variant="caption" color="text.secondary" sx={{ fontFamily: 'monospace', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block', maxWidth: 240 }}>
+                              {item.rawResponse?.slice(0, 80) ?? '—'}
+                            </Typography>
+                          )}
+                        </TableCell>
+                        <TableCell>
+                          <Typography variant="caption" color="text.secondary">
+                            {item.timestamp ? new Date(item.timestamp).toLocaleDateString() : '—'}
+                          </Typography>
+                        </TableCell>
+                        <TableCell align="right">
+                          <Stack direction="row" spacing={0.5} justifyContent="flex-end" alignItems="center">
+                            {working && <CircularProgress size={14} />}
+                            {item.originalData?.slug && (
+                              <Tooltip title="View site">
+                                <IconButton size="small" component="a" href={`/dive-sites/${item.originalData.slug}`} target="_blank" disabled={working}>
+                                  <OpenInNewIcon sx={{ fontSize: 16 }} />
+                                </IconButton>
+                              </Tooltip>
+                            )}
+                            {item.flag === 'parse_failed' && item.rawResponse && (
+                              <Tooltip title="View raw response">
+                                <IconButton size="small" onClick={() => setRawContentItem(item)} disabled={working}>
+                                  <SportsIcon sx={{ fontSize: 16 }} />
+                                </IconButton>
+                              </Tooltip>
+                            )}
+                            {item.flag === 'quality_check_failed' && item.attemptedEnhancement && (
+                              <Tooltip title="Force save — apply this enhancement even though it didn't pass validation">
+                                <Button size="small" variant="outlined" color="warning" disabled={working}
+                                  sx={{ fontSize: '0.7rem', py: 0.3, px: 1 }}
+                                  onClick={() => handleForceApply(item)}>
+                                  Force save
+                                </Button>
+                              </Tooltip>
+                            )}
+                            {item.flag === 'parse_failed' && item.rawResponse && (
+                              <Tooltip title="Re-parse — run the improved parser on the stored response without calling Gemini again">
+                                <Button size="small" variant="outlined" color="secondary" disabled={working}
+                                  sx={{ fontSize: '0.7rem', py: 0.3, px: 1 }}
+                                  onClick={() => handleReparse(item)}>
+                                  Re-parse
+                                </Button>
+                              </Tooltip>
+                            )}
+                            {(item.flag === 'parse_failed' || item.flag === 'insufficient_data') && (
+                              <Tooltip title="Retry — call Gemini again to fetch fresh data">
+                                <Button size="small" variant="outlined" color="info" disabled={working}
+                                  sx={{ fontSize: '0.7rem', py: 0.3, px: 1 }}
+                                  onClick={() => handleRetry(item)}>
+                                  Retry
+                                </Button>
+                              </Tooltip>
+                            )}
+                            <Tooltip title="Dismiss — remove from queue permanently">
+                              <Button size="small" variant="outlined" color="error" disabled={working}
+                                sx={{ fontSize: '0.7rem', py: 0.3, px: 1 }}
+                                onClick={() => handleDismiss(item)}>
+                                Dismiss
+                              </Button>
+                            </Tooltip>
+                          </Stack>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            </>
+          )}
+        </Paper>
       )}
+
+      {/* ── Raw Content Dialog ────────────────────────────────────────────── */}
+      <Dialog open={!!rawContentItem} onClose={() => setRawContentItem(null)} maxWidth="md" fullWidth>
+        <DialogTitle fontWeight={700}>Raw Gemini Response — {rawContentItem?.originalData?.name}</DialogTitle>
+        <DialogContent>
+          <Box
+            component="pre"
+            sx={{
+              bgcolor: '#1e1e1e', color: '#d4d4d4',
+              p: 2, borderRadius: 2, overflowX: 'auto',
+              fontSize: '0.78rem', fontFamily: 'monospace', lineHeight: 1.6,
+              maxHeight: 500, overflowY: 'auto', whiteSpace: 'pre-wrap', wordBreak: 'break-all',
+            }}
+          >
+            {rawContentItem?.rawResponse ?? ''}
+          </Box>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setRawContentItem(null)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+
+      {/* ── Retry Enhancement Dialog ─────────────────────────────────────── */}
+      <Dialog open={!!retryDialogItem} onClose={() => retryState !== 'loading' && setRetryDialogItem(null)} maxWidth="sm" fullWidth>
+        <DialogTitle fontWeight={700}>
+          Retry Enhancement — {retryDialogItem?.originalData?.name}
+          <Typography variant="body2" color="text.secondary" mt={0.5} fontWeight={400}>
+            {[retryDialogItem?.originalData?.location, retryDialogItem?.originalData?.country].filter(Boolean).join(', ')}
+          </Typography>
+        </DialogTitle>
+        <DialogContent>
+          {retryState === 'idle' && (
+            <Box sx={{ pt: 1 }}>
+              <Typography variant="body2" color="text.secondary" mb={2.5}>
+                Edit the search terms if needed, then start the enhancement.
+              </Typography>
+              <Stack spacing={2}>
+                <TextField
+                  label="Site name"
+                  value={retrySearchName}
+                  onChange={(e) => setRetrySearchName(e.target.value)}
+                  fullWidth
+                  autoFocus
+                />
+                <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
+                  <TextField
+                    label="Location / City"
+                    value={retrySearchLocation}
+                    onChange={(e) => setRetrySearchLocation(e.target.value)}
+                    fullWidth
+                  />
+                  <TextField
+                    label="Country"
+                    value={retrySearchCountry}
+                    onChange={(e) => setRetrySearchCountry(e.target.value)}
+                    fullWidth
+                  />
+                </Stack>
+              </Stack>
+            </Box>
+          )}
+          {retryState === 'loading' && (
+            <Box sx={{ textAlign: 'center', py: 5 }}>
+              <CircularProgress size={52} thickness={3} sx={{ mb: 3, color: '#0077be' }} />
+              {retryMode === 'reparse' ? (
+                <>
+                  <Typography fontWeight={700} fontSize={16} mb={1}>Re-parsing stored response…</Typography>
+                  <Typography variant="body2" color="text.secondary">Running improved parser on the existing Gemini output — no new API call</Typography>
+                </>
+              ) : (
+                <>
+                  <Typography fontWeight={700} fontSize={16} mb={1}>{RETRY_STEPS[retryLoadingStep]}</Typography>
+                  <Typography variant="body2" color="text.secondary">Gemini is searching the web — this usually takes 15–40 seconds</Typography>
+                  <Stack direction="row" spacing={1} justifyContent="center" mt={2.5}>
+                    {RETRY_STEPS.map((_, i) => (
+                      <Box key={i} sx={{ width: 8, height: 8, borderRadius: '50%', bgcolor: i <= retryLoadingStep ? '#0077be' : '#e2e8f0', transition: 'bgcolor 0.3s' }} />
+                    ))}
+                  </Stack>
+                </>
+              )}
+            </Box>
+          )}
+          {retryState === 'done' && retryResult && (
+            <Box sx={{ pt: 1 }}>
+              {/* Status badge */}
+              <Stack direction="row" alignItems="center" spacing={1.5} sx={{ mb: 2.5 }}>
+                {retryResult.status === 'passed' && (
+                  <Chip label="✅ Passed quality check" sx={{ bgcolor: '#dcfce7', color: '#166534', fontWeight: 700 }} />
+                )}
+                {retryResult.status === 'quality_failed' && (
+                  <Chip label={`❌ Quality failed — ${((retryResult.validation as Record<string,unknown>)?.score as number) ?? '?'}/100`} sx={{ bgcolor: '#fee2e2', color: '#991b1b', fontWeight: 700 }} />
+                )}
+                {retryResult.status === 'insufficient_data' && (
+                  <Chip label="⭐ Insufficient data found" sx={{ bgcolor: '#fef9c3', color: '#854d0e', fontWeight: 700 }} />
+                )}
+                {retryResult.status === 'parse_failed' && (
+                  <Chip label="🔴 Parse failed" sx={{ bgcolor: '#fce7f3', color: '#9d174d', fontWeight: 700 }} />
+                )}
+                {!!retryResult.error && (
+                  <Chip label={`Error: ${String(retryResult.error).slice(0, 60)}`} sx={{ bgcolor: '#fee2e2', color: '#991b1b', fontWeight: 700 }} />
+                )}
+              </Stack>
+
+              {/* Queries used */}
+              {Array.isArray(retryResult.queries) && (retryResult.queries as string[]).length > 0 && (
+                <Box sx={{ mb: 2 }}>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600}>Searches performed:</Typography>
+                  <Stack direction="row" flexWrap="wrap" gap={0.5} sx={{ mt: 0.5 }}>
+                    {(retryResult.queries as string[]).map((q, i) => (
+                      <Chip key={i} label={q} size="small" variant="outlined" sx={{ fontSize: '0.68rem' }} />
+                    ))}
+                  </Stack>
+                </Box>
+              )}
+
+              {/* Parsed data preview */}
+              {!!retryResult.parsed && (() => {
+                const p = retryResult.parsed as Record<string,unknown>;
+                const hl = Array.isArray(p.highlights) ? (p.highlights as unknown[]) : null;
+                const ml = p.marineLife as Record<string,unknown[]> | undefined;
+                const mlCount = ml ? (ml.fish?.length ?? 0) + (ml.corals?.length ?? 0) + (ml.macro?.length ?? 0) + (ml.pelagic?.length ?? 0) : 0;
+                const src = Array.isArray(p.sources) ? (p.sources as unknown[]) : null;
+                const desc = typeof p.description === 'string' ? p.description : null;
+                const maxD = p.maxDepth != null ? String(p.maxDepth) : null;
+                const conf = p.confidence != null ? String(p.confidence) : null;
+                return (
+                  <Box sx={{ bgcolor: '#f8fafc', borderRadius: 2, p: 2, mb: 2, border: '1px solid #e2e8f0' }}>
+                    {desc && (
+                      <Box sx={{ mb: 1.5 }}>
+                        <Typography variant="caption" color="text.secondary" fontWeight={600} display="block" sx={{ mb: 0.5 }}>Description preview:</Typography>
+                        <Typography variant="body2" sx={{ color: '#374151', lineHeight: 1.6 }}>
+                          {desc.slice(0, 300)}…
+                        </Typography>
+                      </Box>
+                    )}
+                    <Stack direction="row" spacing={2} flexWrap="wrap" useFlexGap>
+                      {hl && hl.length > 0 && <Typography variant="caption" color="text.secondary">📍 {hl.length} highlights</Typography>}
+                      {mlCount > 0 && <Typography variant="caption" color="text.secondary">🐟 {mlCount} marine life entries</Typography>}
+                      {src && src.length > 0 && <Typography variant="caption" color="text.secondary">🔗 {src.length} sources</Typography>}
+                      {maxD && <Typography variant="caption" color="text.secondary">📏 {maxD}</Typography>}
+                      {conf && <Typography variant="caption" color="text.secondary">Confidence: {conf}</Typography>}
+                    </Stack>
+                  </Box>
+                );
+              })()}
+
+              {/* Validation issues */}
+              {!!retryResult.validation && (() => {
+                const issues = ((retryResult.validation as Record<string,unknown>).issues as string[] | undefined) ?? [];
+                if (!issues.length) return null;
+                return (
+                  <Box sx={{ mb: 2 }}>
+                    <Typography variant="caption" color="text.secondary" fontWeight={600}>Issues:</Typography>
+                    <Stack sx={{ mt: 0.5 }} spacing={0.25}>
+                      {issues.map((issue, i) => (
+                        <Typography key={i} variant="caption" sx={{ color: '#b91c1c' }}>• {issue}</Typography>
+                      ))}
+                    </Stack>
+                  </Box>
+                );
+              })()}
+
+              {/* Raw output for parse failures */}
+              {!!retryResult.raw && (
+                <Box>
+                  <Typography variant="caption" color="text.secondary" fontWeight={600}>Raw output:</Typography>
+                  <Box component="pre" sx={{
+                    bgcolor: '#1e1e1e', color: '#d4d4d4', p: 1.5, borderRadius: 1.5, mt: 0.5,
+                    fontSize: '0.72rem', fontFamily: 'monospace', maxHeight: 160, overflowY: 'auto',
+                    whiteSpace: 'pre-wrap', wordBreak: 'break-all',
+                  }}>
+                    {String(retryResult.raw)}
+                  </Box>
+                </Box>
+              )}
+            </Box>
+          )}
+        </DialogContent>
+        <DialogActions sx={{ px: 3, py: 2, gap: 1 }}>
+          {retryDialogItem?.originalData?.slug && (
+            <Button
+              component="a"
+              href={`/dive-sites/${retryDialogItem.originalData.slug}`}
+              target="_blank"
+              startIcon={<OpenInNewIcon />}
+              sx={{ mr: 'auto' }}
+            >
+              View site
+            </Button>
+          )}
+          {retryState === 'idle' && retryDialogItem && (
+            <Button
+              variant="contained"
+              onClick={() => runEnhancement(retryDialogItem)}
+              disabled={!retrySearchName}
+              sx={{ fontWeight: 700 }}
+            >
+              ✨ Start Enhancement
+            </Button>
+          )}
+          {retryState === 'done' && retryResult && (
+            <>
+              {(retryResult.status === 'passed' || retryResult.status === 'quality_failed') && retryResult.parsed && (
+                <Button
+                  variant="contained"
+                  color={retryResult.status === 'passed' ? 'success' : 'warning'}
+                  onClick={handleRetrySave}
+                  disabled={!!reviewActionWorking}
+                >
+                  {reviewActionWorking ? <CircularProgress size={18} /> : retryResult.status === 'passed' ? 'Save Enhancement' : 'Force Save'}
+                </Button>
+              )}
+              <Button variant="outlined" color="error" onClick={handleRetryDismiss} disabled={!!reviewActionWorking}>
+                Dismiss from queue
+              </Button>
+            </>
+          )}
+          {retryState !== 'loading' && (
+            <Button onClick={() => setRetryDialogItem(null)}>Close</Button>
+          )}
+        </DialogActions>
+      </Dialog>
 
       {/* ── Create / Edit Dialog ───────────────────────────────────────────── */}
       <Dialog open={dialogOpen} onClose={() => setDialogOpen(false)} maxWidth="md" fullWidth fullScreen={isMobile}>
@@ -974,6 +2074,53 @@ export default function AdminDiveSitesPage() {
               <TextField label="Location / City" value={draft.location}
                 onChange={(e) => setDraft((d) => ({ ...d, location: e.target.value }))} fullWidth required />
             </Stack>
+
+            {/* ── Gemini Enhancement ──────────────────────────────────────────── */}
+            <Box sx={{ bgcolor: '#f0f7ff', borderRadius: 2, p: 2, border: '1px solid #bfdbfe' }}>
+              <Stack direction="row" alignItems="center" justifyContent="space-between" flexWrap="wrap" gap={1}>
+                <Box>
+                  <Typography variant="subtitle2" fontWeight={700}>✨ Enhance with Gemini</Typography>
+                  <Typography variant="caption" color="text.secondary">
+                    Auto-fill description, highlights, marine life & more via AI web search
+                  </Typography>
+                </Box>
+                <Button
+                  variant="outlined"
+                  size="small"
+                  onClick={handleFormEnhance}
+                  disabled={!draft.name || !draft.location || formEnhancing}
+                  startIcon={formEnhancing ? <CircularProgress size={14} /> : undefined}
+                  sx={{ fontWeight: 700, borderColor: '#2563eb', color: '#2563eb', '&:hover': { bgcolor: '#eff6ff' }, flexShrink: 0 }}
+                >
+                  {formEnhancing ? 'Searching…' : '✨ Enhance'}
+                </Button>
+              </Stack>
+              {formEnhanceResult && (
+                <Box sx={{ mt: 1.5 }}>
+                  {formEnhanceResult.status === 'passed' && (
+                    <Alert severity="success" sx={{ mb: 1, py: 0.5 }}>
+                      Enhancement ready — quality score {((formEnhanceResult.validation as Record<string,unknown>)?.score as number) ?? '?'}/100
+                    </Alert>
+                  )}
+                  {formEnhanceResult.status === 'quality_failed' && (
+                    <Alert severity="warning" sx={{ mb: 1, py: 0.5 }}>
+                      Low quality score ({((formEnhanceResult.validation as Record<string,unknown>)?.score as number) ?? '?'}/100) — you can still apply it
+                    </Alert>
+                  )}
+                  {formEnhanceResult.status === 'insufficient_data' && (
+                    <Alert severity="info" sx={{ py: 0.5 }}>No sufficient data found for this site</Alert>
+                  )}
+                  {formEnhanceResult.status === 'parse_failed' && (
+                    <Alert severity="error" sx={{ py: 0.5 }}>Could not parse Gemini response</Alert>
+                  )}
+                  {(formEnhanceResult.status === 'passed' || formEnhanceResult.status === 'quality_failed') && !!formEnhanceResult.parsed && (
+                    <Button size="small" variant="contained" onClick={applyFormEnhancement} sx={{ mt: 1, fontWeight: 700 }}>
+                      Apply description & highlights to form
+                    </Button>
+                  )}
+                </Box>
+              )}
+            </Box>
 
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2}>
               <CountryAutocomplete
@@ -1063,7 +2210,19 @@ export default function AdminDiveSitesPage() {
 
 
             <Box>
-              <Typography variant="subtitle2" fontWeight={600} mb={1.5}>Water Temperature by Month (°C)</Typography>
+              <Stack direction="row" alignItems="center" justifyContent="space-between" mb={1.5}>
+                <Typography variant="subtitle2" fontWeight={600}>Water Temperature by Month (°C)</Typography>
+                <Button
+                  size="small"
+                  variant="outlined"
+                  onClick={fetchWaterTemps}
+                  disabled={fetchingTemps || !draft.coordinates.lat || !draft.coordinates.lng || draft.waterType === 'deep_tank'}
+                  startIcon={fetchingTemps ? <CircularProgress size={13} /> : undefined}
+                  sx={{ fontWeight: 600, fontSize: '0.72rem' }}
+                >
+                  {fetchingTemps ? 'Fetching…' : '🌡️ Fetch from coords'}
+                </Button>
+              </Stack>
               <Stack direction="row" spacing={1} flexWrap="wrap" useFlexGap>
                 {MONTH_KEYS.map((key, i) => (
                   <TextField key={key} label={MONTH_LABELS[i]} type="number"

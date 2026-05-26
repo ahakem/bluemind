@@ -111,6 +111,16 @@ service cloud.firestore {
       allow update, delete: if isAdminOrEditor();
     }
 
+    // Enhancement review queue — admin/editor read; script writes via service account (bypasses rules)
+    match /_needsReview/{docId} {
+      allow read, write: if isAdminOrEditor();
+    }
+
+    // Enhancement processing status checkpoint
+    match /_processingStatus/{docId} {
+      allow read, write: if isAdminOrEditor();
+    }
+
     // Site settings — public read, admin-only write
     match /siteSettings/{docId} {
       allow read: if true;
