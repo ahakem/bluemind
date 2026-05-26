@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from "react";
+import SubmitSiteDialog from "@/components/SubmitSiteDialog";
 import AppBar from "@mui/material/AppBar";
 import Box from "@mui/material/Box";
 import Toolbar from "@mui/material/Toolbar";
@@ -73,6 +74,7 @@ const Navbar = () => {
   };
 
   const [exploreAnchor, setExploreAnchor] = useState<null | HTMLElement>(null);
+  const [submitOpen, setSubmitOpen] = useState(false);
 
   if (isFreediveOne) {
     const navBtnSx = {
@@ -86,6 +88,7 @@ const Navbar = () => {
     };
 
     return (
+      <>
       <AppBar
         position="sticky"
         component="header"
@@ -150,10 +153,9 @@ const Navbar = () => {
 
             {/* ── Submit a Site CTA ── */}
             <Button
-              component={Link}
-              href="/submit"
               variant="contained"
               startIcon={<AddLocationAltIcon />}
+              onClick={() => setSubmitOpen(true)}
               sx={{
                 display: { xs: "none", sm: "flex" },
                 ml: "auto",
@@ -186,7 +188,7 @@ const Navbar = () => {
                 <MenuItem component={Link} href="/blog" onClick={handleCloseNavMenu}>Blog</MenuItem>
                 <MenuItem component={Link} href="/about" onClick={handleCloseNavMenu}>About</MenuItem>
                 <Divider />
-                <MenuItem component={Link} href="/submit" onClick={handleCloseNavMenu} sx={{ fontWeight: 700, color: "#0077be" }}>
+                <MenuItem onClick={() => { handleCloseNavMenu(); setSubmitOpen(true); }} sx={{ fontWeight: 700, color: "#0077be" }}>
                   Submit a Site
                 </MenuItem>
               </Menu>
@@ -195,6 +197,8 @@ const Navbar = () => {
           </Toolbar>
         </Container>
       </AppBar>
+      <SubmitSiteDialog open={submitOpen} onClose={() => setSubmitOpen(false)} />
+      </>
     );
   }
 

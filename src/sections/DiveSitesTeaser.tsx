@@ -7,8 +7,11 @@ import Stack from '@mui/material/Stack';
 import WaterIcon from '@mui/icons-material/Water';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import Link from 'next/link';
+import { useIsFreediveOne } from '@/hooks/useIsFreediveOne';
 
 export default function DiveSitesTeaser() {
+  const isFreediveOne = useIsFreediveOne();
+  if (isFreediveOne) return null;
   return (
     <Box
       component="div"

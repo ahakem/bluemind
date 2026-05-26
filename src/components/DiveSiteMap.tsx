@@ -64,17 +64,25 @@ function ApplyOceanStyle() {
   return null;
 }
 
+const FIT_BOUNDS_THRESHOLD = 50;
+
 function FitBounds({ sites }: { sites: DiveSite[] }) {
   const map = useMap();
   useEffect(() => {
     if (!map || !sites.length) return;
+    if (sites.length > FIT_BOUNDS_THRESHOLD) return; // world view — let defaultZoom handle it
     if (sites.length === 1) {
       map.setCenter({ lat: sites[0].coordinates.lat, lng: sites[0].coordinates.lng });
       map.setZoom(10);
       return;
     }
-    const bounds = new google.maps.LatLngBounds();
-    sites.forEach((s) => bounds.extend({ lat: s.coordinates.lat, lng: s.coordinates.lng }));
+    const bounds = { north: -90, south: 90, east: -180, west: 180 };
+    sites.forEach(({ coordinates: { lat, lng } }) => {
+      if (lat > bounds.north) bounds.north = lat;
+      if (lat < bounds.south) bounds.south = lat;
+      if (lng > bounds.east)  bounds.east  = lng;
+      if (lng < bounds.west)  bounds.west  = lng;
+    });
     map.fitBounds(bounds, 60);
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [sites]);
@@ -281,6 +289,7 @@ export default function DiveSiteMap({ sites, onSelect }: Props) {
         <Map
           defaultCenter={{ lat: 20, lng: 10 }}
           defaultZoom={2}
+          maxZoom={6}
           mapId="dive-sites-map"
           gestureHandling="greedy"
           disableDefaultUI={false}
