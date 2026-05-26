@@ -4,11 +4,14 @@ import WaterIcon from '@mui/icons-material/Water';
 import PublicIcon from '@mui/icons-material/Public';
 import FavoriteIcon from '@mui/icons-material/Favorite';
 import Link from 'next/link';
+import { getActiveDiveSites } from '@/lib/diveSiteService';
+
+export const revalidate = 86400;
 
 export const metadata: Metadata = {
   title: 'About freedive.one — Free Global Freediving Resource',
   description:
-    'freedive.one is a free, community-built directory of 1,300+ freediving locations worldwide. Built and maintained by Blue Mind Freediving, a registered Dutch non-profit.',
+    'freedive.one is a free, community-built directory of freediving locations worldwide. Built and maintained by Blue Mind Freediving, a registered Dutch non-profit.',
   alternates: { canonical: 'https://freedive.one/about' },
   openGraph: {
     title: 'About freedive.one',
@@ -18,13 +21,27 @@ export const metadata: Metadata = {
   },
 };
 
-const STATS = [
-  { icon: <WaterIcon sx={{ fontSize: 36, color: '#0077be' }} />, value: '1,300+', label: 'Dive sites worldwide' },
-  { icon: <PublicIcon sx={{ fontSize: 36, color: '#0077be' }} />, value: '80+', label: 'Countries covered' },
-  { icon: <FavoriteIcon sx={{ fontSize: 36, color: '#0077be' }} />, value: '100%', label: 'Free, always' },
-];
+export default async function FreediveAboutPage() {
+  let siteCount = 0;
+  let countryCount = 0;
 
-export default function FreediveAboutPage() {
+  try {
+    const sites = await getActiveDiveSites();
+    siteCount = sites.length;
+    countryCount = new Set(sites.map((s) => s.country).filter(Boolean)).size;
+  } catch {
+    // Firestore unavailable — show no number
+  }
+
+  const siteLabel = siteCount > 0 ? `${siteCount.toLocaleString()}+` : '—';
+  const countryLabel = countryCount > 0 ? `${countryCount}+` : '80+';
+
+  const STATS = [
+    { icon: <WaterIcon sx={{ fontSize: 36, color: '#0077be' }} />, value: siteLabel, label: 'Dive sites worldwide' },
+    { icon: <PublicIcon sx={{ fontSize: 36, color: '#0077be' }} />, value: countryLabel, label: 'Countries covered' },
+    { icon: <FavoriteIcon sx={{ fontSize: 36, color: '#0077be' }} />, value: '100%', label: 'Free, always' },
+  ];
+
   return (
     <Container maxWidth="md" sx={{ py: { xs: 6, md: 10 } }}>
       <Box sx={{ textAlign: 'center', mb: 6 }}>
@@ -70,7 +87,7 @@ export default function FreediveAboutPage() {
           We believe knowledge about freediving locations should be freely accessible to every diver,
           regardless of where they are in the world. freedive.one is our contribution to the global
           freediving community — a comprehensive, data-rich directory with depth, visibility, water
-          temperature, and conditions information for sites across 80+ countries.
+          temperature, and conditions information for sites across {countryLabel} countries.
         </Typography>
       </Box>
 
@@ -80,7 +97,7 @@ export default function FreediveAboutPage() {
           What you&apos;ll find
         </Typography>
         <Box component="ul" sx={{ pl: 3, color: 'text.secondary', lineHeight: 2.2 }}>
-          <li>1,300+ freediving locations worldwide</li>
+          <li>{siteLabel} freediving locations worldwide</li>
           <li>Depth, visibility, and water temperature data</li>
           <li>Monthly water temperature charts</li>
           <li>Location maps and access notes</li>
@@ -118,33 +135,19 @@ export default function FreediveAboutPage() {
         </Typography>
         <Box sx={{ display: 'flex', flexWrap: 'wrap', gap: 3, mt: 3 }}>
           <Box>
-            <Typography variant="caption" color="text.disabled" display="block">
-              Organization
-            </Typography>
-            <Typography variant="body2" fontWeight={600}>
-              Blue Mind Freediving
-            </Typography>
+            <Typography variant="caption" color="text.disabled" display="block">Organization</Typography>
+            <Typography variant="body2" fontWeight={600}>Blue Mind Freediving</Typography>
           </Box>
           <Box>
-            <Typography variant="caption" color="text.disabled" display="block">
-              Type
-            </Typography>
-            <Typography variant="body2" fontWeight={600}>
-              Registered non-profit (vereniging)
-            </Typography>
+            <Typography variant="caption" color="text.disabled" display="block">Type</Typography>
+            <Typography variant="body2" fontWeight={600}>Registered non-profit (vereniging)</Typography>
           </Box>
           <Box>
-            <Typography variant="caption" color="text.disabled" display="block">
-              Chamber of Commerce
-            </Typography>
-            <Typography variant="body2" fontWeight={600}>
-              KVK: 96935685
-            </Typography>
+            <Typography variant="caption" color="text.disabled" display="block">Chamber of Commerce</Typography>
+            <Typography variant="body2" fontWeight={600}>KVK: 96935685</Typography>
           </Box>
           <Box>
-            <Typography variant="caption" color="text.disabled" display="block">
-              Website
-            </Typography>
+            <Typography variant="caption" color="text.disabled" display="block">Website</Typography>
             <MuiLink
               href="https://bluemindfreediving.nl"
               target="_blank"
