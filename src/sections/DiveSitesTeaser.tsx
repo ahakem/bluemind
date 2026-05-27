@@ -62,7 +62,7 @@ export default function DiveSitesTeaser() {
 
           <Box
             component={Link}
-            href="/dive-sites"
+            href="https://freedive.one"
             sx={{
               display: 'flex',
               alignItems: 'center',
