@@ -296,7 +296,7 @@ export default function NotFound() {
         }}>
           ↑ Surface
         </Button>
-        <Button component={Link} href="/dive-sites" variant="outlined" size="large" sx={{
+        <Button component={Link} href="https://freedive.one" variant="outlined" size="large" sx={{
           borderColor: 'rgba(255,255,255,0.2)', color: 'rgba(255,255,255,0.65)',
           fontWeight: 600, borderRadius: 10, px: 3.5, py: 1.25,
           fontSize: '0.9rem', textTransform: 'none',

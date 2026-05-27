@@ -6,7 +6,6 @@ import ThemeRegistry from '@/components/ThemeRegistry';
 import LayoutContent from '@/components/LayoutContent';
 import { Analytics } from '@/lib/analytics';
 import { generateLocalBusinessSchema } from '@/lib/schemaGenerator';
-import DynamicFavicon from '@/components/DynamicFavicon';
 import './globals.css';
 
 const montserrat = Montserrat({
@@ -142,7 +141,6 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
         </noscript>
         
         <Analytics />
-        <DynamicFavicon />
         <ThemeRegistry>
           <LayoutContent>
             {children}

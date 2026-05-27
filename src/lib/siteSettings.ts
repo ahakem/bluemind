@@ -2,12 +2,10 @@ import { doc, getDoc, setDoc } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 
 export interface SiteFeatures {
-  diveSitesEnabled: boolean;
+  [key: string]: boolean;
 }
 
-const DEFAULT_FEATURES: SiteFeatures = {
-  diveSitesEnabled: false,
-};
+const DEFAULT_FEATURES: SiteFeatures = {};
 
 const DOC_PATH = 'siteSettings/features';
 

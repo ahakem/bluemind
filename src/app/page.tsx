@@ -3,8 +3,8 @@ import type { Metadata } from 'next';
 import Script from 'next/script';
 import Hero from '@/sections/Hero';
 import About from '@/sections/About';
-import ConditionalDiveSitesPromo from '@/components/ConditionalDiveSitesPromo';
 import Gallery from '@/sections/Gallery';
+import DiveSitesPromo from '@/sections/DiveSitesPromo';
 
 export const metadata: Metadata = {
   title: 'Freediving Amsterdam | Blue Mind Freediving Club',
@@ -59,7 +59,7 @@ export default function HomePage() {
       />
       <Hero />
       <About showCTA />
-      <ConditionalDiveSitesPromo />
+      <DiveSitesPromo />
       <Gallery enableModal={false} />
     </>
   );

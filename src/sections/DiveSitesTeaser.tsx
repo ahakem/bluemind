@@ -6,12 +6,8 @@ import Typography from '@mui/material/Typography';
 import Stack from '@mui/material/Stack';
 import WaterIcon from '@mui/icons-material/Water';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import Link from 'next/link';
-import { useIsFreediveOne } from '@/hooks/useIsFreediveOne';
 
 export default function DiveSitesTeaser() {
-  const isFreediveOne = useIsFreediveOne();
-  if (isFreediveOne) return null;
   return (
     <Box
       component="div"
@@ -61,8 +57,10 @@ export default function DiveSitesTeaser() {
           </Typography>
 
           <Box
-            component={Link}
+            component="a"
             href="https://freedive.one"
+            target="_blank"
+            rel="noopener noreferrer"
             sx={{
               display: 'flex',
               alignItems: 'center',

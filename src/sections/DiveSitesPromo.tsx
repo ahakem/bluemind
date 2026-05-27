@@ -6,7 +6,6 @@ import {
   Stack,
   Chip,
 } from '@mui/material';
-import Link from 'next/link';
 import WaterIcon from '@mui/icons-material/Water';
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import FavoriteIcon from '@mui/icons-material/Favorite';
@@ -96,15 +95,17 @@ export default function DiveSitesPromo() {
                 maxWidth: 500,
               }}
             >
-              We built this dive sites directory and give it away — completely free, no account
-              needed. Depth, visibility, marine life, seasonal conditions. Shared by freedivers,
+              We built this dive sites directory and give it away — completely free.
+              Depth, visibility, marine life, seasonal conditions. Shared by freedivers,
               for freedivers.
             </Typography>
 
             <Stack direction={{ xs: 'column', sm: 'row' }} spacing={2} alignItems={{ sm: 'center' }}>
               <Button
-                component={Link}
+                component="a"
                 href="https://freedive.one"
+                target="_blank"
+                rel="noopener noreferrer"
                 variant="contained"
                 size="large"
                 startIcon={<WaterIcon />}
